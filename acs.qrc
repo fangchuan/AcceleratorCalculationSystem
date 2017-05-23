@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Resources/dat/HorizontalRegister.dat</file>
+        <file>Resources/image/SplashScreen.png</file>
+        <file>Resources/polaris/8700248.rom</file>
+        <file>Resources/image/axix_home.png</file>
+        <file>Resources/image/configurate.png</file>
+        <file>Resources/image/help.png</file>
+        <file>Resources/image/plot_view.png</file>
+        <file>Resources/image/rotate__begin.png</file>
+        <file>Resources/image/rotate_stop.png</file>
+        <file>Resources/image/system_infomation.png</file>
+        <file>Resources/image/warning.png</file>
+        <file>Resources/image/window_icon.png</file>
+        <file>Resources/image/x_left.png</file>
+        <file>Resources/image/x_right.png</file>
+        <file>Resources/image/z_y_down.png</file>
+        <file>Resources/image/z_y_up.png</file>
+        <file>Resources/image/3d_view.png</file>
+        <file>Resources/image/export.png</file>
+    </qresource>
+</RCC>
