@@ -21,7 +21,7 @@ QtRenderView::RenderView::RenderView(QWindow *parent)
 {
 	setAnimating(true);
 	installEventFilter(this);
-	mOgreBackground = Ogre::ColourValue(0.0f, 0.5f, 1.0f);
+	mOgreBackground = Ogre::ColourValue(0.2f, 0.7f, 0.9f, 0.0f);
 
 }
 
@@ -190,7 +190,7 @@ void QtRenderView::RenderView::createScene()
 	Ogre::Entity* ogreEntity3 = mOgreSceneMgr->createEntity("acceleratorHead.mesh");
 	Ogre::SceneNode* ogreNode3 = ogreNode2->createChildSceneNode(ACCEL_CHASSIS_NAME, ACCEL_CHASSIS_BIAS);
 	ogreNode3->attachObject(ogreEntity3);
-	ogreEntity3->setMaterialName("AccelMaterial");
+	ogreEntity3->setMaterialName("Examples/gray");
 
 	//set bed material
 	Ogre::MaterialPtr bedMaterial = Ogre::MaterialManager::getSingleton().create("BedMaterial",
@@ -608,7 +608,7 @@ void QtRenderView::RenderView::drawISOCenter(const double x, const double y, con
 		Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("ISOCenter", Ogre::SceneManager::PT_SPHERE);
 		mOgreCenterNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(ISOCENTER_NAME, Ogre::Vector3(x, y, z));
 		mOgreCenterNode->attachObject(ogreEntity);
-		ogreEntity->setMaterialName("Examples/red");
+		ogreEntity->setMaterialName("Examples/gray");
 		mOgreCenterNode->setScale(Ogre::Vector3(0.004f, 0.004f, 0.004f)); // Radius, in theory.
 	}else{
 		mOgreCenterNode->setPosition(x, y, z);
@@ -621,7 +621,7 @@ void QtRenderView::RenderView::drawMarkerPoint(const double x, const double y, c
 		Ogre::Entity* ogreEntityCenter = mOgreSceneMgr->createEntity("Marker POint", Ogre::SceneManager::PT_SPHERE);
 		mOgreMarkerNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode("Marker Point", Ogre::Vector3(x, y, z));
 		mOgreMarkerNode->attachObject(ogreEntityCenter);
-		ogreEntityCenter->setMaterialName("Examples/Rocky");
+		ogreEntityCenter->setMaterialName("Examples/gray");
 		mOgreMarkerNode->setScale(Ogre::Vector3(0.004f, 0.004f, 0.004f)); // Radius, in theory.
 	}else{
 		mOgreMarkerNode->setPosition(x, y, z);

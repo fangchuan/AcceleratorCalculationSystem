@@ -41,7 +41,7 @@ namespace  QtRenderView{
 
 #define  ACCEL_BOX_BIAS          Ogre::Vector3(-24.0f,0.0f,0.0f)
 #define  ACCEL_CONNECT_BIAS      Ogre::Vector3(4.25f, 0.0f, 0.0f)
-#define  ACCEL_CHASSIS_BIAS      Ogre::Vector3(0.5f, 0.0f, 0.0f)
+#define  ACCEL_CHASSIS_BIAS      Ogre::Vector3(0.5f, 0.08f, 0.0f)
 #define  ACCEL_BED_BOTTOM_BIAS   Ogre::Vector3(5.25f, -10.0f, 0.0f)
 #define  ACCEL_BED_STRECH_BIAS   Ogre::Vector3(1.5f, 0.85f, 0.0f)
 #define  ACCEL_BED_CONNECT2_BIAS Ogre::Vector3(0.0f, 0.7f, 0.0f)
