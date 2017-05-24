@@ -26,13 +26,13 @@ OpsTrackingDevice *OpsTrackingDevice::getInstance()
 void OpsTrackingDevice::initTrackingDevice()
 {
 	m_TrackingDevice = NDITrackingDevice::New();
-	m_TrackingDevice->SetPortNumber(static_cast<SerialCommunication::PortNumber>(4));
-	m_TrackingDevice->SetDeviceName(std::string("COM4"));
+	m_TrackingDevice->SetPortNumber(static_cast<SerialCommunication::PortNumber>(5));
+	m_TrackingDevice->SetDeviceName(std::string("COM5"));
 	m_TrackingDevice->SetBaudRate(SerialCommunication::BaudRate115200);
 	m_TrackingDevice->SetType(NDIPolaris);
 	m_TrackingDevice->SetIlluminationActivationRate(Hz20);
 
-	m_TrackingTool = dynamic_cast<NDIPassiveTool*>(m_TrackingDevice->AddTool("UniqueTool", ":/Resources/polaris/8700248.rom"));
+	m_TrackingTool = dynamic_cast<NDIPassiveTool*>(m_TrackingDevice->AddTool("UniqueTool", "./Resources/polaris/8700248.rom"));
 }
 
 TrackingDeviceType OpsTrackingDevice::findTracker()

@@ -21,10 +21,10 @@ public:
 signals:
 	void markerSize(int size);
 	void horizontalRegisterRecorded();
-
+	
 private:
 	void loadHorizontalRegister();
-
+	void loadHorizontalRegister(MarkerPointContainerType &positions);
 private:
 	vtkPoints *m_SourcePoints;
 	double m_Tolerence;

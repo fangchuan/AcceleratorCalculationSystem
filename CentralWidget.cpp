@@ -110,15 +110,15 @@ void CentralWidget::monitoring()
 
 void CentralWidget::switchToHorizontalRegister() 
 {
-	//if (m_Tracker->getState() < TrackingDevice::Ready) {
-	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-	//	return;
-	//}
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		return;
+	}
 
-	//m_Tracker->startTrackingInMode(MarkerTracking3D);
-	//if (!m_Timer->isActive()) {
-	//	m_Timer->start();
-	//}
+	m_Tracker->startTrackingInMode(MarkerTracking3D);
+	if (!m_Timer->isActive()) {
+		m_Timer->start();
+	}
 	m_ControlWidget->doSwitchToHorizontalRegister();
 	m_DisplayWidget->doSwitchToHorizontalRegister();
 	m_Model->setHandlerToNone();
@@ -126,15 +126,15 @@ void CentralWidget::switchToHorizontalRegister()
 
 void CentralWidget::switchToGantry() 
 {
-	//if (m_Tracker->getState() < TrackingDevice::Ready) {
-	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-	//	return;
-	//}
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		return;
+	}
 
-	//m_Tracker->startTrackingInMode(MarkerTracking3D);
-	//if (!m_Timer->isActive()) {
-	//	m_Timer->start();
-	//}
+	m_Tracker->startTrackingInMode(MarkerTracking3D);
+	if (!m_Timer->isActive()) {
+		m_Timer->start();
+	}
 	m_ControlWidget->doSwitchToGantry();
 	m_DisplayWidget->doSwitchToGantry();
 	m_Model->setHandlerToNone();
@@ -142,15 +142,15 @@ void CentralWidget::switchToGantry()
 
 void CentralWidget::switchToCollimator()
 {
-	//if (m_Tracker->getState() < TrackingDevice::Ready) {
-	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-	//	return;
-	//}
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		return;
+	}
 
-	//m_Tracker->startTrackingInMode(MarkerTracking3D);
-	//if (!m_Timer->isActive()) {
-	//	m_Timer->start();
-	//}
+	m_Tracker->startTrackingInMode(MarkerTracking3D);
+	if (!m_Timer->isActive()) {
+		m_Timer->start();
+	}
 	m_ControlWidget->doSwitchToCollimator();
 	m_DisplayWidget->doSwitchToCollimator();
 	m_Model->setHandlerToNone();
@@ -158,15 +158,15 @@ void CentralWidget::switchToCollimator()
 
 void CentralWidget::switchToBed(int mode)
 {
-	//if (m_Tracker->getState() < TrackingDevice::Ready) {
-	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-	//	return;
-	//}
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		return;
+	}
 
-	//m_Tracker->startTrackingInMode(MarkerTracking3D);
-	//if (!m_Timer->isActive()) {
-	//	m_Timer->start();
-	//}
+	m_Tracker->startTrackingInMode(MarkerTracking3D);
+	if (!m_Timer->isActive()) {
+		m_Timer->start();
+	}
     m_ControlWidget->doSwitchToBed();
 	m_DisplayWidget->doSwitchToBed(mode);
 
@@ -175,15 +175,15 @@ void CentralWidget::switchToBed(int mode)
 
 void CentralWidget::switchToISOCenter()
 {
-	//if (m_Tracker->getState() < TrackingDevice::Ready) {
-	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-	//	return;
-	//}
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		return;
+	}
 
-	//m_Tracker->startTrackingInMode(ToolTracking6D);
-	//if (!m_Timer->isActive()) {
-	//	m_Timer->start();
-	//}
+	m_Tracker->startTrackingInMode(ToolTracking6D);
+	if (!m_Timer->isActive()) {
+		m_Timer->start();
+	}
 	m_ControlWidget->doSwitchToISOCenter();
 	m_DisplayWidget->doSwitchToISOCenter();
 	m_Model->setHandlerToNone();
@@ -192,6 +192,10 @@ void CentralWidget::switchToISOCenter()
 void CentralWidget::recordingHorizontalRegister()
 {
 	m_Model->setHandlerToHorizontalRegister();
+
+	//MarkerPointContainerType positions;
+	//m_Tracker->getMarkerPositions(&positions);
+	//m_Model->handle(positions);
 }
 
 void CentralWidget::recordingGantry()
@@ -247,9 +251,9 @@ void CentralWidget::markerSize(int size)
 //
 void CentralWidget::markerPosition(MarkerPointType &point)
 {
-	double x = point[0];
-	double y = point[1];
-	double z = point[2];
+	double x = point[0] * 0.001;
+	double y = point[1] * 0.001;
+	double z = point[2] * 0.001;
 
 	m_DisplayWidget->setMarkerPosition(point);
 
@@ -310,7 +314,7 @@ void CentralWidget::translateResult(double bias[3])
 	}
 }
 //
-//在显示面板更新等中心坐标
+//在显示面板更新激光灯确定的等中心坐标
 //
 void CentralWidget::registerPosition(Point3D &point)
 {

@@ -6,13 +6,18 @@
 
 #include <QFile>
 #include <QDataStream>
+#include <qmessagebox.h>
+#include <QTextCodec>
+#include <QDebug>
 
 HorizontalRegisterHandler::HorizontalRegisterHandler(QObject *parent)
 	: AbstractMonitorHandler(parent),
 	m_SourcePoints(vtkPoints::New()),
 	m_Tolerence(1.0)
 {
+
 	loadHorizontalRegister();
+
 }
 
 HorizontalRegisterHandler::~HorizontalRegisterHandler()
@@ -27,16 +32,44 @@ HorizontalRegisterHandler::~HorizontalRegisterHandler()
 
 void HorizontalRegisterHandler::loadHorizontalRegister()
 {
-	QFile file("./Resources/dat/HorizontalRegister.dat");
-	QDataStream stream(&file);
-	if (file.open(QFile::ReadOnly)) {
-		double point[3];
-		m_SourcePoints->SetNumberOfPoints(3);
-		for (int i = 0; i < 3; ++i) {
-			stream >> point[0] >> point[1] >> point[2];
-			m_SourcePoints->SetPoint(i, point);
+    QFile file("HorizontalRegister.dat");
+	QDataStream out(&file);
+
+	if (QFile::exists("HorizontalRegister.dat")){
+		if (file.open(QIODevice::ReadOnly)) {
+			double point[3];
+			m_SourcePoints->SetNumberOfPoints(3);
+			for (int i = 0; i < 3; ++i) {
+				out >> point[0] >> point[1] >> point[2];
+				m_SourcePoints->SetPoint(i, point);
+			}		
 		}
-		file.close();
+		file.close();	
+	}
+	else{
+		QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
+		QMessageBox::warning(NULL, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未找到水平面注册数据"));
+	}
+}
+
+void HorizontalRegisterHandler::loadHorizontalRegister(MarkerPointContainerType &positions)
+{
+	QFile file("HorizontalRegister.dat");
+	QDataStream in(&file);
+	
+	if (!QFile::exists("HorizontalRegister.dat")){
+		if (file.open(QIODevice::WriteOnly)){
+			double p[3] = { positions.at(0)[0], positions.at(0)[1], positions.at(0)[2] };
+			in << p[0] << p[1] << p[2];
+			file.close();
+		}
+	}
+	else{
+		if (file.open(QIODevice::Append)){
+			double p[3] = { positions.at(0)[0], positions.at(0)[1], positions.at(0)[2] };
+			in << p[0] << p[1] << p[2];
+			file.close();
+		}
 	}
 }
 
@@ -47,12 +80,16 @@ void HorizontalRegisterHandler::setTolerence(double tolerence)
 //注册水平面
 //将NDI相机看到的三个点与事先确定好的水平面注册点(NDI Coordinate)作比较,只比较每个点之间的两两距离
 //若距离差在1mm内，则注册水平仪当前平面为加速器水平面，生成NDI->Accelerator坐标系转换矩阵
+//m_SourcePoints即为原始三个点，只为计算三点间距离。
+//用原始距离比较当前相机看到的三个点间距离，从而选择正确的三个点作为水平面上的点，然后SetPoints得到NDI-->加速器变换矩阵
 AbstractMonitorHandler *HorizontalRegisterHandler::handle(MarkerPointContainerType &positions)
 {
 	int targetSize = positions.size();
-	if (targetSize < 3) {
+	if (targetSize == 1) {
+		loadHorizontalRegister(positions);
 		return this;
 	}
+
 	int index[3] = { -1, -1, -1 };
 	double sourceDis[3] = { 0.0, 0.0, 0.0 };
 	double point1[3], point2[3], point3[3];
@@ -65,7 +102,7 @@ AbstractMonitorHandler *HorizontalRegisterHandler::handle(MarkerPointContainerTy
 	double pt1[3], pt2[3];
 	for (int i = 0; i < targetSize; ++i)
 	{
-		MarkerPointType &p = positions.at(i);
+		MarkerPointType p = positions.at(i);
 		pt1[0] = p[0]; pt1[1] = p[1]; pt1[2] = p[2];
 		for (int k = 0; k < targetSize; ++k)
 		{
