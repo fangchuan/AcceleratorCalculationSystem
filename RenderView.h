@@ -35,13 +35,15 @@ namespace  QtRenderView{
 #define  ACCEL_BED_STRECH_NAME   "BedStrechNode"
 #define  ACCEL_BEDBOTTOM_NAME    "BedBottomNode"
 #define  ISOCENTER_NAME          "ISOCenterNode"
+#define  X_AXIS_NODE_NAME		 "XAxisNode"
+#define  Y_AXIS_NODE_NAME		 "YAxisNode"
 	// ManualObject name
 #define  YAXIS_LINE_NAME      "YAxis"
 #define  XAXIS_LINE_NAME      "XAxis"
 
 #define  ACCEL_BOX_BIAS          Ogre::Vector3(-24.0f,0.0f,0.0f)
 #define  ACCEL_CONNECT_BIAS      Ogre::Vector3(4.25f, 0.0f, 0.0f)
-#define  ACCEL_CHASSIS_BIAS      Ogre::Vector3(0.5f, 0.08f, 0.0f)
+#define  ACCEL_CHASSIS_BIAS      Ogre::Vector3(0.5f, 0.0f, 0.0f)
 #define  ACCEL_BED_BOTTOM_BIAS   Ogre::Vector3(5.25f, -10.0f, 0.0f)
 #define  ACCEL_BED_STRECH_BIAS   Ogre::Vector3(1.5f, 0.85f, 0.0f)
 #define  ACCEL_BED_CONNECT2_BIAS Ogre::Vector3(0.0f, 0.7f, 0.0f)
@@ -112,9 +114,9 @@ namespace  QtRenderView{
 		//延Y轴移动机床
 		void translateBedAlongY(float y_mm);
 		//三维场景里的X轴对应机架旋转轴线
-		void drawXAxis(const QVector3D& start, const QVector3D& end, QColor& color = QColor(Qt::black));
+		void drawXAxis(const QVector3D& start, const QVector3D& end, const QColor& color = QColor(Qt::black));
 		//三维场景里的Y轴对应机床旋转轴线
-		void drawYAxis(const QVector3D& start, const QVector3D& end, QColor& color = QColor(Qt::black));
+		void drawYAxis(const QVector3D& start, const QVector3D& end, const QColor& color = QColor(Qt::black));
 		//画出等中心
 		void drawISOCenter(const double x, const double y, const double z);
 		//

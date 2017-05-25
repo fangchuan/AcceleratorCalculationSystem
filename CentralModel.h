@@ -13,6 +13,14 @@ class CollimatorHandler;
 class BedHandler;
 class ISOCenterHandler;
 
+
+#define  HORIZONTALREGISTER_HANDLER  1
+#define	 GANTRY_HANDLER              2
+#define  COLLIMATOR_HANDLER			 3
+#define  BED_HANDLER				 4
+#define  ISOCENTER_HANDLER			 5
+
+
 class CentralModel : public QObject
 {
 	Q_OBJECT
@@ -27,6 +35,7 @@ public:
 	void setHandlerToCollimator();
 	void setHandlerToBed(int mode);
 	void setHandlerToISOCenter();
+	int  getHandler();
 	void handle(MarkerPointContainerType &positions);
 	void handle(Point3D &point);
 

@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	QtSingleApplication::setDesktopSettingsAware(false);
 	QtSingleApplication app(argc, argv);
 
-	QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
+	QTextCodec::setCodecForLocale(QTextCodec::codecForName("GB18030"));
 
 #ifdef LICENSE
     if (!ACSUtils::CheckSoftwareLicense())
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     }
 #endif
     if (!checkEnvironment()) {
-        QMessageBox::warning(Q_NULLPTR, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("缺少必要的文件，软件无法正常工作"));
+		QMessageBox::warning(Q_NULLPTR, QString::fromUtf8("警告"), QString::fromUtf8("缺少必要的文件，软件无法正常工作"));
     }
 
     if (app.isRunning())
@@ -73,28 +73,29 @@ int main(int argc, char *argv[])
 
     QPixmap pixmap(":/Resources/image/SplashScreen.png");
     splashScreen.reset(new QSplashScreen(pixmap));
-    splashMessage(splashScreen, QString::fromLocal8Bit("初始化..."));
+	splashMessage(splashScreen, QString::fromUtf8("初始化..."));
     splashScreen->show();
-    splashMessage(splashScreen, QString::fromLocal8Bit("初始化工作目录..."));
+	splashMessage(splashScreen, QString::fromUtf8("初始化工作目录..."));
 
 // 	initWorkEnvironment();
 
-    splashMessage(splashScreen, QString::fromLocal8Bit("正在寻找硬件..."));
+	splashMessage(splashScreen, QString::fromUtf8("正在寻找硬件..."));
     if (OpsTrackingDevice::getInstance()->findTracker() == NDIPolaris)
     {
-        splashMessage(splashScreen, QString::fromLocal8Bit("已经找到硬件,正在初始化..."));
+		splashMessage(splashScreen, QString::fromUtf8("已经找到硬件,正在初始化...."));
         OpsTrackingDevice::getInstance()->openConnection();
-    }
+	}
     else
     {
-        splashMessage(splashScreen, QString::fromLocal8Bit("没有找到硬件!"));
+		splashMessage(splashScreen, QString::fromUtf8("没有找到硬件!"));
+		QMessageBox::warning(Q_NULLPTR, QString::fromUtf8("警告"), QString::fromUtf8("没有找到相机，请检查相机连接!"));
     }
 
-    splashMessage(splashScreen, QString::fromLocal8Bit("正在创建用户界面..."));
+	splashMessage(splashScreen, QString::fromUtf8("正在创建用户界面..."));
     MainWindow w;
     app.setActivationWindow(&w);
     w.showMaximized();
-    splashMessage(splashScreen, QString::fromLocal8Bit("程序已经启动."));
+	splashMessage(splashScreen, QString::fromUtf8("程序已经启动."));
     splashScreen->finish(&w);
     return app.exec();
 }

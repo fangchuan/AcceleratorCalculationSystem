@@ -154,7 +154,7 @@ void QtLocalPeer::receiveConnection()
         delete socket;
         return;
     }
-    QString message(QString::fromUtf8(uMsg));
+    QString message(QString::fromLocal8Bit(uMsg));
     socket->write(ack, qstrlen(ack));
     socket->waitForBytesWritten(1000);
     socket->waitForDisconnected(1000); // make sure client reads ack

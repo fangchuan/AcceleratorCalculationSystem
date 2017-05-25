@@ -251,13 +251,13 @@ void CentralWidget::markerSize(int size)
 //
 void CentralWidget::markerPosition(MarkerPointType &point)
 {
-	double x = point[0] * 0.001;
-	double y = point[1] * 0.001;
-	double z = point[2] * 0.001;
+	double x = point[0] * 0.01;
+	double y = point[1] * 0.01;
+	double z = point[2] * 0.01;
 
 	m_DisplayWidget->setMarkerPosition(point);
 
-	renderWidget->drawMarkerPoint(x, y, z);
+	renderWidget->drawMarkerPoint(z, y, -x);
 }
 //
 //显示面板显示治疗床是否水平
@@ -265,32 +265,44 @@ void CentralWidget::markerPosition(MarkerPointType &point)
 void CentralWidget::horizontalRegisterRecorded()
 {
 	m_DisplayWidget->horizontalRegisterRecorded();
+	QMessageBox::information(Q_NULLPTR, QString::fromLocal8Bit("Information"), QString::fromLocal8Bit("水平面已注册"));
 }
 //
 //在曲线图表和显示面板更新
 //
 void CentralWidget::circleResult(Circle *circle)
 {
-	double angel = circle->Angle;
-	double* normal_vector = circle->Normal;
+	double angle = circle->Angle;
+	double normal_vector[3] = { (*circle).Normal[0], (*circle).Normal[1], (*circle).Normal[2]};
+	double circle_center[3] = { (*circle).Center[0]*0.01, (*circle).Center[1]*0.01, (*circle).Center[2]*0.01 };
 
 	m_DisplayWidget->setCircleResult(circle);
 
-	if (plotWidget->getBedDegreeUpdateFlag()){
-		plotWidget->updateGantryDegreeDistance(angel);
-		plotWidget->updateGantryDegreeVelocity(angel);
+	int handler = m_Model->getHandler();
+	if (handler == GANTRY_HANDLER){
+		plotWidget->updateGantryDegreeDistance(angle);
+		plotWidget->updateGantryDegreeVelocity(angle);
 
-		//renderWidget->drawYAxis();
-	}
-	if (plotWidget->getCollimatorUpdateFlag()){
-		plotWidget->updateCollimatorDegreeDistance(angel);
-		plotWidget->updateCollimatorDegreeVelocity(angel);
-	}
-	if (plotWidget->getGantryUpdateFlag()){
-		plotWidget->updateBedDegreeDistance(angel);
-		plotWidget->updateBedDegreeVelocity(angel);
+		renderWidget->rotateGantry(angle);
+		renderWidget->drawXAxis(QVector3D(circle_center[2]-5, circle_center[1], -circle_center[0]),
+								QVector3D(circle_center[2]+5, circle_center[1], -circle_center[0]),
+								QColor(Qt::blue));
 
-		//renderWidget->drawXAxis();
+	}
+	if (handler == COLLIMATOR_HANDLER){
+		plotWidget->updateCollimatorDegreeDistance(angle);
+		plotWidget->updateCollimatorDegreeVelocity(angle);
+
+		renderWidget->rotateCollimator(angle);
+	}
+	if (handler == BED_HANDLER){
+		plotWidget->updateBedDegreeDistance(angle);
+		plotWidget->updateBedDegreeVelocity(angle);
+
+		renderWidget->rotateBed(angle);
+		renderWidget->drawYAxis(QVector3D(circle_center[0], circle_center[1]-5, circle_center[2]),
+								QVector3D(circle_center[0], circle_center[1]+5, circle_center[2]),
+								QColor(Qt::red));
 	}
 
 }
@@ -303,15 +315,14 @@ void CentralWidget::translateResult(double bias[3])
 	double y = bias[1];
 	double z = bias[2];
 
-
 	m_DisplayWidget->setTranslateResult(bias);
+
 	renderWidget->translateBedAlongX(x);
 	renderWidget->translateBedAlongY(y);
 	renderWidget->translateBedAlongZ(z);
-	if (plotWidget->getBedDistanceUpdatFlag()){
-		plotWidget->updateBedDistance(x, y, z);
-		plotWidget->updateBedVelocity(x, y, z);
-	}
+
+	plotWidget->updateBedDistance(x, y, z);
+	plotWidget->updateBedVelocity(x, y, z);
 }
 //
 //在显示面板更新激光灯确定的等中心坐标
@@ -320,5 +331,5 @@ void CentralWidget::registerPosition(Point3D &point)
 {
 	double position[3] = { point[0], point[1], point[3] };
 	m_DisplayWidget->setRegisteredPosition(position);
-	renderWidget->drawISOCenter(position[0], position[1], position[2]);
+	renderWidget->drawISOCenter(position[2], position[1], -position[0]);
 }

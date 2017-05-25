@@ -2,7 +2,6 @@
 #include "Circle.h"
 #include "Fit3DCircle.h"
 #include "HorizontalRegister.h"
-
 #include "vtkPoints.h"
 
 BedHandler::BedHandler(QObject *parent)
@@ -36,9 +35,9 @@ AbstractMonitorHandler *BedHandler::handle(MarkerPointContainerType &positions)
 		emit markerSize(size);
 		return this;
 	}
-	else {
-		emit markerPosition(positions.at(0));
-	}
+	//else {
+	//	emit markerPosition(positions.at(0));
+	//}
 	switch (m_Mode)
 	{
 	case 0:
@@ -65,7 +64,7 @@ void BedHandler::reset()
 	m_FitCircle->clearPoints();
 	m_HasBasePoint = false;
 }
-//测量旋转:圆、角度(绝对)、半径、轴线方程
+//测量旋转:圆、角度(绝对)、半径、法向量
 //
 //
 void BedHandler::handleRotation(MarkerPointContainerType &positions)
@@ -77,7 +76,10 @@ void BedHandler::handleRotation(MarkerPointContainerType &positions)
 	double out[3];
     //transform to Accelerator Coordinate(==Scene Coordinate)
 	m_Register->transform(point, out);
-	m_FitCircle->addPoint(MarkerPointType(out));
+	MarkerPointType  marker(out);
+	emit markerPosition(marker);
+
+	m_FitCircle->addPoint(marker);
 	double center[3], normal[3], radius;
 	if (m_FitCircle->getCircle(center, normal, radius)) {
 		// normalize
@@ -85,7 +87,7 @@ void BedHandler::handleRotation(MarkerPointContainerType &positions)
 		normal[0] /= length;
 		normal[1] /= length;
 		normal[2] /= length;
-		double angle = acos((out[2] - center[2]) / radius) * 180 / 3.1416;
+		double angle = acos((out[2] - center[2]) / radius) * RAD2DEGREE;
 		angle *= out[0] < center[0] ? 1 : -1;
 		Circle circle;
 		memcpy(circle.Center, center, sizeof(center));
@@ -106,6 +108,9 @@ void BedHandler::handleTranslation(MarkerPointContainerType &positions)
 
     double out[3];
 	m_Register->transform(point, out);
+
+	emit markerPosition(MarkerPointType(out));
+
 	if (!m_HasBasePoint) {
 		memcpy(m_BasePoint, out, sizeof(m_BasePoint));
 		m_HasBasePoint = true;

@@ -24,9 +24,9 @@ AbstractMonitorHandler *GantryHandler::handle(MarkerPointContainerType &position
 		emit markerSize(size);
 		return this;
 	}
-	else {
-		emit markerPosition(positions.at(0));
-	}
+	//else {
+	//	emit markerPosition(positions.at(0));
+	//}
 
 	//只取第一个标定球位置参与圆拟合
 	MarkerPointType &p = positions.at(0);
@@ -34,6 +34,8 @@ AbstractMonitorHandler *GantryHandler::handle(MarkerPointContainerType &position
 	point[0] = p[0]; point[1] = p[1]; point[2] = p[2];
 	double out[3];
 	m_Register->transform(point, out);
+	emit markerPosition(Point3D(out));
+
 	m_FitCircle->addPoint(MarkerPointType(out));
 	double center[3], normal[3], radius;
 	if (m_FitCircle->getCircle(center, normal, radius)) {
@@ -42,7 +44,7 @@ AbstractMonitorHandler *GantryHandler::handle(MarkerPointContainerType &position
 		normal[0] /= length;
 		normal[1] /= length;
 		normal[2] /= length;
-		double angle = acos((out[1] - center[1]) / radius) * 180 / 3.1416;
+		double angle = acos((out[1] - center[1]) / radius) * RAD2DEGREE;
 		angle *= out[0] < center[0] ? 1 : -1;
 		Circle circle;
 		memcpy(circle.Center, center, sizeof(center));

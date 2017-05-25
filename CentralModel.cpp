@@ -75,6 +75,20 @@ void CentralModel::setHandlerToISOCenter()
 	m_Handler = m_ISOCenterHanlder;
 	m_Handler->reset();
 }
+
+int CentralModel::getHandler()
+{
+    if(m_Handler == m_HorizontalRegisterHandler)
+        return  HORIZONTALREGISTER_HANDLER;
+    if(m_Handler == m_GantryHandler)
+        return  GANTRY_HANDLER;
+    if(m_Handler == m_CollimatorHandler)
+        return  COLLIMATOR_HANDLER;
+    if(m_Handler == m_BedHandler)
+        return  BED_HANDLER;
+    if(m_Handler == m_ISOCenterHanlder)
+        return  ISOCENTER_HANDLER;
+}
 //
 //当没有接收到拟合/计算信号时，只显示球的数量
 //

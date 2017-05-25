@@ -148,10 +148,6 @@ void PlotView::timerEvent(QTimerEvent *event)
 	time += 0.01;
 	mTimeData.append(time);
 
-	mBedXDistance->append(qrand() % 10);
-	mBedXVelocity->append(qrand() % 100);
-	mGantryDegree->append(qrand() % 1000);
-	mGantryDegreeVelocity->append(qrand()%1000);
 
 	if (NULL != distancePlot){
 		if (!mBedXDistance->isEmpty())

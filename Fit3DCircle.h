@@ -8,6 +8,10 @@ class vtkMatrix3x3;
 class vtkPoints;
 class vtkLandmarkTransform;
 
+#define  RAD2DEGREE   57.29564f
+#define  DEGREE2RAD   0.017453f
+
+
 class Fit3DCircle : public QObject
 {
 	Q_OBJECT
