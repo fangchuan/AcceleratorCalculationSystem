@@ -18,5 +18,6 @@
         <file>Resources/image/z_y_up.png</file>
         <file>Resources/image/3d_view.png</file>
         <file>Resources/image/export.png</file>
+        <file>Resources/image/clear.xpm</file>
     </qresource>
 </RCC>

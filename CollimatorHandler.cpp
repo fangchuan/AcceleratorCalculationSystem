@@ -22,15 +22,20 @@ AbstractMonitorHandler *CollimatorHandler::handle(MarkerPointContainerType &posi
 		emit markerSize(size);
 		return this;
 	}
-	else {
-		emit markerPosition(positions.at(0));
-	}
+	//else {
+	//	emit markerPosition(positions.at(0));
+	//}
 	MarkerPointType &p = positions.at(0);
 	double point[3];
 	point[0] = p[0]; point[1] = p[1]; point[2] = p[2];
 	double out[3];
 	m_Register->transform(point, out);
-	m_FitCircle->addPoint(MarkerPointType(out));
+
+	MarkerPointType marker(out);
+	emit markerPosition(marker);
+
+	m_FitCircle->addPoint(marker);
+
 	double center[3], normal[3], radius;
 	if (m_FitCircle->getCircle(center, normal, radius)) {
 		// normalize
@@ -38,8 +43,17 @@ AbstractMonitorHandler *CollimatorHandler::handle(MarkerPointContainerType &posi
 		normal[0] /= length;
 		normal[1] /= length;
 		normal[2] /= length;
-		double angle = acos((out[2] - center[2]) / radius) * 180 / 3.1416;
+
+		double rad = (out[2] - center[2]) / radius;
+		rad = rad > 1 ? 1 : rad;
+		rad = rad < -1 ? -1 : rad;
+		double angle = acos(rad) * RAD2DEGREE;
+
+		//if (qIsNaN(angle))
+		//	angle = 0;
+		//else
 		angle *= out[0] < center[0] ? 1 : -1;
+		
 		Circle circle;
 		memcpy(circle.Center, center, sizeof(center));
 		memcpy(circle.Normal, normal, sizeof(normal));

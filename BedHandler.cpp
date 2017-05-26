@@ -3,6 +3,7 @@
 #include "Fit3DCircle.h"
 #include "HorizontalRegister.h"
 #include "vtkPoints.h"
+#include <qdebug.h>
 
 BedHandler::BedHandler(QObject *parent)
 	: AbstractMonitorHandler(parent),
@@ -87,8 +88,21 @@ void BedHandler::handleRotation(MarkerPointContainerType &positions)
 		normal[0] /= length;
 		normal[1] /= length;
 		normal[2] /= length;
-		double angle = acos((out[2] - center[2]) / radius) * RAD2DEGREE;
-		angle *= out[0] < center[0] ? 1 : -1;
+
+		double rad = (out[2] - center[2]) / radius;
+		rad = rad > 1 ? 1 : rad;
+		rad = rad < -1 ? -1 : rad;
+		double angle = acos(rad) * RAD2DEGREE;
+		//qDebug() << "current point Z:"<<out[2];
+		//qDebug() << "center_Z" << center[2];
+		//qDebug() << "Radius:" << radius;
+		//qDebug() << "angle:" << angle;
+		//if (qIsNaN(angle))
+		//	angle = 0;
+		//else
+		angle *= out[0] < center[0] ? -1 : 1;//逆时针旋转为证角度
+		
+
 		Circle circle;
 		memcpy(circle.Center, center, sizeof(center));
 		memcpy(circle.Normal, normal, sizeof(normal));

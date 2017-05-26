@@ -491,8 +491,8 @@ void QtRenderView::RenderView::rotateBed(float degree)
 		
 		if (x_mm >= ACCEL_BED_BOTTOM_BIAS.x)	x_mm = ACCEL_BED_BOTTOM_BIAS.x;
 		if (x_mm <= -ACCEL_BED_BOTTOM_BIAS.x)   x_mm = -ACCEL_BED_BOTTOM_BIAS.x;
-		if (z_mm >= ACCEL_BED_BOTTOM_BIAS.z)    z_mm = ACCEL_BED_BOTTOM_BIAS.z;
-		if (z_mm <= -ACCEL_BED_BOTTOM_BIAS.z)	z_mm = -ACCEL_BED_BOTTOM_BIAS.z;
+		if (z_mm >= ACCEL_BED_BOTTOM_BIAS.x)    z_mm = ACCEL_BED_BOTTOM_BIAS.x;
+		if (z_mm <= -ACCEL_BED_BOTTOM_BIAS.x)	z_mm = -ACCEL_BED_BOTTOM_BIAS.x;
 
 		mOgreNode->yaw(Ogre::Degree(delt_degree));
 
@@ -510,10 +510,10 @@ void QtRenderView::RenderView::translateBedAlongZ(float z_mm)
 	static float last_z = 0.0f;
 
 	float z = z_mm - last_z;
-	mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_BED_CONNECT1_NAME);
+	mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_BEDBOARD_NAME);
 	if (NULL != mOgreNode && 0 != z){
 		//translate resolution:  m
-		mOgreNode->translate(z * 0.001, 0, 0, Ogre::Node::TS_PARENT);
+		mOgreNode->translate(z * 0.01, 0, 0, Ogre::Node::TS_PARENT);
 		last_z = z_mm;
 	}
 
@@ -527,10 +527,10 @@ void QtRenderView::RenderView::translateBedAlongX(float x_mm)
 	static float last_x = 0.0;
 	float x = x_mm - last_x;
 
-	mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_BEDBOARD_NAME);
+	mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_BED_CONNECT1_NAME);
 	if (NULL != mOgreNode && 0 != x){
 		//translate resolution:  m
-		mOgreNode->translate(0, 0, -x * 0.001, Ogre::Node::TS_PARENT);
+		mOgreNode->translate(0, 0, -x * 0.01, Ogre::Node::TS_PARENT);//0.01 propotation
 		last_x = x_mm;
 	}
 
@@ -545,7 +545,7 @@ void QtRenderView::RenderView::translateBedAlongY(float y_mm)
 	static float y_scale = 1.0f;
 	static float last_y = 0.0f;
 	float y_trans = 0.75f;
-	float y_m = (y_mm - last_y)*0.001;
+	float y_m = (y_mm - last_y)*0.01;//0.01 propotation
 
 	mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_BED_STRECH_NAME);
 	if (NULL != mOgreNode && 0 != y_m){
@@ -572,7 +572,7 @@ void QtRenderView::RenderView::drawXAxis(const QVector3D &start, const QVector3D
 
 	float r = (float)color.redF();
 	float g = (float)color.greenF();
-	float b = (float)color.blue();
+	float b = (float)color.blueF();
 
 	if (!mOgreSceneMgr->hasManualObject(XAXIS_LINE_NAME)){
 		Ogre::ManualObject* xAxis = mOgreSceneMgr->createManualObject(XAXIS_LINE_NAME);
@@ -582,18 +582,17 @@ void QtRenderView::RenderView::drawXAxis(const QVector3D &start, const QVector3D
 		xAxis->position(x_e, y_e, z_e);  // draw first line
 		xAxis->end();
 
-		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(xAxis);
+		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(X_AXIS_NODE_NAME)->attachObject(xAxis);
 	}
 	else{
 		Ogre::ManualObject* xAxis = mOgreSceneMgr->getManualObject(XAXIS_LINE_NAME);
 		Ogre::SceneNode* node = mOgreSceneMgr->getSceneNode(X_AXIS_NODE_NAME);
-		node->detachAllObjects();
-		xAxis->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+		//xAxis->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+		xAxis->beginUpdate(0);
 		xAxis->position(x_s, y_s, z_s);  // start position
 		xAxis->colour(r, g, b);
 		xAxis->position(x_e, y_e, z_e);  // draw first line
 		xAxis->end();
-		node->attachObject(xAxis);
 	}
 }
 //»­YÖáÏß
@@ -609,7 +608,7 @@ void QtRenderView::RenderView::drawYAxis(const QVector3D &start, const QVector3D
 
 	float r = (float)color.redF();
 	float g = (float)color.greenF();
-	float b = (float)color.blue();
+	float b = (float)color.blueF();
 
 	if (!mOgreSceneMgr->hasManualObject(YAXIS_LINE_NAME)){
 		Ogre::ManualObject* yAxis = mOgreSceneMgr->createManualObject(YAXIS_LINE_NAME);
@@ -623,13 +622,12 @@ void QtRenderView::RenderView::drawYAxis(const QVector3D &start, const QVector3D
 	else{
 		Ogre::ManualObject* yAxis = mOgreSceneMgr->getManualObject(YAXIS_LINE_NAME);
 		Ogre::SceneNode*  node = mOgreSceneMgr->getSceneNode(Y_AXIS_NODE_NAME);
-		node ->detachAllObjects();
-		yAxis->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+		//yAxis->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+		yAxis->beginUpdate(0);
 		yAxis->position(x_s, y_s, z_s);// start position
 		yAxis->colour(r, g, b);
 		yAxis->position(x_e, y_e, z_e);// draw first line
 		yAxis->end();
-		node->attachObject(yAxis);
 	}
 
 }
@@ -670,8 +668,8 @@ void QtRenderView::RenderView::drawCoordinate()
 	vp = mOgreWindow->addViewport(cam, 1, 0.0, 0.8, 0.2, 0.2);
 	vp->setBackgroundColour(mOgreBackground);
 	//    cam->setAspectRatio(Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));
-	cam->setOrthoWindow(8,8);
-	cam->setPosition(0, 0, 8);
+	cam->setOrthoWindow(9,9);
+	cam->setPosition(0, 0, 7);
 	cam->lookAt(0, 0, -300);
 	cam->setNearClipDistance(0.1);
 	cam->setFarClipDistance(200000);

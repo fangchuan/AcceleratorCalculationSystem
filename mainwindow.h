@@ -28,6 +28,12 @@ private:
 private:
     Ui::MainWindow *ui;
     CentralWidget *m_CentralWidget;
+	QAction*  mThreeDAction;
+	QAction*  mPlotAction;
+	QAction*  mExportAction;
+	QAction*  mClearAction;
+	QAction*  mHelpAction;
+
 };
 
 #endif // MAINWINDOW_H

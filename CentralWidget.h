@@ -35,8 +35,10 @@ public:
 	CentralWidget(QWidget *parent = Q_NULLPTR);
 	~CentralWidget();
 
+public slots:
 	void show3DPage();
 	void showPlotPage();
+	void clearAllPlot();
 private:
 	void initUi();
 	void buildConnections();

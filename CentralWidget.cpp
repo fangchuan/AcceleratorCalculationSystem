@@ -89,6 +89,10 @@ void CentralWidget::showPlotPage()
 	}
 }
 
+void CentralWidget::clearAllPlot()
+{
+	plotWidget->clearCurveDataVector();
+}
 void CentralWidget::TrackingModeChanged(OperationMode mode)
 {
 	m_TrackingMode = mode;
@@ -284,8 +288,8 @@ void CentralWidget::circleResult(Circle *circle)
 		plotWidget->updateGantryDegreeVelocity(angle);
 
 		renderWidget->rotateGantry(angle);
-		renderWidget->drawXAxis(QVector3D(circle_center[2]-5, circle_center[1], -circle_center[0]),
-								QVector3D(circle_center[2]+5, circle_center[1], -circle_center[0]),
+		renderWidget->drawXAxis(QVector3D(circle_center[0], circle_center[1], circle_center[2]-5),
+								QVector3D(circle_center[0], circle_center[1], circle_center[2]+5),
 								QColor(Qt::blue));
 
 	}

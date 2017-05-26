@@ -14,7 +14,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <qwt_point_3d.h>
-
+#include <QTimer>
 
 enum curveIndex{
 	CURVE_X = 0,
@@ -25,7 +25,7 @@ enum curveIndex{
 	CURVE_COLLIMATOR
 };
 enum updateFlag{
-	UPDATE_GANTRY_DEGREE = 0,
+	UPDATE_GANTRY_DEGREE = 1,
 	UPDATE_COLLIMATOR_DEGREE,
 	UPDATE_BED_DEGREE,
 	UPDATE_BED_DISTANCE
@@ -64,7 +64,7 @@ public:
 		//legend
 		QwtLegend *legend = new QwtLegend;
 		legend->setDefaultItemMode(QwtLegendData::Checkable);
-		this->insertLegend(legend, QwtPlot::RightLegend);
+		this->insertLegend(legend, QwtPlot::BottomLegend);
 		//curve
 		mBedXDistance = new QwtPlotCurve("X");
 		mBedXDistance->setStyle(QwtPlotCurve::Lines);//直线形式
@@ -72,8 +72,8 @@ public:
 		fitterX->setSplineSize(150);
 		mBedXDistance->setCurveFitter(fitterX);//设置曲线插值
 		mBedXDistance->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mBedXDistance->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
-		mBedXDistance->setPen(QPen(Qt::red, 2));//设置画笔
+		mBedXDistance->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mBedXDistance->setPen(QPen(Qt::red, 1));//设置画笔
 		mBedXDistance->attach(this);//把曲线附加到plot上
 
 		mBedYDistance = new QwtPlotCurve("Y");
@@ -82,8 +82,8 @@ public:
 		fitterY->setSplineSize(150);
 		mBedYDistance->setCurveFitter(fitterY);//设置曲线插值
 		mBedYDistance->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mBedYDistance->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
-		mBedYDistance->setPen(QPen(Qt::yellow, 2));//设置画笔
+		mBedYDistance->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mBedYDistance->setPen(QPen(Qt::yellow, 1));//设置画笔
 		mBedYDistance->attach(this);//把曲线附加到plot上
 
 		mBedZDistance = new QwtPlotCurve("Z");
@@ -92,8 +92,8 @@ public:
 		fitterZ->setSplineSize(150);
 		mBedZDistance->setCurveFitter(fitterZ);//设置曲线插值
 		mBedZDistance->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mBedZDistance->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
-		mBedZDistance->setPen(QPen(Qt::blue, 2));//设置画笔
+		mBedZDistance->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mBedZDistance->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedZDistance->attach(this);//把曲线附加到plot上
 
 		connect(legend, &QwtLegend::checked, this, &DistancePlot::legendChecked);
@@ -192,7 +192,7 @@ public:
 		//legend
 		QwtLegend *legend = new QwtLegend;
 		legend->setDefaultItemMode(QwtLegendData::Checkable);
-		this->insertLegend(legend, QwtPlot::RightLegend);
+		this->insertLegend(legend, QwtPlot::BottomLegend);
 		//curve
 		mBedXVelocity = new QwtPlotCurve("X");
 		mBedXVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
@@ -200,8 +200,8 @@ public:
 		fitterX->setSplineSize(150);
 		mBedXVelocity->setCurveFitter(fitterX);//设置曲线插值
 		mBedXVelocity->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mBedXVelocity->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
-		mBedXVelocity->setPen(QPen(Qt::red, 2));//设置画笔
+		mBedXVelocity->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mBedXVelocity->setPen(QPen(Qt::red, 1));//设置画笔
 		mBedXVelocity->attach(this);//把曲线附加到plot上
 
 		mBedYVelocity = new QwtPlotCurve("Y");
@@ -210,8 +210,8 @@ public:
 		fitterY->setSplineSize(150);
 		mBedYVelocity->setCurveFitter(fitterY);//设置曲线插值
 		mBedYVelocity->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mBedYVelocity->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
-		mBedYVelocity->setPen(QPen(Qt::yellow, 2));//设置画笔
+		mBedYVelocity->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mBedYVelocity->setPen(QPen(Qt::yellow, 1));//设置画笔
 		mBedYVelocity->attach(this);//把曲线附加到plot上
 
 		mBedZVelocity = new QwtPlotCurve("Z");
@@ -220,8 +220,8 @@ public:
 		fitterZ->setSplineSize(150);
 		mBedZVelocity->setCurveFitter(fitterZ);//设置曲线插值
 		mBedZVelocity->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mBedZVelocity->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
-		mBedZVelocity->setPen(QPen(Qt::blue, 2));//设置画笔
+		mBedZVelocity->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mBedZVelocity->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedZVelocity->attach(this);//把曲线附加到plot上
 
 		connect(legend, &QwtLegend::checked, this, &VelocityPlot::legendChecked);
@@ -318,36 +318,36 @@ public:
 		//legend
 		QwtLegend *legend = new QwtLegend;
 		legend->setDefaultItemMode(QwtLegendData::Checkable);
-		this->insertLegend(legend, QwtPlot::RightLegend);
+		this->insertLegend(legend, QwtPlot::BottomLegend);
 		//curve
 		mGantryDistance = new QwtPlotCurve(QString::fromLocal8Bit("机架"));
 		mGantryDistance->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterGantry = new QwtSplineCurveFitter();
-		fitterGantry->setSplineSize(150);
-		mGantryDistance->setCurveFitter(fitterGantry);//设置曲线插值
+		fitterGantry->setSplineSize(50);
+		mGantryDistance->setCurveFitter(NULL);//设置曲线插值
 		mGantryDistance->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mGantryDistance->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
-		mGantryDistance->setPen(QPen(Qt::red, 2));//设置画笔
+		mGantryDistance->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mGantryDistance->setPen(QPen(Qt::red, 1));//设置画笔
 		mGantryDistance->attach(this);//把曲线附加到plot上
 
 		mCollimatorDistance = new QwtPlotCurve(QString::fromLocal8Bit("准直器"));
 		mCollimatorDistance->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterCollimator = new QwtSplineCurveFitter();
-		fitterCollimator->setSplineSize(150);
+		fitterCollimator->setSplineSize(50);
 		mCollimatorDistance->setCurveFitter(fitterCollimator);//设置曲线插值
 		mCollimatorDistance->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mCollimatorDistance->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
-		mCollimatorDistance->setPen(QPen(Qt::yellow, 2));//设置画笔
+		mCollimatorDistance->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mCollimatorDistance->setPen(QPen(Qt::yellow, 1));//设置画笔
 		mCollimatorDistance->attach(this);//把曲线附加到plot上
 
 		mBedDistance = new QwtPlotCurve(QString::fromLocal8Bit("治疗床"));
 		mCollimatorDistance->setStyle(QwtPlotCurve::Lines);//直线形式
-		QwtSplineCurveFitter *fitterBed = new QwtSplineCurveFitter();
-		fitterBed->setSplineSize(150);
+		QwtSplineCurveFitter *fitterBed = new QwtSplineCurveFitter();//三次样条插值曲线拟合器
+		fitterBed->setSplineSize(50);
 		mBedDistance->setCurveFitter(fitterBed);//设置曲线插值
 		mBedDistance->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mBedDistance->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
-		mBedDistance->setPen(QPen(Qt::blue, 2));//设置画笔
+		mBedDistance->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mBedDistance->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedDistance->attach(this);//把曲线附加到plot上
 
 		connect(legend, &QwtLegend::checked, this, &DegreeDistancePlot::legendChecked);
@@ -443,36 +443,36 @@ public:
 		//legend
 		QwtLegend *legend = new QwtLegend;
 		legend->setDefaultItemMode(QwtLegendData::Checkable);
-		this->insertLegend(legend, QwtPlot::RightLegend);
+		this->insertLegend(legend, QwtPlot::BottomLegend);
 		//curve
 		mGantryVelocity = new QwtPlotCurve(QString::fromLocal8Bit("机架"));
 		mGantryVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterGantry = new QwtSplineCurveFitter();
-		fitterGantry->setSplineSize(150);
+		fitterGantry->setSplineSize(50);
 		mGantryVelocity->setCurveFitter(fitterGantry);//设置曲线插值
 		mGantryVelocity->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mGantryVelocity->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
-		mGantryVelocity->setPen(QPen(Qt::red, 2));//设置画笔
+		mGantryVelocity->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mGantryVelocity->setPen(QPen(Qt::red, 1));//设置画笔
 		mGantryVelocity->attach(this);//把曲线附加到plot上
 
 		mCollimatorVelocity = new QwtPlotCurve(QString::fromLocal8Bit("准直器"));
 		mCollimatorVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterCollimator = new QwtSplineCurveFitter();
-		fitterCollimator->setSplineSize(150);
+		fitterCollimator->setSplineSize(50);
 		mCollimatorVelocity->setCurveFitter(fitterCollimator);//设置曲线插值
 		mCollimatorVelocity->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mCollimatorVelocity->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
-		mCollimatorVelocity->setPen(QPen(Qt::yellow, 2));//设置画笔
+		mCollimatorVelocity->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mCollimatorVelocity->setPen(QPen(Qt::yellow, 1));//设置画笔
 		mCollimatorVelocity->attach(this);//把曲线附加到plot上
 
 		mBedVelocity = new QwtPlotCurve(QString::fromLocal8Bit("治疗床"));
 		mBedVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterBed = new QwtSplineCurveFitter();
-		fitterBed->setSplineSize(150);
+		fitterBed->setSplineSize(50);
 		mBedVelocity->setCurveFitter(fitterBed);//设置曲线插值
 		mBedVelocity->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mBedVelocity->setCurveAttribute(QwtPlotCurve::Fitted, true);//使曲线更光滑
-		mBedVelocity->setPen(QPen(Qt::blue, 2));//设置画笔
+		mBedVelocity->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mBedVelocity->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedVelocity->attach(this);//把曲线附加到plot上
 
 		connect(legend, &QwtLegend::checked, this, &DegreeVelocityPlot::legendChecked);
@@ -563,13 +563,15 @@ public slots :
 	void updateBedDegreeVelocity(const double y);
 	void updateBedDistance(const double x, const double y, const double z);
 	void updateBedVelocity(const double x, const double y, const double z);
+	void clearCurveDataVector();
 
 private:
-	virtual void timerEvent(QTimerEvent *event);
 	virtual void closeEvent(QCloseEvent *event);
 	void initUi();
 	void initCurveDataVector();
-	void clearCurveDataVector();
+	void initTimer();
+	void update();
+	void stopTimer();
 
 	DistancePlot*  distancePlot;
 	VelocityPlot*  velocityPlot;
@@ -577,8 +579,9 @@ private:
 	DegreeVelocityPlot*  degreeVelocityPlot;
 	int  mUpdateFlag;
 
-	int   timer_id;
-	QVector<double>  mTimeData;
+	QTimer*    mTimer;
+	QVector<double>  mDegreeTimeData;
+	QVector<double>  mDistanceTimeData;
 	QVector<double>* mBedXDistance;
 	QVector<double>* mBedYDistance;
 	QVector<double>* mBedZDistance;

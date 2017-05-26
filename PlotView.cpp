@@ -1,6 +1,7 @@
 #include "plotview.h"
 #include "QTextCodec"
 #include <QTime>
+#include <QTimerEvent>
 #include <QDebug>
 
 PlotView::PlotView(QWidget *parent) : QWidget(parent),
@@ -12,15 +13,14 @@ mUpdateFlag(0)
 {
 	initUi();
 	initCurveDataVector();
-	//set timer T = 50ms
-	timer_id = startTimer(50);
-	
+	initTimer();
 }
 
 PlotView::~PlotView()
 {
 	//    qDebug()<<"enter PlotView deconstructor";
 }
+
 void PlotView::setGantryUpdateFlag()
 {
 	mUpdateFlag = UPDATE_GANTRY_DEGREE;
@@ -56,6 +56,11 @@ bool PlotView::getBedDistanceUpdatFlag()
 void PlotView::updateGantryDegreeDistance(const double y)
 {
 	mGantryDegree->append(y);
+	setGantryUpdateFlag();
+
+	if (!mTimer->isActive())
+		mTimer->start();
+
 }
 
 void PlotView::updateGantryDegreeVelocity(const double y)
@@ -63,17 +68,22 @@ void PlotView::updateGantryDegreeVelocity(const double y)
 	static float last_y = (float)y;
 	static int last_time = 0;
 	int current_time = QTime::currentTime().msec();
-	float v = (y - last_y) / (current_time - last_time);
+	int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
+	float v = (y - last_y) / delt_time;
 
 	last_time = current_time;
 	last_y = y;
-	v *= 0.001;//degree/s
+	v *= 1000;//degree/s
 	mGantryDegreeVelocity->append(v);
 }
 
 void PlotView::updateCollimatorDegreeDistance(const double y)
 {
 	mCollimatorDegree->append(y);
+	setCollimatorUpdateFlag();
+
+	if (!mTimer->isActive())
+		mTimer->start();
 }
 
 void PlotView::updateCollimatorDegreeVelocity(const double y)
@@ -81,17 +91,22 @@ void PlotView::updateCollimatorDegreeVelocity(const double y)
 	static float last_y = (float)y;
 	static int last_time = 0;
 	int current_time = QTime::currentTime().msec();
-	float v = (y - last_y) / (current_time - last_time);
+	int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
+	float v = (y - last_y) / delt_time;
 
 	last_time = current_time;
 	last_y = y;
-	v *= 0.001;//degree/s
+	v *= 1000;//degree/s
 	mCollimatorDegreeVelocity->append(v);
 }
 
 void PlotView::updateBedDegreeDistance(const double y)
 {
 	mBedDegree->append(y);
+	setBedDegreeUpdateFlag();
+
+	if (!mTimer->isActive())
+		mTimer->start();
 }
 
 void PlotView::updateBedDegreeVelocity(const double y)
@@ -99,19 +114,24 @@ void PlotView::updateBedDegreeVelocity(const double y)
 	static float last_y = (float)y;
 	static int last_time = 0;
 	int current_time = QTime::currentTime().msec();
-	float v = (y - last_y) / (current_time - last_time);
+	int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
+	float v = (y - last_y) / delt_time;
 
 	last_time = current_time;
 	last_y = y;
-	v *= 0.001;//degree/s
+	v *= 1000;//degree/s
 	mBedDegreeVelocity->append(v);
 }
+
 void PlotView::updateBedDistance(const double x, const double y, const double z)
 {
 	mBedXDistance->append(x);
 	mBedYDistance->append(y);
 	mBedZDistance->append(z);
+	setBedDistanceUpdateFlag();
 
+	if (!mTimer->isActive())
+		mTimer->start();
 }
 
 void PlotView::updateBedVelocity(const double x, const double y, const double z)
@@ -122,82 +142,141 @@ void PlotView::updateBedVelocity(const double x, const double y, const double z)
 
 	static int last_time = 0;
 	int current_time = QTime::currentTime().msec();
+	int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
 
-	float v_x = (x - last_x) / (current_time - last_time);
-	float v_y = (y - last_y) / (current_time - last_time);
-	float v_z = (z - last_z) / (current_time - last_time);
+	float v_x = (x - last_x) / delt_time;
+	float v_y = (y - last_y) / delt_time;
+	float v_z = (z - last_z) / delt_time;
 
 	last_time = current_time;
 	last_x = x;
 	last_y = y;
 	last_z = z;
 
-	v_x *= 0.001;//mm/s
-	v_y *= 0.001;
-	v_z *= 0.001;
+	v_x *= 1000;//mm/s
+	v_y *= 1000;
+	v_z *= 1000;
 	mBedXVelocity->append(v_x);
 	mBedYVelocity->append(v_y);
 	mBedZVelocity->append(v_z);
 }
 
-void PlotView::timerEvent(QTimerEvent *event)
+void PlotView::update()
 {
-	Q_UNUSED(event);
-	static double time = 0;
+	static double degree_time = 0;
+	static double distance_time = 0;
 
-	time += 0.01;
-	mTimeData.append(time);
+	{
+		if (getBedDistanceUpdatFlag()){
+			distance_time += 0.05;
+			mDistanceTimeData.append(distance_time);
 
+			distancePlot->updateSample(CURVE_X, mDistanceTimeData, *mBedXDistance);
+			distancePlot->updateSample(CURVE_Y, mDistanceTimeData, *mBedYDistance);
+			distancePlot->updateSample(CURVE_Z, mDistanceTimeData, *mBedZDistance);
 
-	if (NULL != distancePlot){
-		if (!mBedXDistance->isEmpty())
-			distancePlot->updateSample(CURVE_X, mTimeData, *mBedXDistance);
-		if (!mBedYDistance->isEmpty())
-			distancePlot->updateSample(CURVE_Y, mTimeData, *mBedYDistance);
-		if(!mBedZDistance->isEmpty())
-			distancePlot->updateSample(CURVE_Z, mTimeData, *mBedZDistance);
+			velocityPlot->updateSample(CURVE_X, mDistanceTimeData, *mBedXVelocity);
+			velocityPlot->updateSample(CURVE_Y, mDistanceTimeData, *mBedYVelocity);
+			velocityPlot->updateSample(CURVE_Z, mDistanceTimeData, *mBedZVelocity);
+		}else{
+			if (!mBedXDistance->isEmpty() || !mBedYDistance->isEmpty() || !mBedZDistance->isEmpty()){
+				distance_time += 0.05;
+				mDistanceTimeData.append(distance_time);
+			}
+			if (!mBedXDistance->isEmpty()){
+				double end = mBedXDistance->last();
+				mBedXDistance->append(end);
+				distancePlot->updateSample(CURVE_X, mDistanceTimeData, *mBedXDistance);
+			}
+			if (!mBedYDistance->isEmpty()){
+				double end = mBedYDistance->last();
+				mBedYDistance->append(end);
+				distancePlot->updateSample(CURVE_Y, mDistanceTimeData, *mBedYDistance);
+			}
+			if (!mBedZDistance->isEmpty()){
+				double end = mBedZDistance->last();
+				mBedZDistance->append(end);
+				distancePlot->updateSample(CURVE_Z, mDistanceTimeData, *mBedZDistance);
+			}
+			if (!mBedXVelocity->isEmpty()){
+				double end = mBedXVelocity->last();
+				mBedXVelocity->append(end);
+				velocityPlot->updateSample(CURVE_X, mDistanceTimeData, *mBedXVelocity);
+			}
+			if (!mBedYVelocity->isEmpty()){
+				double end = mBedYVelocity->last();
+				mBedYVelocity->append(end);
+				velocityPlot->updateSample(CURVE_Y, mDistanceTimeData, *mBedYVelocity);
+			}
+			if (!mBedZVelocity->isEmpty()){
+				double end = mBedZVelocity->last();
+				mBedZVelocity->append(end);
+				velocityPlot->updateSample(CURVE_Z, mDistanceTimeData, *mBedZVelocity);
+			}
+		}
 	}
-	if (NULL != velocityPlot){
-		if (!mBedXVelocity->isEmpty())
-			velocityPlot->updateSample(CURVE_X, mTimeData, *mBedXVelocity);
-		if(!mBedYVelocity->isEmpty())
-			velocityPlot->updateSample(CURVE_Y, mTimeData, *mBedYVelocity);
-		if(!mBedZVelocity->isEmpty())
-			velocityPlot->updateSample(CURVE_Z, mTimeData, *mBedZVelocity);
-	}
-	if (NULL != degreeDistancePlot){
-		if (!mGantryDegree->isEmpty())
-			degreeDistancePlot->updateSample(CURVE_GANTRY, mTimeData, *mGantryDegree);
-		if(!mCollimatorDegree->isEmpty())
-			degreeDistancePlot->updateSample(CURVE_COLLIMATOR, mTimeData, *mCollimatorDegree);
-		if (!mBedDegree->isEmpty())
-			degreeDistancePlot->updateSample(CURVE_BED, mTimeData, *mBedDegree);
-	}
-	if (NULL != degreeVelocityPlot){
-		if (!mGantryDegreeVelocity->isEmpty())
-			degreeDistancePlot->updateSample(CURVE_GANTRY, mTimeData, *mGantryDegreeVelocity);
-		if (!mCollimatorDegreeVelocity->isEmpty())
-			degreeDistancePlot->updateSample(CURVE_COLLIMATOR, mTimeData, *mCollimatorDegreeVelocity);
-		if (!mBedDegreeVelocity->isEmpty())
-			degreeDistancePlot->updateSample(CURVE_BED, mTimeData, *mBedDegreeVelocity);
+
+	if (getGantryUpdateFlag() || getCollimatorUpdateFlag() || getBedDegreeUpdateFlag()){
+
+		degree_time += 0.05;
+		mDegreeTimeData.append(degree_time);
+		if (getGantryUpdateFlag()){
+			degreeDistancePlot->updateSample(CURVE_GANTRY, mDegreeTimeData, *mGantryDegree);
+			degreeVelocityPlot->updateSample(CURVE_GANTRY, mDegreeTimeData, *mGantryDegreeVelocity);
+		}else{
+			if (!mGantryDegree->isEmpty()){
+				double end = mGantryDegree->last();
+				mGantryDegree->append(end);
+				degreeDistancePlot->updateSample(CURVE_GANTRY, mDegreeTimeData, *mGantryDegree);
+			}
+			if (!mGantryDegreeVelocity->isEmpty()){
+				double end = mGantryDegreeVelocity->last();
+				mGantryDegreeVelocity->append(end);
+				degreeVelocityPlot->updateSample(CURVE_GANTRY, mDegreeTimeData, *mGantryDegreeVelocity);
+			}
+		}
+		if (getCollimatorUpdateFlag()){
+			degreeDistancePlot->updateSample(CURVE_COLLIMATOR, mDegreeTimeData, *mCollimatorDegree);
+			degreeVelocityPlot->updateSample(CURVE_COLLIMATOR, mDegreeTimeData, *mCollimatorDegreeVelocity);
+		}else{
+			if (!mCollimatorDegree->isEmpty()){
+				double end = mCollimatorDegree->last();
+				mCollimatorDegree->append(end);
+				degreeDistancePlot->updateSample(CURVE_COLLIMATOR, mDegreeTimeData, *mCollimatorDegree);
+			}
+			if (!mCollimatorDegreeVelocity->isEmpty()){
+				double end = mCollimatorDegreeVelocity->last();
+				mCollimatorDegreeVelocity->append(end);
+				degreeVelocityPlot->updateSample(CURVE_COLLIMATOR, mDegreeTimeData, *mCollimatorDegreeVelocity);
+			}
+		}
+		if (getBedDegreeUpdateFlag()){
+			degreeDistancePlot->updateSample(CURVE_BED, mDegreeTimeData, *mBedDegree);
+			degreeVelocityPlot->updateSample(CURVE_BED, mDegreeTimeData, *mBedDegreeVelocity);
+		}else{
+			if (!mBedDegree->isEmpty()){
+				double end = mBedDegree->last();
+				mBedDegree->append(end);
+				degreeDistancePlot->updateSample(CURVE_BED, mDegreeTimeData, *mBedDegree);
+			}
+			if (!mBedDegreeVelocity->isEmpty()){
+				double end = mBedDegreeVelocity->last();
+				mBedDegreeVelocity->append(end);
+				degreeVelocityPlot->updateSample(CURVE_BED, mDegreeTimeData, *mBedDegreeVelocity);
+			}
+		}
 	}
 }
 
 void PlotView::closeEvent(QCloseEvent *event)
 {
-
 	Q_UNUSED(event);
-
-	killTimer(timer_id);
-
+	stopTimer();
 	clearCurveDataVector();
-
 }
 
 void PlotView::initUi()
 {
-	//QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
-
 	QHBoxLayout * hLayout1 = new QHBoxLayout();
 	degreeDistancePlot = new DegreeDistancePlot();
 	degreeVelocityPlot = new DegreeVelocityPlot();
@@ -215,8 +294,17 @@ void PlotView::initUi()
 	QVBoxLayout* vLayout = new QVBoxLayout(this);
 	vLayout->addLayout(hLayout1);
 	vLayout->addLayout(hLayout2);
-	vLayout->setSpacing(60);
+	vLayout->setSpacing(45);
 
+}
+
+void PlotView::initTimer()
+{
+	//set timer T = 50ms
+	mTimer = new QTimer(this);
+	mTimer->setInterval(50);
+
+	connect(mTimer, &QTimer::timeout, this, &PlotView::update);
 }
 
 void PlotView::initCurveDataVector()
@@ -237,7 +325,8 @@ void PlotView::initCurveDataVector()
 
 void PlotView::clearCurveDataVector()
 {
-	mTimeData.clear();
+	mDegreeTimeData.clear();
+	mDistanceTimeData.clear();
 	mBedXDistance->clear();
 	mBedYDistance->clear();
 	mBedZDistance->clear();
@@ -248,4 +337,11 @@ void PlotView::clearCurveDataVector()
 	mGantryDegreeVelocity->clear();
 	mCollimatorDegree->clear();
 	mCollimatorDegreeVelocity->clear();
+	mBedDegree->clear();
+	mBedDegreeVelocity->clear();
+}
+
+void PlotView::stopTimer()
+{
+	mTimer->stop();
 }

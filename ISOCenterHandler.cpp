@@ -26,10 +26,11 @@ AbstractMonitorHandler *ISOCenterHandler::handle(Point3D &point)
 
 	double out[3];
 	m_Register->transform(m_RegisteredPoint, out);
+
 	memcpy(m_RegisteredPoint, out, sizeof(m_RegisteredPoint));
 	m_IsRegistered = true;
 	
-	emit registerPosition(point);
+	emit registerPosition(MarkerPointType(out));
 	
 	return nullptr;
 }

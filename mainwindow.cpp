@@ -28,18 +28,26 @@ void MainWindow::initUi()
 	setWindowTitle("Accelrator Calibration System");
 	setWindowIcon(QIcon(":/Resources/image/window_icon.png"));
 
-	ui->mainToolBar->addAction(QIcon(":/Resources/image/3d_view.png"), "3D View", m_CentralWidget, &CentralWidget::show3DPage);
-	ui->mainToolBar->addSeparator();
-	ui->mainToolBar->addAction(QIcon(":/Resources/image/plot_view.png"), "Plot View", m_CentralWidget, &CentralWidget::showPlotPage);
-	ui->mainToolBar->addSeparator();
-	ui->mainToolBar->addAction(QIcon(":/Resources/image/export.png"), "Export to PDF");
-	ui->mainToolBar->addSeparator();
-	ui->mainToolBar->addAction(QIcon(":/Resources/image/help.png"), "Help", this, &MainWindow::showHelp);
+	mThreeDAction = new QAction(QIcon(":/Resources/image/3d_view.png"), "3D View", ui->mainToolBar);
+	mPlotAction = new QAction(QIcon(":/Resources/image/plot_view.png"), "Plot View", ui->mainToolBar);
+	mExportAction = new QAction(QIcon(":/Resources/image/export.png"), "Export to PDF", ui->mainToolBar);
+	mClearAction = new QAction(QIcon(":/Resources/image/clear.xpm"), "Clear History Data", ui->mainToolBar);
+	mHelpAction = new QAction(QIcon(":/Resources/image/help.png"), "Help", ui->mainToolBar);
+
+	ui->mainToolBar->addAction(mThreeDAction);
+	ui->mainToolBar->addAction(mPlotAction);
+	ui->mainToolBar->addAction(mExportAction);
+	ui->mainToolBar->addAction(mClearAction);
+	ui->mainToolBar->addAction(mHelpAction);
 }
 
 void MainWindow::buildConnections()
 {
-
+	connect(mThreeDAction, &QAction::triggered, m_CentralWidget, &CentralWidget::show3DPage);
+	connect(mPlotAction, &QAction::triggered, m_CentralWidget, &CentralWidget::showPlotPage);
+	//connect(mExport, &QAction::triggered, );
+	connect(mClearAction, &QAction::triggered, m_CentralWidget, &CentralWidget::clearAllPlot);
+	connect(mHelpAction, &QAction::triggered, this, &MainWindow::showHelp);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

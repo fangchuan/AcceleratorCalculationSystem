@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	QtSingleApplication::setDesktopSettingsAware(false);
 	QtSingleApplication app(argc, argv);
 
-	QTextCodec::setCodecForLocale(QTextCodec::codecForName("GB18030"));
+	QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
 
 #ifdef LICENSE
     if (!ACSUtils::CheckSoftwareLicense())
@@ -82,13 +82,13 @@ int main(int argc, char *argv[])
 	splashMessage(splashScreen, QString::fromUtf8("正在寻找硬件..."));
     if (OpsTrackingDevice::getInstance()->findTracker() == NDIPolaris)
     {
-		splashMessage(splashScreen, QString::fromUtf8("已经找到硬件,正在初始化...."));
+        splashMessage(splashScreen, QString::fromUtf8("已经找到硬件，正在初始化..."));
         OpsTrackingDevice::getInstance()->openConnection();
 	}
     else
     {
 		splashMessage(splashScreen, QString::fromUtf8("没有找到硬件!"));
-		QMessageBox::warning(Q_NULLPTR, QString::fromUtf8("警告"), QString::fromUtf8("没有找到相机，请检查相机连接!"));
+        QMessageBox::warning(Q_NULLPTR, QString::fromUtf8("警告"), QString::fromUtf8("未找到相机，请检查相机连接！"));
     }
 
 	splashMessage(splashScreen, QString::fromUtf8("正在创建用户界面..."));
