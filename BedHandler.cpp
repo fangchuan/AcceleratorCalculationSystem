@@ -4,6 +4,7 @@
 #include "HorizontalRegister.h"
 #include "vtkPoints.h"
 #include <qdebug.h>
+#include <qlogging.h>
 
 BedHandler::BedHandler(QObject *parent)
 	: AbstractMonitorHandler(parent),
@@ -93,10 +94,10 @@ void BedHandler::handleRotation(MarkerPointContainerType &positions)
 		rad = rad > 1 ? 1 : rad;
 		rad = rad < -1 ? -1 : rad;
 		double angle = acos(rad) * RAD2DEGREE;
-		//qDebug() << "current point Z:"<<out[2];
-		//qDebug() << "center_Z" << center[2];
-		//qDebug() << "Radius:" << radius;
-		//qDebug() << "angle:" << angle;
+		qInfo() << "bed: current point Z:"<<out[2];
+		qInfo() << "bed: center_Z" << center[2];
+		qInfo() << "bed: Radius:" << radius;
+		qInfo() << "bed: angle:" << angle;
 		//if (qIsNaN(angle))
 		//	angle = 0;
 		//else

@@ -22,22 +22,23 @@ MainWindow::~MainWindow()
 
 void MainWindow::initUi()
 {
-    m_CentralWidget = new CentralWidget;
+    m_CentralWidget = new CentralWidget(this);
     setCentralWidget(m_CentralWidget);
-	setMinimumSize(QSize(1024, 768));
 	setWindowTitle("Accelrator Calibration System");
 	setWindowIcon(QIcon(":/Resources/image/window_icon.png"));
 
-	mThreeDAction = new QAction(QIcon(":/Resources/image/3d_view.png"), "3D View", ui->mainToolBar);
-	mPlotAction = new QAction(QIcon(":/Resources/image/plot_view.png"), "Plot View", ui->mainToolBar);
-	mExportAction = new QAction(QIcon(":/Resources/image/export.png"), "Export to PDF", ui->mainToolBar);
-	mClearAction = new QAction(QIcon(":/Resources/image/clear.xpm"), "Clear History Data", ui->mainToolBar);
-	mHelpAction = new QAction(QIcon(":/Resources/image/help.png"), "Help", ui->mainToolBar);
+	mThreeDAction = new QAction(QIcon(":/Resources/image/3d_view.png"), QString::fromLocal8Bit("3D模型"), ui->mainToolBar);
+	mPlotAction = new QAction(QIcon(":/Resources/image/plot_view.png"), QString::fromLocal8Bit("波形曲线"), ui->mainToolBar);
+	mExportAction = new QAction(QIcon(":/Resources/image/export.png"), QString::fromLocal8Bit("导出成PDF"), ui->mainToolBar);
+	mClearAction = new QAction(QIcon(":/Resources/image/clear.xpm"), QString::fromLocal8Bit("清除历史数据"), ui->mainToolBar);
+	mPlainTextAction = new QAction(QIcon(":/Resources/image/plainText.xpm"), QString::fromLocal8Bit("加速器运动记录"), ui->mainToolBar);
+	mHelpAction = new QAction(QIcon(":/Resources/image/help.png"), QString::fromLocal8Bit("帮助/关于富科斯"), ui->mainToolBar);
 
 	ui->mainToolBar->addAction(mThreeDAction);
 	ui->mainToolBar->addAction(mPlotAction);
 	ui->mainToolBar->addAction(mExportAction);
 	ui->mainToolBar->addAction(mClearAction);
+	ui->mainToolBar->addAction(mPlainTextAction);
 	ui->mainToolBar->addAction(mHelpAction);
 }
 
@@ -47,6 +48,7 @@ void MainWindow::buildConnections()
 	connect(mPlotAction, &QAction::triggered, m_CentralWidget, &CentralWidget::showPlotPage);
 	//connect(mExport, &QAction::triggered, );
 	connect(mClearAction, &QAction::triggered, m_CentralWidget, &CentralWidget::clearAllPlot);
+	connect(mPlainTextAction, &QAction::triggered, m_CentralWidget, &CentralWidget::showPlainTextPage);
 	connect(mHelpAction, &QAction::triggered, this, &MainWindow::showHelp);
 }
 

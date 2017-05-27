@@ -19,5 +19,6 @@
         <file>Resources/image/3d_view.png</file>
         <file>Resources/image/export.png</file>
         <file>Resources/image/clear.xpm</file>
+        <file>Resources/image/plainText.xpm</file>
     </qresource>
 </RCC>

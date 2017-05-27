@@ -26,6 +26,7 @@ class PlotView;
 
 #define  STACKED_THREED_VIEW_INDEX   0
 #define  STACKED_PLOT_VIEW_INDEX     1
+#define  STACKED_PLAINTEXT_INDEX     2
 
 class CentralWidget : public QWidget
 {
@@ -38,6 +39,7 @@ public:
 public slots:
 	void show3DPage();
 	void showPlotPage();
+	void showPlainTextPage();
 	void clearAllPlot();
 private:
 	void initUi();

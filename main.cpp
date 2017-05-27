@@ -9,6 +9,8 @@
 #include <QSplashScreen>
 #include <QMessageBox>
 #include <QFile>
+#include <QTextStream>
+
 
 
 void splashMessage(QScopedPointer<QSplashScreen>& splashScreen, const QString& message)
@@ -35,6 +37,7 @@ extern "C" {
 
 int main(int argc, char *argv[])
 {
+
 	QtSingleApplication::setOrganizationName("Focus");
 	QtSingleApplication::setOrganizationDomain("jsfocus.cn");
 	QtSingleApplication::setApplicationName("Accelerator Calibration System");

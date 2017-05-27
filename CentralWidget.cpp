@@ -5,6 +5,7 @@
 #include <QStackedWidget>
 #include <QTimer>
 #include <QSplitter>
+#include <QPlainTextEdit>
 #include <qmessagebox.h>
 
 CentralWidget::CentralWidget(QWidget *parent)
@@ -26,27 +27,30 @@ CentralWidget::~CentralWidget()
 void CentralWidget::initUi()
 {
 
-	QVBoxLayout *mainLayout = new QVBoxLayout(this);
+	QHBoxLayout *mainLayout = new QHBoxLayout(this);
 
-	QSplitter *splitter = new QSplitter(Qt::Horizontal);
-	mainLayout->addWidget(splitter);
+	QVBoxLayout* leftLayout = new QVBoxLayout();
 	m_StackedWidget = new QStackedWidget();
 	renderWidget  = new QtRenderView::RenderView();
 	QWidget* renderContainer = QWidget::createWindowContainer(renderWidget, m_StackedWidget);
 	plotWidget = new PlotView();
+	QPlainTextEdit*  plainText = new QPlainTextEdit();
 	m_StackedWidget->addWidget(renderContainer);
 	m_StackedWidget->addWidget(plotWidget);
-	m_StackedWidget->setMinimumSize(QSize(800, 600));
-	splitter->addWidget(m_StackedWidget);
+	m_StackedWidget->addWidget(plainText);
+	leftLayout->addWidget(m_StackedWidget);
 
-	QWidget *rightWidget = new QWidget;
-	QVBoxLayout *layout = new QVBoxLayout(rightWidget);
+	QVBoxLayout *rightLayout = new QVBoxLayout();
 	m_DisplayWidget = new DisplayWidget;
-	layout->addWidget(m_DisplayWidget);
-	layout->addSpacerItem(new QSpacerItem(1, 40, QSizePolicy::Preferred, QSizePolicy::Fixed));
+	rightLayout->addWidget(m_DisplayWidget);
+	rightLayout->addSpacerItem(new QSpacerItem(1, 40, QSizePolicy::Preferred, QSizePolicy::Fixed));
 	m_ControlWidget = new ControlWidget;
-	layout->addWidget(m_ControlWidget);
-	splitter->addWidget(rightWidget);
+	rightLayout->addWidget(m_ControlWidget);
+	
+	mainLayout->addLayout(leftLayout);
+	mainLayout->addLayout(rightLayout);
+	mainLayout->setStretchFactor(leftLayout, 7);
+	mainLayout->setStretchFactor(rightLayout, 3);
 }
 
 void CentralWidget::buildConnections()
@@ -86,6 +90,13 @@ void CentralWidget::showPlotPage()
 {
 	if (NULL != m_StackedWidget){
 		m_StackedWidget->setCurrentIndex(STACKED_PLOT_VIEW_INDEX);
+	}
+}
+
+void CentralWidget::showPlainTextPage()
+{
+	if (NULL != m_StackedWidget){
+		m_StackedWidget->setCurrentIndex(STACKED_PLAINTEXT_INDEX);
 	}
 }
 

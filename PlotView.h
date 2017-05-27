@@ -52,14 +52,13 @@ public:
 		this->setCanvas(canvas);
 		this->setCanvasBackground(Qt::black);
 		//set zoom wheel
-		(void) new QwtPlotMagnifier(this->canvas());
+		(void) new QwtPlotMagnifier(canvas);
 		//set translate by mouse left
-		(void) new QwtPlotPanner(this->canvas());
+		(void) new QwtPlotPanner(canvas);
 		// grid
 		QwtPlotGrid *grid = new QwtPlotGrid;
 		grid->enableXMin(true);
-		grid->setMajorPen(Qt::white, 0, Qt::DotLine);
-		grid->setMinorPen(Qt::gray, 0, Qt::DotLine);
+		grid->setMajorPen(Qt::gray, 0, Qt::DotLine);
 		grid->attach(this);
 		//legend
 		QwtLegend *legend = new QwtLegend;
@@ -121,7 +120,8 @@ public:
 			break;
 		default:break;
 		}
-		this->replot();
+		replot();
+		setAxisAutoScale(QwtPlot::xBottom, true);
 	}
 
 	void legendChecked(const QVariant &itemInfo, bool on)
@@ -186,8 +186,7 @@ public:
 		// grid
 		QwtPlotGrid *grid = new QwtPlotGrid;
 		grid->enableXMin(true);
-		grid->setMajorPen(Qt::white, 0, Qt::DotLine);
-		grid->setMinorPen(Qt::gray, 0, Qt::DotLine);
+		grid->setMajorPen(Qt::gray, 0, Qt::DotLine);
 		grid->attach(this);
 		//legend
 		QwtLegend *legend = new QwtLegend;
@@ -248,8 +247,8 @@ public:
 			break;
 		default:break;
 		}
-
-		this->replot();
+		replot();
+		setAxisAutoScale(QwtPlot::xBottom, true);
 	}
 
 	void legendChecked(const QVariant &itemInfo, bool on)
@@ -312,8 +311,7 @@ public:
 		// grid
 		QwtPlotGrid *grid = new QwtPlotGrid;
 		grid->enableXMin(true);
-		grid->setMajorPen(Qt::white, 0, Qt::DotLine);
-		grid->setMinorPen(Qt::white, 0, Qt::DotLine);
+		grid->setMajorPen(Qt::gray, 0, Qt::DotLine);
 		grid->attach(this);
 		//legend
 		QwtLegend *legend = new QwtLegend;
@@ -374,8 +372,8 @@ public:
 			break;
 		default:break;
 		}
-
-		this->replot();
+		replot();
+		setAxisAutoScale(QwtPlot::xBottom, true);
 	}
 
 	void legendChecked(const QVariant &itemInfo, bool on)
@@ -437,8 +435,7 @@ public:
 		// grid
 		QwtPlotGrid *grid = new QwtPlotGrid;
 		grid->enableXMin(true);
-		grid->setMajorPen(Qt::white, 0, Qt::DotLine);
-		grid->setMinorPen(Qt::gray, 0, Qt::DotLine);
+		grid->setMajorPen(Qt::gray, 0, Qt::DotLine);
 		grid->attach(this);
 		//legend
 		QwtLegend *legend = new QwtLegend;
@@ -499,8 +496,8 @@ public:
 			break;
 		default:break;
 		}
-
-		this->replot();
+		replot();
+		setAxisAutoScale(QwtPlot::xBottom, true);
 	}
 
 	void legendChecked(const QVariant &itemInfo, bool on)
@@ -579,6 +576,7 @@ private:
 	DegreeVelocityPlot*  degreeVelocityPlot;
 	int  mUpdateFlag;
 
+	QMutex  mCurveDataMutex;
 	QTimer*    mTimer;
 	QVector<double>  mDegreeTimeData;
 	QVector<double>  mDistanceTimeData;

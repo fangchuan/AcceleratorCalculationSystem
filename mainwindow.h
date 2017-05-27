@@ -32,6 +32,7 @@ private:
 	QAction*  mPlotAction;
 	QAction*  mExportAction;
 	QAction*  mClearAction;
+	QAction*  mPlainTextAction;
 	QAction*  mHelpAction;
 
 };

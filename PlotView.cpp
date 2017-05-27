@@ -9,6 +9,7 @@ degreeVelocityPlot(NULL),
 degreeDistancePlot(NULL),
 distancePlot(NULL),
 velocityPlot(NULL),
+mCurveDataMutex(QMutex::Recursive),
 mUpdateFlag(0)
 {
 	initUi();
@@ -325,6 +326,8 @@ void PlotView::initCurveDataVector()
 
 void PlotView::clearCurveDataVector()
 {
+	QMutexLocker locker(&mCurveDataMutex);
+
 	mDegreeTimeData.clear();
 	mDistanceTimeData.clear();
 	mBedXDistance->clear();

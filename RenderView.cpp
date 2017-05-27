@@ -122,7 +122,6 @@ void QtRenderView::RenderView::initialize()
 												false,
 												&parameters);
 	mOgreWindow->setVisible(true);
-	this->setMinimumSize(QSize(800, 600));
 
 	//create SceneManager ,Camera, viewport, and user's scene
 #if OGRE_VERSION >= ((2 << 16) | (0 << 8) | 0)
@@ -445,7 +444,6 @@ bool QtRenderView::RenderView::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	mCameraMan->frameRenderingQueued(evt);
 	return true;
 }
-
 
 void QtRenderView::RenderView::setISOCenter(const QVector3D &center)
 {
