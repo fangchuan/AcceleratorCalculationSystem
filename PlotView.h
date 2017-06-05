@@ -552,14 +552,14 @@ public:
 signals:
 
 public slots :
-	void updateGantryDegreeDistance(const double y);
-	void updateGantryDegreeVelocity(const double y);
-	void updateCollimatorDegreeDistance(const double y);
-	void updateCollimatorDegreeVelocity(const double y);
-	void updateBedDegreeDistance(const double y);
-	void updateBedDegreeVelocity(const double y);
-	void updateBedDistance(const double x, const double y, const double z);
-	void updateBedVelocity(const double x, const double y, const double z);
+	void updateGantryDegreeDistance(const float y);
+	void updateGantryDegreeVelocity(const float y);
+	void updateCollimatorDegreeDistance(const float y);
+	void updateCollimatorDegreeVelocity(const float y);
+	void updateBedDegreeDistance(const float y);
+	void updateBedDegreeVelocity(const float y);
+	void updateBedDistance(const float x, const float y, const float z);
+	void updateBedVelocity(const float x, const float y, const float z);
 	void clearCurveDataVector();
 
 private:

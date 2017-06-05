@@ -37,9 +37,12 @@ namespace  QtRenderView{
 #define  ISOCENTER_NAME          "ISOCenterNode"
 #define  X_AXIS_NODE_NAME		 "XAxisNode"
 #define  Y_AXIS_NODE_NAME		 "YAxisNode"
+#define  VERTICAL_LINE_NODE_NAME "VerticalLineNode"
 	// ManualObject name
 #define  YAXIS_LINE_NAME      "YAxis"
 #define  XAXIS_LINE_NAME      "XAxis"
+#define  VERTICAL_LINE_NAME   "VerticalLine"
+
 
 #define  ACCEL_BOX_BIAS          Ogre::Vector3(-24.0f,0.0f,0.0f)
 #define  ACCEL_CONNECT_BIAS      Ogre::Vector3(4.25f, 0.0f, 0.0f)
@@ -119,10 +122,13 @@ namespace  QtRenderView{
 		void drawYAxis(const QVector3D& start, const QVector3D& end, const QColor& color = QColor(Qt::black));
 		//画出等中心
 		void drawISOCenter(const double x, const double y, const double z);
-		//
+		//画屏幕左下方的参考坐标系
 		void drawCoordinate();
 		//画出标定球位置
 		void drawMarkerPoint(const double x, const double y, const double z);
+		//画两个轴线的公垂线
+		void drawVerticalLine();
+		void drawVerticalLine(const double footA[3], const double footB[3]);
 		public slots:
 
 		virtual void renderLater();
@@ -133,7 +139,7 @@ namespace  QtRenderView{
 	signals:
 		//Event for clicking on an entity.
 		void entitySelected(Ogre::Entity* entity);
-
+		void ISOCenterSelected();
 	protected:
 
 		Ogre::Root*         mOgreRoot;
@@ -149,6 +155,10 @@ namespace  QtRenderView{
 
 		bool m_update_pending;
 		bool m_animating;
+		bool m_gantry_calibrated;
+		bool m_bed_calibrated;
+		Ogre::Vector3  centerGantry;
+		Ogre::Vector3  centerBed;
 
 		virtual void keyPressEvent(QKeyEvent * ev);
 		virtual void keyReleaseEvent(QKeyEvent * ev);

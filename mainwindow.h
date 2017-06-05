@@ -21,6 +21,11 @@ protected:
 
 private:
     void initUi();
+	void setupFileActions();
+	void setupEditActions();
+	void setupViewActions();
+	void setupHelpAction();
+	//void setupTextActions();
     void buildConnections();
     void exitMainWindow();
     void disconnectTracker();
@@ -31,8 +36,15 @@ private:
 	QAction*  mThreeDAction;
 	QAction*  mPlotAction;
 	QAction*  mExportAction;
+	QAction*  mSaveAction;
+	QAction*  mSaveAsAction;
+	QAction*  mPrintAction;
+	QAction*  mPreviewAction;
+	QAction*  mQuit;
+	QAction*  mUndoAction;
+	QAction*  mRedoAction;
 	QAction*  mClearAction;
-	QAction*  mPlainTextAction;
+	QAction*  mTextAction;
 	QAction*  mHelpAction;
 
 };

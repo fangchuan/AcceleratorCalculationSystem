@@ -1,4 +1,5 @@
 #include "CentralWidget.h"
+#include "LoggerView.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -7,21 +8,26 @@
 #include <QSplitter>
 #include <QPlainTextEdit>
 #include <qmessagebox.h>
+#include "vtkMath.h"
 
 CentralWidget::CentralWidget(QWidget *parent)
 	: QWidget(parent),
 	m_TrackingMode(MarkerTracking3D),
-	m_Model(new CentralModel(this))
+	m_Model(new CentralModel(this)),
+	m_Tracker(NULL),
+	logger(NULL)
 {
-	m_Tracker = OpsTrackingDevice::getInstance();
-	m_Timer = new QTimer(this);
-	m_Timer->setInterval(int(1000.0 / m_Tracker->getFrequency()));
 	initUi();
+	initLogger();
+	initCamera();
+	initTimer();
 	buildConnections();
 }
 
 CentralWidget::~CentralWidget()
 {
+	if (NULL != logger)
+		delete logger;
 }
 
 void CentralWidget::initUi()
@@ -34,10 +40,10 @@ void CentralWidget::initUi()
 	renderWidget  = new QtRenderView::RenderView();
 	QWidget* renderContainer = QWidget::createWindowContainer(renderWidget, m_StackedWidget);
 	plotWidget = new PlotView();
-	QPlainTextEdit*  plainText = new QPlainTextEdit();
+	loggerWidget = new LoggerView();
 	m_StackedWidget->addWidget(renderContainer);
 	m_StackedWidget->addWidget(plotWidget);
-	m_StackedWidget->addWidget(plainText);
+	m_StackedWidget->addWidget(loggerWidget);
 	leftLayout->addWidget(m_StackedWidget);
 
 	QVBoxLayout *rightLayout = new QVBoxLayout();
@@ -51,6 +57,28 @@ void CentralWidget::initUi()
 	mainLayout->addLayout(rightLayout);
 	mainLayout->setStretchFactor(leftLayout, 7);
 	mainLayout->setStretchFactor(rightLayout, 3);
+
+}
+
+void CentralWidget::initLogger()
+{
+	logger = Logger::getInstance();
+	//logger->setTextEdit(logText);
+	logger->write(QString::fromLocal8Bit("江苏富科思科技有限公司"));
+	logger->write(QString::fromLocal8Bit("LNAC setup"));
+}
+
+void CentralWidget::initCamera()
+{
+	m_Tracker = OpsTrackingDevice::getInstance();
+}
+
+void CentralWidget::initTimer()
+{
+	m_Timer = new QTimer(this);
+
+	if (NULL != m_Tracker)
+		m_Timer->setInterval(int(1000.0 / m_Tracker->getFrequency()));
 }
 
 void CentralWidget::buildConnections()
@@ -70,40 +98,66 @@ void CentralWidget::buildConnections()
 	connect(m_ControlWidget, &ControlWidget::recordingISOCenter, this, &CentralWidget::recordingISOCenter);
 	connect(m_ControlWidget, &ControlWidget::switchToISOCenter, this, &CentralWidget::switchToISOCenter);
 
-	//建立拟合结果与界面更新信号槽
+	//建立拟合结果与界面更新信号槽(所有的结果都在加速器坐标系/三维场景坐标系下)
 	connect(m_Model, &CentralModel::markerSize, this, &CentralWidget::markerSize);
 	connect(m_Model, &CentralModel::markerPosition, this, &CentralWidget::markerPosition);
 	connect(m_Model, &CentralModel::horizontalRegisterRecorded, this, &CentralWidget::horizontalRegisterRecorded);
 	connect(m_Model, &CentralModel::circleResult, this, &CentralWidget::circleResult);
 	connect(m_Model, &CentralModel::translateResult, this, &CentralWidget::translateResult);
 	connect(m_Model, &CentralModel::registerPosition, this, &CentralWidget::registerPosition);
+	connect(m_Model, &CentralModel::sendReport, this, &CentralWidget::reportResult);
+
 }
 
 void CentralWidget::show3DPage()
 {
-	if (NULL != m_StackedWidget){
-		m_StackedWidget->setCurrentIndex(STACKED_THREED_VIEW_INDEX);
-	}
+	m_StackedWidget->setCurrentIndex(STACKED_THREED_VIEW_INDEX);
 }
 
 void CentralWidget::showPlotPage()
 {
-	if (NULL != m_StackedWidget){
-		m_StackedWidget->setCurrentIndex(STACKED_PLOT_VIEW_INDEX);
-	}
+
+	m_StackedWidget->setCurrentIndex(STACKED_PLOT_VIEW_INDEX);
+
 }
 
-void CentralWidget::showPlainTextPage()
+void CentralWidget::showLogTextPage()
 {
-	if (NULL != m_StackedWidget){
-		m_StackedWidget->setCurrentIndex(STACKED_PLAINTEXT_INDEX);
-	}
+	m_StackedWidget->setCurrentIndex(STACKED_PLAINTEXT_INDEX);
+
+}
+
+void CentralWidget::exportReport()
+{
+	loggerWidget->filePrintPdf();
+}
+
+void CentralWidget::saveReport()
+{
+	loggerWidget->fileSave();
+}
+
+void CentralWidget::saveAsReport()
+{
+	loggerWidget->fileSaveAs();
+
+}
+
+void CentralWidget::printReport()
+{
+	loggerWidget->filePrint();
+}
+
+void CentralWidget::printPreviewReport()
+{
+	loggerWidget->filePrintPreview();
 }
 
 void CentralWidget::clearAllPlot()
 {
 	plotWidget->clearCurveDataVector();
 }
+
 void CentralWidget::TrackingModeChanged(OperationMode mode)
 {
 	m_TrackingMode = mode;
@@ -125,12 +179,12 @@ void CentralWidget::monitoring()
 
 void CentralWidget::switchToHorizontalRegister() 
 {
-	if (m_Tracker->getState() < TrackingDevice::Ready) {
-		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-		return;
-	}
+	//if (m_Tracker->getState() < TrackingDevice::Ready) {
+	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+	//	return;
+	//}
 
-	m_Tracker->startTrackingInMode(MarkerTracking3D);
+	//m_Tracker->startTrackingInMode(MarkerTracking3D);
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}
@@ -141,12 +195,12 @@ void CentralWidget::switchToHorizontalRegister()
 
 void CentralWidget::switchToGantry() 
 {
-	if (m_Tracker->getState() < TrackingDevice::Ready) {
-		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-		return;
-	}
+	//if (m_Tracker->getState() < TrackingDevice::Ready) {
+	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+	//	return;
+	//}
 
-	m_Tracker->startTrackingInMode(MarkerTracking3D);
+	//m_Tracker->startTrackingInMode(MarkerTracking3D);
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}
@@ -157,12 +211,12 @@ void CentralWidget::switchToGantry()
 
 void CentralWidget::switchToCollimator()
 {
-	if (m_Tracker->getState() < TrackingDevice::Ready) {
-		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-		return;
-	}
+	//if (m_Tracker->getState() < TrackingDevice::Ready) {
+	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+	//	return;
+	//}
 
-	m_Tracker->startTrackingInMode(MarkerTracking3D);
+	//m_Tracker->startTrackingInMode(MarkerTracking3D);
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}
@@ -173,12 +227,12 @@ void CentralWidget::switchToCollimator()
 
 void CentralWidget::switchToBed(int mode)
 {
-	if (m_Tracker->getState() < TrackingDevice::Ready) {
-		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-		return;
-	}
+	//if (m_Tracker->getState() < TrackingDevice::Ready) {
+	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+	//	return;
+	//}
 
-	m_Tracker->startTrackingInMode(MarkerTracking3D);
+	//m_Tracker->startTrackingInMode(MarkerTracking3D);
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}
@@ -190,12 +244,12 @@ void CentralWidget::switchToBed(int mode)
 
 void CentralWidget::switchToISOCenter()
 {
-	if (m_Tracker->getState() < TrackingDevice::Ready) {
-		QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-		return;
-	}
+	//if (m_Tracker->getState() < TrackingDevice::Ready) {
+	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+	//	return;
+	//}
 
-	m_Tracker->startTrackingInMode(ToolTracking6D);
+	//m_Tracker->startTrackingInMode(ToolTracking6D);
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}
@@ -211,18 +265,23 @@ void CentralWidget::recordingHorizontalRegister()
 	//MarkerPointContainerType positions;
 	//m_Tracker->getMarkerPositions(&positions);
 	//m_Model->handle(positions);
+	logger->write(QString::fromLocal8Bit("Recording HorizonRegister"));
 }
 
 void CentralWidget::recordingGantry()
 {
 	m_Model->setHandlerToGantry();
 	plotWidget->setGantryUpdateFlag();
+
+	logger->write(QString::fromLocal8Bit("Recording Gantry Rotate"));
 }
 
 void CentralWidget::recordingCollimator()
 {
 	m_Model->setHandlerToCollimator();
 	plotWidget->setCollimatorUpdateFlag();
+
+	logger->write(QString::fromLocal8Bit("Recording Collimator Rotate"));
 }
 
 void CentralWidget::recordingBed(int mode)
@@ -230,15 +289,19 @@ void CentralWidget::recordingBed(int mode)
 	m_Model->setHandlerToBed(mode);
 	if (0 == mode){
 		plotWidget->setBedDegreeUpdateFlag();
+		logger->write(QString::fromLocal8Bit("Recording Bed Rotate"));
 	}
 	else{
 		plotWidget->setBedDistanceUpdateFlag();
+		logger->write(QString::fromLocal8Bit("Recording Bed Translate"));
 	}
 }
 
 void CentralWidget::recordingISOCenter()
 {
 	m_Model->setHandlerToISOCenter();
+
+	logger->write(QString::fromLocal8Bit("Recording ISO Center"));
 }
 
 void CentralWidget::monitoringMarker3D()
@@ -246,6 +309,9 @@ void CentralWidget::monitoringMarker3D()
 	MarkerPointContainerType positions;
 	m_Tracker->getMarkerPositions(&positions);
 	m_Model->handle(positions);
+
+	QString str = QStringLiteral("Monitor in 3D model");
+	logger->write(str);
 }
 
 void CentralWidget::monitoringTool6D()
@@ -253,6 +319,9 @@ void CentralWidget::monitoringTool6D()
 	Point3D point;
 	m_Tracker->getToolPosition(point);
 	m_Model->handle(point);
+
+	QString str = QStringLiteral("Monitor in 6D model");
+	logger->write(str);
 }
 //
 //update display widget and render widget
@@ -280,7 +349,11 @@ void CentralWidget::markerPosition(MarkerPointType &point)
 void CentralWidget::horizontalRegisterRecorded()
 {
 	m_DisplayWidget->horizontalRegisterRecorded();
-	QMessageBox::information(Q_NULLPTR, QString::fromLocal8Bit("Information"), QString::fromLocal8Bit("水平面已注册"));
+
+	//记录日志
+	QString str = QStringLiteral("Horizon has registered!");
+	logger->write(str);
+	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("水平面已注册"));
 }
 //
 //在曲线图表和显示面板更新
@@ -303,12 +376,29 @@ void CentralWidget::circleResult(Circle *circle)
 								QVector3D(circle_center[0], circle_center[1], circle_center[2]+5),
 								QColor(Qt::blue));
 
+		//记录日志
+		QString str = QStringLiteral("Gantry rotate result:\n");
+		str += QString("angle: %1").arg(angle, 0, 'f', 2);
+		str += "\n";
+		str += QString("circle: ( %1, %2, %3 )").arg(circle_center[0], 0, 'f', 2).arg(circle_center[1], 0, 'f', 2).arg(circle_center[2], 0, 'f', 2);
+		str += "\n";
+		str += QString("normal: ( %1, %2, %3 )").arg(normal_vector[0], 0, 'f', 2).arg(normal_vector[1], 0, 'f', 2).arg(normal_vector[2], 0, 'f', 2);
+		logger->write(str);
 	}
 	if (handler == COLLIMATOR_HANDLER){
 		plotWidget->updateCollimatorDegreeDistance(angle);
 		plotWidget->updateCollimatorDegreeVelocity(angle);
 
 		renderWidget->rotateCollimator(angle);
+
+		//记录日志
+		QString str = QStringLiteral("Collimator rotate result:\n");
+		str += QString("angle: %1").arg(angle, 0, 'f', 2);
+		str += "\n";
+		str += QString("circle: ( %1, %2, %3 )").arg(circle_center[0], 0, 'f', 2).arg(circle_center[1], 0, 'f', 2).arg(circle_center[2], 0, 'f', 2);
+		str += "\n";
+		str += QString("normal: ( %1, %2, %3 )").arg(normal_vector[0], 0, 'f', 2).arg(normal_vector[1], 0, 'f', 2).arg(normal_vector[2], 0, 'f', 2);
+		logger->write(str);
 	}
 	if (handler == BED_HANDLER){
 		plotWidget->updateBedDegreeDistance(angle);
@@ -318,11 +408,20 @@ void CentralWidget::circleResult(Circle *circle)
 		renderWidget->drawYAxis(QVector3D(circle_center[0], circle_center[1]-5, circle_center[2]),
 								QVector3D(circle_center[0], circle_center[1]+5, circle_center[2]),
 								QColor(Qt::red));
+
+		//记录日志
+		QString str = QStringLiteral("Bed rotate result:\n");
+		str += QString("angle: %1").arg(angle, 0, 'f', 2);
+		str += "\n";
+		str += QString("circle: ( %1, %2, %3 )").arg(circle_center[0], 0, 'f', 2).arg(circle_center[1], 0, 'f', 2).arg(circle_center[2], 0, 'f', 2);
+		str += "\n";
+		str += QString("normal: ( %1, %2, %3 )").arg(normal_vector[0], 0, 'f', 2).arg(normal_vector[1], 0, 'f', 2).arg(normal_vector[2], 0, 'f', 2);
+		logger->write(str);
 	}
 
 }
 //
-//
+//机床位移结果
 //
 void CentralWidget::translateResult(double bias[3])
 {
@@ -338,6 +437,15 @@ void CentralWidget::translateResult(double bias[3])
 
 	plotWidget->updateBedDistance(x, y, z);
 	plotWidget->updateBedVelocity(x, y, z);
+
+	//记录日志
+	QString str = QStringLiteral("Bed Translate Resulte:\n");
+	str += QString("x = %1").arg(x, 0, 'f', 2);
+	str += "\n";
+	str += QString("y = %1").arg(y, 0, 'f', 2);
+	str += "\n";
+	str += QString("z = %1").arg(z, 0, 'f', 2);
+	logger->write(str);
 }
 //
 //在显示面板更新激光灯确定的等中心坐标
@@ -347,4 +455,39 @@ void CentralWidget::registerPosition(Point3D &point)
 	double position[3] = { point[0], point[1], point[3] };
 	m_DisplayWidget->setRegisteredPosition(position);
 	renderWidget->drawISOCenter(position[2], position[1], -position[0]);
+
+	//记录日志
+	QString str = QStringLiteral("Laser register ISOCenter: ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
+																				.arg(point[1], 0, 'f', 2)
+																				.arg(point[2], 0, 'f', 2);
+	logger->write(str);
+}
+//根据计算得到的等中心、垂足A/B坐标和公垂线长度更新报告和三维场景
+void CentralWidget::reportResult(const ReportData& report)
+{
+	QString softCenter = QString("( %1, %2, %3 )").arg(report.softCenter[0], 0, 'f', 2)
+												.arg(report.softCenter[1], 0, 'f', 2)
+												.arg(report.softCenter[2], 0, 'f', 2);
+
+	QString laserCenter = QString("( %1, %2, %3 )").arg(report.laserCenter[0], 0, 'f', 2)
+												.arg(report.laserCenter[1], 0, 'f', 2)
+												.arg(report.laserCenter[2], 0, 'f', 2);
+
+	QString foot_A = QString("( %1, %2, %3)").arg(report.footA[0], 0, 'f', 2)
+											.arg(report.footA[1], 0, 'f', 2)
+											.arg(report.footA[2], 0, 'f', 2);
+
+	QString foot_B = QString("( %1, %2, %3)").arg(report.footB[0], 0, 'f', 2)
+											.arg(report.footB[1], 0, 'f', 2)
+											.arg(report.footB[2], 0, 'f', 2);
+
+	QString distanceSoft2Laser = QString(" %1").arg(report.distanceLaser2Soft, 0, 'f', 2);
+
+	double distanceA = sqrt(vtkMath::Distance2BetweenPoints(report.footA, report.laserCenter));
+	double distanceB = sqrt(vtkMath::Distance2BetweenPoints(report.footB, report.laserCenter));;
+	QString distanceA2Laser = QString(" %1").arg(distanceA, 0, 'f', 2);
+	QString distanceB2Laser = QString(" %1").arg(distanceB, 0, 'f', 2);
+
+	loggerWidget->setHtmlReport(softCenter, laserCenter, foot_A, foot_B, distanceSoft2Laser, distanceA2Laser, distanceB2Laser);
+	renderWidget->drawVerticalLine(report.footA, report.footB);
 }

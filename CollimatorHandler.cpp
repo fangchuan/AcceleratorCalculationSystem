@@ -38,20 +38,11 @@ AbstractMonitorHandler *CollimatorHandler::handle(MarkerPointContainerType &posi
 
 	double center[3], normal[3], radius;
 	if (m_FitCircle->getCircle(center, normal, radius)) {
-		// normalize
-		double length = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
-		normal[0] /= length;
-		normal[1] /= length;
-		normal[2] /= length;
 
 		double rad = (out[2] - center[2]) / radius;
 		rad = rad > 1 ? 1 : rad;
 		rad = rad < -1 ? -1 : rad;
 		double angle = acos(rad) * RAD2DEGREE;
-
-		//if (qIsNaN(angle))
-		//	angle = 0;
-		//else
 		angle *= out[0] < center[0] ? 1 : -1;
 		
 		Circle circle;

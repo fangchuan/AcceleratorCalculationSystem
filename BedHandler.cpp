@@ -40,8 +40,7 @@ AbstractMonitorHandler *BedHandler::handle(MarkerPointContainerType &positions)
 	//else {
 	//	emit markerPosition(positions.at(0));
 	//}
-	switch (m_Mode)
-	{
+	switch (m_Mode){
 	case 0:
 		handleRotation(positions);
 		break;
@@ -84,25 +83,13 @@ void BedHandler::handleRotation(MarkerPointContainerType &positions)
 	m_FitCircle->addPoint(marker);
 	double center[3], normal[3], radius;
 	if (m_FitCircle->getCircle(center, normal, radius)) {
-		// normalize
-		double length = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
-		normal[0] /= length;
-		normal[1] /= length;
-		normal[2] /= length;
-
+		
 		double rad = (out[2] - center[2]) / radius;
 		rad = rad > 1 ? 1 : rad;
 		rad = rad < -1 ? -1 : rad;
 		double angle = acos(rad) * RAD2DEGREE;
-		qInfo() << "bed: current point Z:"<<out[2];
-		qInfo() << "bed: center_Z" << center[2];
-		qInfo() << "bed: Radius:" << radius;
-		qInfo() << "bed: angle:" << angle;
-		//if (qIsNaN(angle))
-		//	angle = 0;
-		//else
-		angle *= out[0] < center[0] ? -1 : 1;//逆时针旋转为证角度
-		
+
+		angle *= out[0] < center[0] ? -1 : 1;//逆时针旋转为+
 
 		Circle circle;
 		memcpy(circle.Center, center, sizeof(center));
@@ -133,4 +120,12 @@ void BedHandler::handleTranslation(MarkerPointContainerType &positions)
 
 	double bias[3] = { out[0] - m_BasePoint[0], out[1] - m_BasePoint[1], out[2] - m_BasePoint[2] };
 	emit translateResult(bias);
+}
+
+bool BedHandler::getRotateStatistical(double& variance, double& mean)
+{
+	if (m_FitCircle->calRotateError(variance, mean))
+		return true;
+	else
+		return false;
 }

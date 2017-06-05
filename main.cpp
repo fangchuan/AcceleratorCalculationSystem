@@ -26,7 +26,7 @@ void splashMessage(QScopedPointer<QSplashScreen>& splashScreen, const QString& m
 bool checkEnvironment()
 {
     bool ok = true;
-    ok = ok && QFile::exists(":/Resources/dat/HorizontalRegister.dat");
+    ok = ok && QFile::exists("./Resources/data/HorizontalRegister.dat");
 
     return ok;
 }
@@ -38,9 +38,9 @@ extern "C" {
 int main(int argc, char *argv[])
 {
 
-	QtSingleApplication::setOrganizationName("Focus");
-	QtSingleApplication::setOrganizationDomain("jsfocus.cn");
-	QtSingleApplication::setApplicationName("Accelerator Calibration System");
+	QtSingleApplication::setOrganizationName(QStringLiteral("Focus"));
+	QtSingleApplication::setOrganizationDomain(QStringLiteral("jsfocus.cn"));
+	QtSingleApplication::setApplicationName(QStringLiteral("Accelerator Calibration System"));
 	QtSingleApplication::setApplicationVersion(ACS_VERSION);
 	QtSingleApplication::setDesktopSettingsAware(false);
 	QtSingleApplication app(argc, argv);
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     }
 #endif
     if (!checkEnvironment()) {
-		QMessageBox::warning(Q_NULLPTR, QString::fromUtf8("警告"), QString::fromUtf8("缺少必要的文件，软件无法正常工作"));
+		QMessageBox::critical(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromUtf8("缺少必要的文件，软件无法正常工作"));
     }
 
     if (app.isRunning())
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     else
     {
 		splashMessage(splashScreen, QString::fromUtf8("没有找到硬件!"));
-        QMessageBox::warning(Q_NULLPTR, QString::fromUtf8("警告"), QString::fromUtf8("未找到相机，请检查相机连接！"));
+        QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromUtf8("未找到相机，请检查相机连接！"));
     }
 
 	splashMessage(splashScreen, QString::fromUtf8("正在创建用户界面..."));

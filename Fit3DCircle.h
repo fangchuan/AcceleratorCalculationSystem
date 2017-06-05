@@ -23,7 +23,7 @@ public:
 	void addPoint(MarkerPointType &point);
 	void clearPoints();
 	bool getCircle(double center[3], double normal[3], double& radius);
-
+	bool calRotateError(double& variance, double& mean);
 signals:
 	void fitCircle(double center[3], double radius);
 
@@ -43,4 +43,6 @@ private:
 	double m_Center[3];//圆心坐标
 	double m_Normal[3];//法线向量
 	double m_Radius;//半径
+	double m_ErrorVariance;
+	double m_ErrorMean;
 };

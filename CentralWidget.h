@@ -11,7 +11,8 @@
 #include "Circle.h"
 #include "RenderView.h"
 #include "PlotView.h"
-
+#include "LoggerView.h"
+#include "logger.h"
 
 class QStackedWidget;
 class DisplayWidget;
@@ -22,6 +23,7 @@ class CentralModel;
 class Circle;
 class RenderView;
 class PlotView;
+class LoggerView;
 
 
 #define  STACKED_THREED_VIEW_INDEX   0
@@ -39,10 +41,18 @@ public:
 public slots:
 	void show3DPage();
 	void showPlotPage();
-	void showPlainTextPage();
+	void showLogTextPage();
+	void exportReport();
+	void printReport();
+	void printPreviewReport();
+	void saveReport();
+	void saveAsReport();
 	void clearAllPlot();
 private:
 	void initUi();
+	void initLogger();
+	void initCamera();
+	void initTimer();
 	void buildConnections();
 	void monitoringMarker3D();
 	void monitoringTool6D();
@@ -66,6 +76,8 @@ private slots:
 	void circleResult(Circle *circle);
 	void translateResult(double bias[3]);
 	void registerPosition(Point3D &point);
+	void reportResult(  const ReportData & report);
+
 
 private:
 	QStackedWidget*			m_StackedWidget;
@@ -77,4 +89,6 @@ private:
 	CentralModel*					m_Model;
 	QtRenderView::RenderView*  renderWidget;
 	PlotView*					 plotWidget;
+	LoggerView*                loggerWidget;
+	Logger*							 logger;
 };

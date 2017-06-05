@@ -10,14 +10,16 @@ need to use our class within a container.
 */
 QtRenderView::RenderView::RenderView(QWindow *parent)
 	: QWindow(parent)
-	, m_update_pending(false)
-	, m_animating(false)
 	, mOgreRoot(NULL)
 	, mOgreWindow(NULL)
 	, mOgreCamera(NULL)
 	, mCameraMan(NULL)
 	, mOgreCenterNode(NULL)
 	, mOgreMarkerNode(NULL)
+	, m_update_pending(false)
+	, m_animating(false)
+	, m_gantry_calibrated(false)
+	, m_bed_calibrated(false)
 {
 	setAnimating(true);
 	installEventFilter(this);
@@ -33,8 +35,6 @@ QtRenderView::RenderView::~RenderView()
 	if (mCameraMan)
 		delete mCameraMan;
 	delete mOgreRoot;
-
-	//    qDebug()<<"enter RenderView deconstructor";
 }
 
 /*
@@ -579,7 +579,7 @@ void QtRenderView::RenderView::drawXAxis(const QVector3D &start, const QVector3D
 		xAxis->colour(r, g, b);
 		xAxis->position(x_e, y_e, z_e);  // draw first line
 		xAxis->end();
-
+		centerGantry = Ogre::Vector3(0, y_s, z_s);
 		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(X_AXIS_NODE_NAME)->attachObject(xAxis);
 	}
 	else{
@@ -591,6 +591,14 @@ void QtRenderView::RenderView::drawXAxis(const QVector3D &start, const QVector3D
 		xAxis->colour(r, g, b);
 		xAxis->position(x_e, y_e, z_e);  // draw first line
 		xAxis->end();
+
+		centerGantry = Ogre::Vector3(0, y_s, z_s);
+	}
+	//若两个轴线都绘制完成，则开始绘制公垂线
+	m_gantry_calibrated = true;
+	if (m_gantry_calibrated && m_bed_calibrated){
+		drawVerticalLine();
+		emit ISOCenterSelected();
 	}
 }
 //画Y轴线
@@ -615,6 +623,7 @@ void QtRenderView::RenderView::drawYAxis(const QVector3D &start, const QVector3D
 		yAxis->colour(r, g, b);
 		yAxis->position(x_e, y_e, z_e);// draw first line
 		yAxis->end();
+		centerBed = Ogre::Vector3(x_s, 0, z_s);
 		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(Y_AXIS_NODE_NAME)->attachObject(yAxis);
 	}
 	else{
@@ -626,10 +635,17 @@ void QtRenderView::RenderView::drawYAxis(const QVector3D &start, const QVector3D
 		yAxis->colour(r, g, b);
 		yAxis->position(x_e, y_e, z_e);// draw first line
 		yAxis->end();
-	}
 
+		centerBed = Ogre::Vector3(x_s, 0, z_s);
+	}
+	//若两个轴线都绘制完成，则开始绘制公垂线
+	m_bed_calibrated = true;
+	if (m_gantry_calibrated && m_bed_calibrated){
+		drawVerticalLine();
+		emit ISOCenterSelected();
+	}
 }
-//
+//画等中心小球
 void QtRenderView::RenderView::drawISOCenter(const double x, const double y, const double z)
 {
 	//set ISO Center:(0,0,0)
@@ -643,7 +659,7 @@ void QtRenderView::RenderView::drawISOCenter(const double x, const double y, con
 		mOgreCenterNode->setPosition(x, y, z);
 	}
 }
-//
+//实时更新小球运动位置
 void QtRenderView::RenderView::drawMarkerPoint(const double x, const double y, const double z)
 {
 	if (NULL == mOgreMarkerNode){
@@ -656,7 +672,7 @@ void QtRenderView::RenderView::drawMarkerPoint(const double x, const double y, c
 		mOgreMarkerNode->setPosition(x, y, z);
 	}
 }
-//
+//画屏幕左下方的参考坐标系
 void QtRenderView::RenderView::drawCoordinate()
 {
 	Ogre::Viewport *vp = 0;
@@ -813,5 +829,46 @@ void QtRenderView::RenderView::drawCoordinate()
 	*/
 
 }
-
-//
+//画两个轴线的公垂线
+void QtRenderView::RenderView::drawVerticalLine()
+{
+	if (!mOgreSceneMgr->hasManualObject(VERTICAL_LINE_NAME)){
+		Ogre::ManualObject* line = mOgreSceneMgr->createManualObject(VERTICAL_LINE_NAME);
+		line->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+		line->position(centerGantry.x, centerGantry.y, centerGantry.z);// start position
+		line->colour(1.0, 0, 0); //red color
+		line->position(centerBed.x, centerBed.y, centerBed.z);// draw first line
+		line->end();
+		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(VERTICAL_LINE_NODE_NAME)->attachObject(line);
+	}
+	else{
+		Ogre::ManualObject* line = mOgreSceneMgr->getManualObject(VERTICAL_LINE_NAME);
+		Ogre::SceneNode*  node = mOgreSceneMgr->getSceneNode(VERTICAL_LINE_NODE_NAME);
+		line->beginUpdate(0);
+		line->position(centerGantry.x, centerGantry.y, centerGantry.z);// start position
+		line->colour(1.0, 0, 0); //red color
+		line->position(centerBed.x, centerBed.y, centerBed.z);// draw first line
+		line->end();
+	}
+}
+void QtRenderView::RenderView::drawVerticalLine(const double footA[3], const double footB[3])
+{
+	if (!mOgreSceneMgr->hasManualObject(VERTICAL_LINE_NAME)){
+		Ogre::ManualObject* line = mOgreSceneMgr->createManualObject(VERTICAL_LINE_NAME);
+		line->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+		line->position(footA[0], footA[1], footA[2]);// start position
+		line->colour(1.0, 0, 0); //red color
+		line->position(footB[0], footB[1], footB[2]);// draw first line
+		line->end();
+		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(VERTICAL_LINE_NODE_NAME)->attachObject(line);
+	}
+	else{
+		Ogre::ManualObject* line = mOgreSceneMgr->getManualObject(VERTICAL_LINE_NAME);
+		Ogre::SceneNode*  node = mOgreSceneMgr->getSceneNode(VERTICAL_LINE_NODE_NAME);
+		line->beginUpdate(0);
+		line->position(footA[0], footA[1], footA[2]);// start position
+		line->colour(1.0, 0, 0); //red color
+		line->position(footB[0], footB[1], footB[2]);// draw first line
+		line->end();
+	}
+}

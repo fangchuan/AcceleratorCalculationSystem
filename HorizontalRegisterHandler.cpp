@@ -8,8 +8,9 @@
 #include <QDataStream>
 #include <qmessagebox.h>
 #include <QTextCodec>
+#include <QCoreApplication>
 #include <QDebug>
-#include <qlogging.h>
+
 
 HorizontalRegisterHandler::HorizontalRegisterHandler(QObject *parent)
 	: AbstractMonitorHandler(parent),
@@ -33,10 +34,10 @@ HorizontalRegisterHandler::~HorizontalRegisterHandler()
 
 void HorizontalRegisterHandler::loadHorizontalRegister()
 {
-    QFile file("HorizontalRegister.dat");
-	QDataStream out(&file);
+	if (QFile::exists("./Resources/data/HorizontalRegister.dat")){
+		QFile file("./Resources/data/HorizontalRegister.dat");
+		QDataStream out(&file);
 
-	if (QFile::exists("HorizontalRegister.dat")){
 		if (file.open(QIODevice::ReadOnly)) {
 			double point[3];
 			m_SourcePoints->SetNumberOfPoints(3);
@@ -44,13 +45,13 @@ void HorizontalRegisterHandler::loadHorizontalRegister()
 				out >> point[0] >> point[1] >> point[2];
 				m_SourcePoints->SetPoint(i, point);
 
-				qInfo() << "HorizonRegister: Point" << i << ": (" << point[0] << "," << point[1] << "," << point[2] << ")";
+				//qInfo() << "HorizonRegister: Point" << i << ": (" << point[0] << "," << point[1] << "," << point[2] << ")";
 			}		
 		}
 		file.close();	
 	}
 	else{
-		QMessageBox::warning(NULL, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("未找到水平面注册数据"));
+		QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("未找到水平面注册数据"));
 	}
 }
 
@@ -164,7 +165,7 @@ label:
 	points->Delete();
 	emit markerSize(3);
 	emit horizontalRegisterRecorded();
-	qInfo() << "HorizonReggister: Horizontal regitered!";
+	//qInfo() << "HorizonReggister: Horizontal regitered!";
 	return nullptr;
 }
 

@@ -21,6 +21,18 @@ class ISOCenterHandler;
 #define  ISOCENTER_HANDLER			 5
 
 
+typedef struct ReportData{
+	double softCenter[3];
+	double laserCenter[3];
+	double footA[3];
+	double footB[3];
+	double distanceLaser2Soft;
+	double gantryVar;
+	double gantryMean;
+	double bedVar;
+	double bedMean;
+
+}ReportData;
 class CentralModel : public QObject
 {
 	Q_OBJECT
@@ -38,7 +50,7 @@ public:
 	int  getHandler();
 	void handle(MarkerPointContainerType &positions);
 	void handle(Point3D &point);
-
+	void report();
 signals:
 	void markerSize(int size);
 	void registerPosition(Point3D &point);
@@ -46,12 +58,15 @@ signals:
 	void markerPosition(MarkerPointType &point);
 	void circleResult(Circle *circle);
 	void translateResult(double bias[3]);
-
+	void sendReport(const ReportData & reportData);
 private:
+	void initData();
 	void buildConnections();
-
 private slots:
-	
+	void laserISOCenter(Point3D& point);
+	void softISOCenter(Circle* circle);
+	//计算软件等中心和公垂线垂足
+	void calSoftISOCenterAndFoots(Circle* gantry, Circle* bed);
 private:
 	AbstractMonitorHandler *m_Handler;
 	HorizontalRegisterHandler *m_HorizontalRegisterHandler;
@@ -59,4 +74,11 @@ private:
 	CollimatorHandler *m_CollimatorHandler;
 	BedHandler *m_BedHandler;
 	ISOCenterHandler* m_ISOCenterHanlder;
+
+	bool m_GantryFitted;
+	bool m_BedFitted;
+	bool m_softCenterIsCal;
+	Circle* gantryCircle;
+	Circle* bedCircle;
+	ReportData reportData;
 };

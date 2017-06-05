@@ -12,14 +12,11 @@ class BedHandler : public AbstractMonitorHandler
 public:
 	BedHandler(QObject *parent = Q_NULLPTR);
 	virtual ~BedHandler();
-
-	void setMode(int mode);
-
 	virtual AbstractMonitorHandler* handle(MarkerPointContainerType &positions);
 	virtual AbstractMonitorHandler* handle(Point3D &point);
-
 	virtual void reset();
-
+	void setMode(int mode);
+	bool getRotateStatistical(double& variance, double& mean);
 signals:
 	void markerSize(int size);
 	void markerPosition(MarkerPointType &point);
@@ -29,7 +26,7 @@ signals:
 private:
 	void handleRotation(MarkerPointContainerType &positions);
 	void handleTranslation(MarkerPointContainerType &positions);
-
+	
 private:
 	Fit3DCircle *m_FitCircle;
 	int m_Mode;

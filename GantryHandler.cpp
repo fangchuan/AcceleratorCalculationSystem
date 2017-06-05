@@ -38,21 +38,13 @@ AbstractMonitorHandler *GantryHandler::handle(MarkerPointContainerType &position
 	m_FitCircle->addPoint(marker);
 	double center[3], normal[3], radius;
 	if (m_FitCircle->getCircle(center, normal, radius)) {
-		// normalize
-		double length = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
-		normal[0] /= length;
-		normal[1] /= length;
-		normal[2] /= length;
 
 		double rad = (out[1] - center[1]) / radius;
 		rad = rad > 1 ? 1 : rad;
 		rad = rad < -1 ? -1 : rad;
 		double angle = acos(rad) * RAD2DEGREE;
 
-		//if (qIsNaN(angle))
-		//	angle = 0;
-		//else
-		angle *= out[0] < center[0] ? 1 : -1;//逆时针旋转为正角度
+		angle *= out[0] < center[0] ? 1 : -1;//逆时针旋转为+
 
 		Circle circle;
 		memcpy(circle.Center, center, sizeof(center));
@@ -75,4 +67,12 @@ AbstractMonitorHandler *GantryHandler::handle(Point3D &point)
 void GantryHandler::reset()
 {
 	m_FitCircle->clearPoints();
+}
+
+bool GantryHandler::getRotateStatistical(double& variance, double& mean)
+{
+	if (m_FitCircle->calRotateError(variance, mean))
+		return true;
+	else
+		return false;
 }

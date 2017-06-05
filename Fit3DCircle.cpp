@@ -4,6 +4,9 @@
 #include "vtkLandmarkTransform.h"
 #include "vtkPoints.h"
 #include "vtkMath.h"
+#include <vtkPlane.h>
+#include "vtkSmartPointer.h"
+
 
 Fit3DCircle::Fit3DCircle(QObject *parent)
 	: QObject(parent),
@@ -53,9 +56,7 @@ void Fit3DCircle::addPoint(MarkerPointType &point)
 {
 	m_Positions.push_back(point);
 	if (!m_IsCalculated) {
-		if (m_Positions.size() > 3 && (fabs(point[0] - m_Positions.at(0)[0]) > 100 ||
-									   fabs(point[1] - m_Positions.at(0)[1]) > 100 ||
-									   fabs(point[2] - m_Positions.at(0)[2]) > 100)) {   // threshold 100
+		if (m_Positions.size() > 3 && (fabs(point[0] - m_Positions.at(0)[0]) > 100 )) {   // threshold 100
 			calculate();
 		}
 	}
@@ -105,6 +106,11 @@ void Fit3DCircle::calculate()
 	m_Normal[0] = A;
 	m_Normal[1] = B;
 	m_Normal[2] = C;
+	// normalize
+	double length = sqrt(m_Normal[0] * m_Normal[0] + m_Normal[1] * m_Normal[1] + m_Normal[2] * m_Normal[2]);
+	m_Normal[0] /= length;
+	m_Normal[1] /= length;
+	m_Normal[2] /= length;
 
 	double Radius, Center[3];
 	if (fabs(C) > 1e-15)
@@ -150,8 +156,7 @@ void Fit3DCircle::calculate()
 		m_Transform->Update();
 		vtkMatrix4x4 *matrix = m_Transform->GetMatrix();
 		double derminant = matrix->Determinant();
-		if (fabs(derminant - 1) < 1e-3)
-		{
+		if (fabs(derminant - 1) < 1e-3){
 			double X1 = 0;
 			double Y1 = 0;
 			double X2 = 0;
@@ -161,8 +166,7 @@ void Fit3DCircle::calculate()
 			double X1Y1 = 0;
 			double X1Y2 = 0;
 			double X2Y1 = 0;
-			for (int i = 0; i < size; ++i)
-			{
+			for (int i = 0; i < size; ++i){
 				double in[4], out[4];
 				in[0] = m_Positions.at(i)[0]; in[1] = m_Positions.at(i)[1]; in[2] = m_Positions.at(i)[2]; in[3] = 1.0;
 				matrix->MultiplyPoint(in, out);
@@ -214,8 +218,7 @@ void Fit3DCircle::calculate()
 
 			m_IsCalculated = true;
 		}
-		else
-		{
+		else{
 			m_IsCalculated = false;
 		}
 	}
@@ -279,4 +282,43 @@ bool Fit3DCircle::isPointOnCircle(const MarkerPointType &point)
 	p[0] = point[0]; p[1] = point[1]; p[2] = point[2];
 	double dis = sqrt(vtkMath::Distance2BetweenPoints(p, m_Center));
 	return fabs(dis - m_Radius) < 1.0;
+}
+
+bool Fit3DCircle::calRotateError(double& variance, double& mean)
+{
+	//若平面法向量为0，则返回
+	if (m_Normal[0] == 0 && m_Normal[1] == 0 && m_Normal[2] == 0)
+		return false;
+	//构建轨迹圆所在的平面
+	vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
+	plane->SetNormal(m_Normal);
+	plane->SetOrigin(m_Center);
+
+	double sum = 0;
+	std::vector<double> m_error;
+
+	for (std::vector<MarkerPointType>::const_iterator itp = m_Positions.begin(); itp != m_Positions.end(); itp++){
+		double d[3] = { (*itp)[0], (*itp)[1], (*itp)[2] };
+		 double distance = plane->DistanceToPlane(d);
+		 sum += distance;
+		 m_error.push_back(distance);
+	}
+	//如果此时点集的大小跟误差集的大小不一致，或点集为0则返回
+	if (m_Positions.size() != m_error.size())
+		return false;
+	if (m_error.size() == 0)
+		return false;
+
+	 m_ErrorMean = sum / m_error.size();
+	 sum = 0;
+	 for (std::vector<double>::const_iterator ite = m_error.begin(); ite != m_error.end(); ite++){
+		 double e = *ite - m_ErrorMean;
+		 sum += e * e;
+	 }
+	 m_ErrorVariance = sum / m_error.size();
+
+	 variance = m_ErrorVariance;
+	 mean = m_ErrorMean;
+
+	 return true;
 }

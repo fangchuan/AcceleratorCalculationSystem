@@ -1,8 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>Resources/dat/HorizontalRegister.dat</file>
         <file>Resources/image/SplashScreen.png</file>
-        <file>Resources/polaris/8700248.rom</file>
         <file>Resources/image/axix_home.png</file>
         <file>Resources/image/configurate.png</file>
         <file>Resources/image/help.png</file>
@@ -17,8 +15,15 @@
         <file>Resources/image/z_y_down.png</file>
         <file>Resources/image/z_y_up.png</file>
         <file>Resources/image/3d_view.png</file>
-        <file>Resources/image/export.png</file>
         <file>Resources/image/clear.xpm</file>
         <file>Resources/image/plainText.xpm</file>
+        <file>Resources/image/filesave.png</file>
+        <file>Resources/image/exportpdf.png</file>
+        <file>Resources/image/fileprint.png</file>
+        <file>Resources/image/editredo.png</file>
+        <file>Resources/image/editundo.png</file>
+        <file>Resources/image/report_1.png</file>
+        <file>Resources/image/report_2.png</file>
+        <file>Resources/image/report_3.png</file>
     </qresource>
 </RCC>

@@ -54,7 +54,7 @@ bool PlotView::getBedDistanceUpdatFlag()
 {
 	return mUpdateFlag == UPDATE_BED_DISTANCE;
 }
-void PlotView::updateGantryDegreeDistance(const double y)
+void PlotView::updateGantryDegreeDistance(const float y)
 {
 	mGantryDegree->append(y);
 	setGantryUpdateFlag();
@@ -64,21 +64,21 @@ void PlotView::updateGantryDegreeDistance(const double y)
 
 }
 
-void PlotView::updateGantryDegreeVelocity(const double y)
+void PlotView::updateGantryDegreeVelocity(const float y)
 {
-	static float last_y = (float)y;
+	static int last_y = (int)y;//截断小数点后的角度变动
 	static int last_time = 0;
 	int current_time = QTime::currentTime().msec();
 	int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
-	float v = (y - last_y) / delt_time;
+	float v = (float)(y - last_y) / delt_time;
 
 	last_time = current_time;
-	last_y = y;
+	last_y = (int)y;
 	v *= 1000;//degree/s
 	mGantryDegreeVelocity->append(v);
 }
 
-void PlotView::updateCollimatorDegreeDistance(const double y)
+void PlotView::updateCollimatorDegreeDistance(const float y)
 {
 	mCollimatorDegree->append(y);
 	setCollimatorUpdateFlag();
@@ -87,21 +87,21 @@ void PlotView::updateCollimatorDegreeDistance(const double y)
 		mTimer->start();
 }
 
-void PlotView::updateCollimatorDegreeVelocity(const double y)
+void PlotView::updateCollimatorDegreeVelocity(const float y)
 {
-	static float last_y = (float)y;
+	static int last_y = (int)y;
 	static int last_time = 0;
 	int current_time = QTime::currentTime().msec();
 	int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
-	float v = (y - last_y) / delt_time;
+	float v = (float)(y - last_y) / delt_time;
 
 	last_time = current_time;
-	last_y = y;
+	last_y = (int)y;
 	v *= 1000;//degree/s
 	mCollimatorDegreeVelocity->append(v);
 }
 
-void PlotView::updateBedDegreeDistance(const double y)
+void PlotView::updateBedDegreeDistance(const float y)
 {
 	mBedDegree->append(y);
 	setBedDegreeUpdateFlag();
@@ -110,21 +110,21 @@ void PlotView::updateBedDegreeDistance(const double y)
 		mTimer->start();
 }
 
-void PlotView::updateBedDegreeVelocity(const double y)
+void PlotView::updateBedDegreeVelocity(const float y)
 {
-	static float last_y = (float)y;
+	static int last_y = (int)y;
 	static int last_time = 0;
 	int current_time = QTime::currentTime().msec();
 	int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
-	float v = (y - last_y) / delt_time;
+	float v = (float)(y - last_y) / delt_time;
 
 	last_time = current_time;
-	last_y = y;
+	last_y = (int)y;
 	v *= 1000;//degree/s
 	mBedDegreeVelocity->append(v);
 }
 
-void PlotView::updateBedDistance(const double x, const double y, const double z)
+void PlotView::updateBedDistance(const float x, const float y, const float z)
 {
 	mBedXDistance->append(x);
 	mBedYDistance->append(y);
@@ -135,11 +135,11 @@ void PlotView::updateBedDistance(const double x, const double y, const double z)
 		mTimer->start();
 }
 
-void PlotView::updateBedVelocity(const double x, const double y, const double z)
+void PlotView::updateBedVelocity(const float x, const float y, const float z)
 {
-	static float last_x = x;
-	static float last_y = y;
-	static float last_z = z;
+	static int last_x = (int)x;
+	static int last_y = (int)y;
+	static int last_z = (int)z;
 
 	static int last_time = 0;
 	int current_time = QTime::currentTime().msec();
@@ -150,9 +150,9 @@ void PlotView::updateBedVelocity(const double x, const double y, const double z)
 	float v_z = (z - last_z) / delt_time;
 
 	last_time = current_time;
-	last_x = x;
-	last_y = y;
-	last_z = z;
+	last_x = (int)x;
+	last_y = (int)y;
+	last_z = (int)z;
 
 	v_x *= 1000;//mm/s
 	v_y *= 1000;
