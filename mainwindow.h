@@ -22,7 +22,6 @@ protected:
 private:
     void initUi();
 	void setupFileActions();
-	void setupEditActions();
 	void setupViewActions();
 	void setupHelpAction();
 	//void setupTextActions();
@@ -30,6 +29,7 @@ private:
     void exitMainWindow();
     void disconnectTracker();
 	void showHelp();
+	void closeWindow();
 private:
     Ui::MainWindow *ui;
     CentralWidget *m_CentralWidget;

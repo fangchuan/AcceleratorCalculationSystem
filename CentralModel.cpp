@@ -28,6 +28,7 @@ void CentralModel::initData()
 	m_BedFitted = false;
 	m_GantryFitted = false;
 	m_softCenterIsCal = false;
+	m_LaserISODetected = false;
 	gantryCircle = new Circle;
 	bedCircle = new Circle;
 	reportData.softCenter[0] = 0; reportData.softCenter[1] = 0; reportData.softCenter[2] = 0;
@@ -155,6 +156,8 @@ void CentralModel::laserISOCenter(Point3D& point)
 	reportData.laserCenter[0] = point[0];
 	reportData.laserCenter[1] = point[1];
 	reportData.laserCenter[2] = point[2];
+
+	m_LaserISODetected = true;
 }
 
 void CentralModel::softISOCenter(Circle* circle)
@@ -216,13 +219,13 @@ void CentralModel::calSoftISOCenterAndFoots(Circle* gantry, Circle* bed)
 	m_softCenterIsCal = true;
 }
 
-void CentralModel::report()
+void CentralModel::handleReport()
 {
 	double distance = 0;
 	double gantryVariance =0, gantryMean =0;
 	double bedVariance=0, bedMean=0;
 
-	if (m_softCenterIsCal){
+	if (m_softCenterIsCal && m_LaserISODetected){
 		//calculate distance between softcenter and laserCenter
 		distance = sqrt(vtkMath::Distance2BetweenPoints(reportData.softCenter, reportData.laserCenter));
 		reportData.distanceLaser2Soft = distance;

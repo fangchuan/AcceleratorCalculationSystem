@@ -23,3 +23,8 @@
 2017-6-5： 重构 class CentralModel和CentralWidget, Fit3DCircle里增加计算旋转误差函数
 		   最后生成报告的流程: 所有校准操作结束---->点击"生成报告"按钮---->ControlWidget发送信号给CentralModel----> 
 							   CentralModel计算完要报告数据结构后发送信号给CentralWidget---->CentralWidget显示
+							   
+2017-6-6： 重新设置ControlWidget 的styleSheet， 添加复位按钮和生成报告按钮
+			去掉menuBar,重新设置TollBar的图标
+			解决close()无法退出进程问题， 关闭时OpsTrackingDevice 的关闭连接问题
+			

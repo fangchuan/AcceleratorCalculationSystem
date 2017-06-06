@@ -49,7 +49,7 @@ void CentralWidget::initUi()
 	QVBoxLayout *rightLayout = new QVBoxLayout();
 	m_DisplayWidget = new DisplayWidget;
 	rightLayout->addWidget(m_DisplayWidget);
-	rightLayout->addSpacerItem(new QSpacerItem(1, 40, QSizePolicy::Preferred, QSizePolicy::Fixed));
+	rightLayout->addSpacerItem(new QSpacerItem(1, 20, QSizePolicy::Preferred, QSizePolicy::Fixed));
 	m_ControlWidget = new ControlWidget;
 	rightLayout->addWidget(m_ControlWidget);
 	
@@ -97,7 +97,8 @@ void CentralWidget::buildConnections()
 	connect(m_ControlWidget, &ControlWidget::switchToBed, this, &CentralWidget::switchToBed);
 	connect(m_ControlWidget, &ControlWidget::recordingISOCenter, this, &CentralWidget::recordingISOCenter);
 	connect(m_ControlWidget, &ControlWidget::switchToISOCenter, this, &CentralWidget::switchToISOCenter);
-
+	//connect(m_ControlWidget, &ControlWidget::resetRequest,);
+	connect(m_ControlWidget, &ControlWidget::reportRequest, m_Model, &CentralModel::handleReport);
 	//建立拟合结果与界面更新信号槽(所有的结果都在加速器坐标系/三维场景坐标系下)
 	connect(m_Model, &CentralModel::markerSize, this, &CentralWidget::markerSize);
 	connect(m_Model, &CentralModel::markerPosition, this, &CentralWidget::markerPosition);
@@ -179,12 +180,12 @@ void CentralWidget::monitoring()
 
 void CentralWidget::switchToHorizontalRegister() 
 {
-	//if (m_Tracker->getState() < TrackingDevice::Ready) {
-	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-	//	return;
-	//}
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		return;
+	}
 
-	//m_Tracker->startTrackingInMode(MarkerTracking3D);
+	m_Tracker->startTrackingInMode(MarkerTracking3D);
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}
@@ -195,12 +196,12 @@ void CentralWidget::switchToHorizontalRegister()
 
 void CentralWidget::switchToGantry() 
 {
-	//if (m_Tracker->getState() < TrackingDevice::Ready) {
-	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-	//	return;
-	//}
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		return;
+	}
 
-	//m_Tracker->startTrackingInMode(MarkerTracking3D);
+	m_Tracker->startTrackingInMode(MarkerTracking3D);
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}
@@ -211,12 +212,12 @@ void CentralWidget::switchToGantry()
 
 void CentralWidget::switchToCollimator()
 {
-	//if (m_Tracker->getState() < TrackingDevice::Ready) {
-	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-	//	return;
-	//}
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this,QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		return;
+	}
 
-	//m_Tracker->startTrackingInMode(MarkerTracking3D);
+	m_Tracker->startTrackingInMode(MarkerTracking3D);
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}
@@ -227,12 +228,12 @@ void CentralWidget::switchToCollimator()
 
 void CentralWidget::switchToBed(int mode)
 {
-	//if (m_Tracker->getState() < TrackingDevice::Ready) {
-	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-	//	return;
-	//}
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		return;
+	}
 
-	//m_Tracker->startTrackingInMode(MarkerTracking3D);
+	m_Tracker->startTrackingInMode(MarkerTracking3D);
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}
@@ -244,12 +245,12 @@ void CentralWidget::switchToBed(int mode)
 
 void CentralWidget::switchToISOCenter()
 {
-	//if (m_Tracker->getState() < TrackingDevice::Ready) {
-	//	QMessageBox::warning(this, QString::fromLocal8Bit("警告"), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
-	//	return;
-	//}
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		return;
+	}
 
-	//m_Tracker->startTrackingInMode(ToolTracking6D);
+	m_Tracker->startTrackingInMode(ToolTracking6D);
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}

@@ -31,10 +31,6 @@ bool checkEnvironment()
     return ok;
 }
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
-
 int main(int argc, char *argv[])
 {
 
@@ -64,7 +60,7 @@ int main(int argc, char *argv[])
     }
 #endif
     if (!checkEnvironment()) {
-		QMessageBox::critical(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromUtf8("缺少必要的文件，软件无法正常工作"));
+		QMessageBox::critical(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("缺少必要的文件，软件无法正常工作"));
     }
 
     if (app.isRunning())
@@ -76,32 +72,31 @@ int main(int argc, char *argv[])
 
     QPixmap pixmap(":/Resources/image/SplashScreen.png");
     splashScreen.reset(new QSplashScreen(pixmap));
-	splashMessage(splashScreen, QString::fromUtf8("初始化..."));
+	splashMessage(splashScreen, QObject::tr("初始化..."));
     splashScreen->show();
-	splashMessage(splashScreen, QString::fromUtf8("初始化工作目录..."));
+	splashMessage(splashScreen, QObject::tr("初始化工作目录..."));
 
 // 	initWorkEnvironment();
 
-	splashMessage(splashScreen, QString::fromUtf8("正在寻找硬件..."));
+	splashMessage(splashScreen, QObject::tr("正在寻找硬件..."));
     if (OpsTrackingDevice::getInstance()->findTracker() == NDIPolaris)
     {
-        splashMessage(splashScreen, QString::fromUtf8("已经找到硬件，正在初始化..."));
+		splashMessage(splashScreen, QObject::tr("已经找到硬件，正在初始化..."));
         OpsTrackingDevice::getInstance()->openConnection();
-	}
-    else
-    {
-		splashMessage(splashScreen, QString::fromUtf8("没有找到硬件!"));
-        QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromUtf8("未找到相机，请检查相机连接！"));
+	}else{
+		splashMessage(splashScreen, QObject::tr("没有找到硬件!"));
+        QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("未找到相机，请检查相机连接！"));
     }
+	splashMessage(splashScreen, QObject::tr("正在创建用户界面..."));
 
-	splashMessage(splashScreen, QString::fromUtf8("正在创建用户界面..."));
     MainWindow w;
     app.setActivationWindow(&w);
-    w.showMaximized();
-	splashMessage(splashScreen, QString::fromUtf8("程序已经启动."));
-    splashScreen->finish(&w);
+	w.setWindowFlags(w.windowFlags() & ~Qt::WindowMaximizeButtonHint & ~Qt::WindowMinimizeButtonHint);
+
+	splashMessage(splashScreen, QObject::tr("程序已经启动."));
+	splashScreen->finish(&w);
+	w.showFullScreen();
     return app.exec();
+
 }
-#ifdef __cplusplus
-}
-#endif
+

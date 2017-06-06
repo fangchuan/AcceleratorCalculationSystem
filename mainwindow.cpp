@@ -4,6 +4,7 @@
 #include "OpsTrackingDevice.h"
 #include <qdesktopservices.h>
 #include <QToolBar>
+#include <QMessageBox>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -11,7 +12,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     m_CentralWidget(Q_NULLPTR)
 {
-    ui->setupUi(this);
 
     initUi();
     buildConnections();
@@ -24,32 +24,20 @@ MainWindow::~MainWindow()
 
 void MainWindow::initUi()
 {
+	ui->setupUi(this);
     m_CentralWidget = new CentralWidget(this);
     setCentralWidget(m_CentralWidget);
 	setWindowTitle(QCoreApplication::applicationName());
 	setWindowIcon(QIcon(":/Resources/image/window_icon.png"));
 
-	//mThreeDAction = new QAction(QIcon(":/Resources/image/3d_view.png"), QString::fromLocal8Bit("3D模型"), ui->mainToolBar);
-	//mPlotAction = new QAction(QIcon(":/Resources/image/plot_view.png"), QString::fromLocal8Bit("波形曲线"), ui->mainToolBar);
-	//mExportAction = new QAction(QIcon(":/Resources/image/exportpdf.png"), QString::fromLocal8Bit("导出成PDF"), ui->mainToolBar);
-	//mPrintAction = new QAction(QIcon(":/Resources/image/fileprint.png"), QString::fromLocal8Bit("打印"), ui->mainToolBar);
-	//mClearAction = new QAction(QIcon(":/Resources/image/clear.xpm"), QString::fromLocal8Bit("清除历史数据"), ui->mainToolBar);
-	//mPlainTextAction = new QAction(QIcon(":/Resources/image/plainText.xpm"), QString::fromLocal8Bit("加速器运动记录"), ui->mainToolBar);
-	//mHelpAction = new QAction(QIcon(":/Resources/image/help.png"), QString::fromLocal8Bit("帮助/关于富科斯"), ui->mainToolBar);
-
-	//ui->mainToolBar->addAction(mThreeDAction);
-	//ui->mainToolBar->addAction(mPlotAction);
-	//ui->mainToolBar->addAction(mExportAction);
-	//ui->mainToolBar->addAction(mPrintAction);
-	//ui->mainToolBar->addAction(mClearAction);
-	//ui->mainToolBar->addAction(mPlainTextAction);
-	//ui->mainToolBar->addAction(mHelpAction);
-
 	setupFileActions();
-	setupEditActions();
 	setupViewActions();
 	setupHelpAction();
 
+	this->setObjectName("mainWindow");
+	this->setStyleSheet("#mainWindow{background-color:rgb(205, 205, 205);}");
+
+	ui->mainToolBar->setIconSize(QSize(32, 32));
 }
 
 void MainWindow::buildConnections()
@@ -64,6 +52,7 @@ void MainWindow::buildConnections()
 	connect(mClearAction, &QAction::triggered,   m_CentralWidget, &CentralWidget::clearAllPlot);
 	connect(mTextAction, &QAction::triggered,    m_CentralWidget, &CentralWidget::showLogTextPage);
 	connect(mHelpAction, &QAction::triggered,    this, &MainWindow::showHelp);
+	connect(mQuit,       &QAction::triggered,    this, &MainWindow::closeWindow);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -80,11 +69,13 @@ void MainWindow::exitMainWindow()
 void MainWindow::disconnectTracker()
 {
     OpsTrackingDevice *tracker = OpsTrackingDevice::getInstance();
-    if (tracker->getState() >= TrackingDevice::Setup)
-    {
-        tracker->stopTracking();
-    }
-    tracker->closeConnection();
+	if (tracker->findTracker() == NDIPolaris){
+		if (tracker->getState() >= TrackingDevice::Setup)
+		{
+			tracker->stopTracking();
+		}
+		tracker->closeConnection();
+	}
 }
 
 void MainWindow::showHelp()
@@ -92,94 +83,66 @@ void MainWindow::showHelp()
 	QDesktopServices::openUrl(QUrl("http://www.jsfocus.cn"));
 }
 
-void MainWindow::setupFileActions()
+void MainWindow::closeWindow()
 {
-	QMenu* fileMenu = ui->menuBar->addMenu(tr("&File"));
+	QMessageBox::StandardButton ret = QMessageBox::question(this, QCoreApplication::applicationName(), QObject::tr("Are you sure to leave?"));
 
-	const QIcon saveIcon = QIcon::fromTheme("document-save", QIcon(":/Resources/image/filesave.png"));
-	mSaveAction = fileMenu->addAction(saveIcon, tr("&Save"));
-	mSaveAction->setShortcut(QKeySequence::Save);
-	mSaveAction->setEnabled(true);
-	fileMenu->addSeparator();
-	ui->mainToolBar->addAction(mSaveAction);
-
-	mSaveAsAction = fileMenu->addAction(saveIcon, tr("Save &As..."));
-	mSaveAsAction->setPriority(QAction::LowPriority);
-	fileMenu->addSeparator();
-
-#ifndef QT_NO_PRINTER
-	const QIcon printIcon = QIcon::fromTheme("document-print", QIcon(":/Resources/image/fileprint.png"));
-	mPrintAction = fileMenu->addAction(printIcon, tr("&Print..."));
-	mPrintAction->setPriority(QAction::LowPriority);
-	mPrintAction->setShortcut(QKeySequence::Print);
-	fileMenu->addSeparator();
-	ui->mainToolBar->addAction(mPrintAction);
-
-	const QIcon filePrintIcon = QIcon::fromTheme("fileprint", QIcon(":/Resources/image/fileprint.png"));
-	mPreviewAction = fileMenu->addAction(filePrintIcon, tr("Print Preview..."));
-	fileMenu->addSeparator();
-
-	const QIcon exportPdfIcon = QIcon::fromTheme("exportpdf", QIcon(":/Resources/image/exportpdf.png"));
-	mExportAction = fileMenu->addAction(exportPdfIcon, tr("&Export PDF..."));
-	mExportAction->setPriority(QAction::LowPriority);
-	mExportAction->setShortcut(Qt::CTRL + Qt::Key_D);
-	ui->mainToolBar->addAction(mExportAction);
-	fileMenu->addSeparator();
-#endif
-
-	mQuit = fileMenu->addAction(tr("&Quit"), this, &MainWindow::close);
-	mQuit->setShortcut(Qt::CTRL + Qt::Key_Q);
+	if (ret == QMessageBox::Yes){
+        close();
+	}
 }
 
-void MainWindow::setupEditActions()
+void MainWindow::setupFileActions()
 {
-	QMenu *editMenu = ui->menuBar->addMenu(tr("&Edit"));
+	const QIcon saveIcon = QIcon::fromTheme("document-save", QIcon(":/Resources/image/file_save.png"));
+	mSaveAction = ui->mainToolBar->addAction(saveIcon, tr("&Save"));
+	mSaveAction->setShortcut(QKeySequence::Save);
+	mSaveAction->setEnabled(true);
 
-	const QIcon undoIcon = QIcon::fromTheme("edit-undo", QIcon(":/Resources/image/editundo.png"));
-	mUndoAction = editMenu->addAction(undoIcon, tr("&Undo"));
-	mUndoAction->setShortcut(QKeySequence::Undo);
-	editMenu->addSeparator();
-	ui->mainToolBar->addAction(mUndoAction);
+	mSaveAsAction = ui->mainToolBar->addAction(QIcon(":/Resources/image/file_save_as.png"), tr("Save &As..."));
+	mSaveAsAction->setPriority(QAction::LowPriority);
 
-	const QIcon redoIcon = QIcon::fromTheme("edit-redo", QIcon(":/Resources/image/editredo.png"));
-	mRedoAction = editMenu->addAction(redoIcon, tr("&Redo"));
-	mRedoAction->setPriority(QAction::LowPriority);
-	mRedoAction->setShortcut(QKeySequence::Redo);
-	editMenu->addSeparator();
-	ui->mainToolBar->addAction(mRedoAction);
+#ifndef QT_NO_PRINTER
+	const QIcon printIcon = QIcon::fromTheme("document-print", QIcon(":/Resources/image/print.png"));
+	mPrintAction = ui->mainToolBar->addAction(printIcon, tr("&Print..."));
+	mPrintAction->setPriority(QAction::LowPriority);
+	mPrintAction->setShortcut(QKeySequence::Print);
 
-	const QIcon clearIcon = QIcon::fromTheme("edit-clear", QIcon(":/Resources/image/clear.xpm"));
-	mClearAction = editMenu->addAction(clearIcon, tr("&Clear the data"));
-	mClearAction->setShortcut(QKeySequence::Delete);
-	ui->mainToolBar->addAction(mClearAction);
+	const QIcon filePrintIcon = QIcon::fromTheme("fileprint", QIcon(":/Resources/image/print_preview.png"));
+	mPreviewAction = ui->mainToolBar->addAction(filePrintIcon, tr("Print Preview..."));
+
+	const QIcon exportPdfIcon = QIcon::fromTheme("exportpdf", QIcon(":/Resources/image/export_pdf.png"));
+	mExportAction = ui->mainToolBar->addAction(exportPdfIcon, tr("&Export PDF..."));
+	mExportAction->setPriority(QAction::LowPriority);
+	mExportAction->setShortcut(Qt::CTRL + Qt::Key_D);
+#endif
 
 }
 
 void MainWindow::setupViewActions()
 {
-	QMenu* menu = ui->menuBar->addMenu(tr("&View"));
-
 	const QIcon threeDIcon = QIcon::fromTheme("3D-modle-view", QIcon(":/Resources/image/3d_view.png"));
-	mThreeDAction = menu->addAction(threeDIcon, tr("3D modle view"));
-	menu->addSeparator();
-	ui->mainToolBar->addAction(mThreeDAction);
+	mThreeDAction = ui->mainToolBar->addAction(threeDIcon, tr("3D modle view"));
 
 	const QIcon plotIcon = QIcon::fromTheme("Plot-view", QIcon(":/Resources/image/plot_view.png"));
-	mPlotAction = menu->addAction(plotIcon, tr("Plot view"));
-	menu->addSeparator();
-	ui->mainToolBar->addAction(mPlotAction);
+	mPlotAction = ui->mainToolBar->addAction(plotIcon, tr("Plot view"));
 
-	const QIcon textIcon = QIcon::fromTheme("Log-view", QIcon(":/Resources/image/plainText.xpm"));
-	mTextAction = menu->addAction(textIcon, tr("Log view"));
-	ui->mainToolBar->addAction(mTextAction);
+	const QIcon textIcon = QIcon::fromTheme("Log-view", QIcon(":/Resources/image/report_view.png"));
+	mTextAction = ui->mainToolBar->addAction(textIcon, tr("Log view"));
+
+	const QIcon clearIcon = QIcon::fromTheme("edit-clear", QIcon(":/Resources/image/clear.png"));
+	mClearAction = ui->mainToolBar->addAction(clearIcon, tr("&Clear the data"));
+	mClearAction->setShortcut(QKeySequence::Delete);
+
 }
 
 void MainWindow::setupHelpAction()
 {
-	QMenu*  menu = ui->menuBar->addMenu(tr("&Help"));
 	const QIcon helpIcon = QIcon::fromTheme("help", QIcon(":/Resources/image/help.png"));
-	mHelpAction = menu->addAction(helpIcon, tr("Help"));
-	ui->mainToolBar->addAction(mHelpAction);
+	mHelpAction = ui->mainToolBar->addAction(helpIcon, tr("Help"));
+
+	mQuit = ui->mainToolBar->addAction(QIcon(":/Resources/image/close.png"), tr("&Quit"));
+	mQuit->setShortcut(Qt::CTRL + Qt::Key_Q);
 }
 //void MainWindow::setupTextActions()
 //{

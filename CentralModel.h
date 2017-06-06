@@ -50,7 +50,7 @@ public:
 	int  getHandler();
 	void handle(MarkerPointContainerType &positions);
 	void handle(Point3D &point);
-	void report();
+	void handleReport();
 signals:
 	void markerSize(int size);
 	void registerPosition(Point3D &point);
@@ -78,6 +78,7 @@ private:
 	bool m_GantryFitted;
 	bool m_BedFitted;
 	bool m_softCenterIsCal;
+	bool m_LaserISODetected;
 	Circle* gantryCircle;
 	Circle* bedCircle;
 	ReportData reportData;

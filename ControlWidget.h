@@ -30,7 +30,8 @@ signals:
 	void recordingBed(int mode);
 	void switchToISOCenter();
 	void recordingISOCenter();
-
+	void resetRequest();
+	void reportRequest();
 private:
 	void initUi();
 	void buildConnections();
@@ -39,16 +40,19 @@ private:
 	void resetCollimator();
 	void resetBed();
 	void resetISOCenter();
-
+	void resetAll();
+	void setButtonStyle();
 private slots:
 	void handleButtonClick();
 	void handleButtonGroupClick(int id);
 
 private:
-	QPushButton *m_HorizontalRegisterButton;
-	QPushButton *m_GantryButton;
-	QPushButton *m_CollimatorButton;
-	QPushButton *m_BedButton;
-	QButtonGroup *m_BedGroup;
-	QPushButton *m_LaserButton;
+	QPushButton* m_HorizontalRegisterButton;
+	QPushButton* m_GantryButton;
+	QPushButton* m_CollimatorButton;
+	QPushButton* m_BedButton;
+	QButtonGroup* m_BedGroup;
+	QPushButton* m_LaserButton;
+	QPushButton* m_ResetButton;
+	QPushButton* m_ReportButton;
 };
