@@ -14,12 +14,12 @@ QtRenderView::RenderView::RenderView(QWindow *parent)
 	, mOgreWindow(NULL)
 	, mOgreCamera(NULL)
 	, mCameraMan(NULL)
-	, mOgreCenterNode(NULL)
+	, mOgreSoftCenterNode(NULL)
+	, mOgreLaserCenterNode(NULL)
 	, mOgreMarkerNode(NULL)
 	, m_update_pending(false)
 	, m_animating(false)
-	, m_gantry_calibrated(false)
-	, m_bed_calibrated(false)
+
 {
 	setAnimating(true);
 	installEventFilter(this);
@@ -240,7 +240,7 @@ void QtRenderView::RenderView::createScene()
 	light->setPosition(20.0f, 80.0f, 50.0f);
 #endif
 
-	drawISOCenter(0,0,0);
+	drawSoftISOCenter(0,0,0);
 	drawCoordinate();
 }
 
@@ -445,6 +445,58 @@ bool QtRenderView::RenderView::frameRenderingQueued(const Ogre::FrameEvent& evt)
 	return true;
 }
 
+void QtRenderView::RenderView::resetScene()
+{
+
+	//Ogre::SceneNode* ogreNode = mOgreSceneMgr->getSceneNode(ACCEL_CONNECT_NAME);
+	//ogreNode->resetOrientation();
+
+	//ogreNode = mOgreSceneMgr->getSceneNode(ACCEL_BEDBOTTOM_NAME);
+	//ogreNode->resetOrientation();
+	//ogreNode->setPosition(ACCEL_BED_BOTTOM_BIAS);
+	rotateGantry(0);
+	rotateBed(0);
+
+	Ogre::SceneNode* ogreNode = mOgreSceneMgr->getSceneNode(ACCEL_BED_STRECH_NAME);
+	ogreNode->setScale(1.0f, 1.0f, 1.0f);
+	ogreNode->setPosition(ACCEL_BED_STRECH_BIAS);
+
+	ogreNode = mOgreSceneMgr->getSceneNode(ACCEL_BED_CONNECT2_NAME);
+	ogreNode->setPosition(ACCEL_BED_CONNECT2_BIAS);
+
+	ogreNode = mOgreSceneMgr->getSceneNode(ACCEL_BED_CONNECT1_NAME);
+	ogreNode->setPosition(ACCEL_BED_CONNECT1_BIAS);
+
+	ogreNode = mOgreSceneMgr->getSceneNode(ACCEL_BEDBOARD_NAME);
+	ogreNode->setPosition(ACCEL_BED_BOARD_BIAS);
+
+	if (mOgreSceneMgr->hasSceneNode(LASER_ISOCENTER_NAME)){
+		ogreNode = mOgreSceneMgr->getSceneNode(LASER_ISOCENTER_NAME);
+		ogreNode->setVisible(false);
+	}
+	
+	if (mOgreSceneMgr->hasSceneNode(SOFT_ISOCENTER_NAME)){
+		ogreNode = mOgreSceneMgr->getSceneNode(SOFT_ISOCENTER_NAME);
+		ogreNode->setVisible(false);
+	}
+
+	if(mOgreSceneMgr->hasSceneNode(MARKER_POINT_NAME)){
+		ogreNode = mOgreSceneMgr->getSceneNode(MARKER_POINT_NAME);
+		ogreNode->setVisible(false);
+	}
+
+	if(mOgreSceneMgr->hasSceneNode(Y_AXIS_NODE_NAME)){
+		ogreNode = mOgreSceneMgr->getSceneNode(Y_AXIS_NODE_NAME);
+		ogreNode->setVisible(false);
+	}
+
+	if(mOgreSceneMgr->hasSceneNode(X_AXIS_NODE_NAME)){
+		ogreNode = mOgreSceneMgr->getSceneNode(X_AXIS_NODE_NAME);
+		ogreNode->setVisible(false);
+	}
+
+
+}
 void QtRenderView::RenderView::setISOCenter(const QVector3D &center)
 {
 
@@ -506,8 +558,8 @@ void QtRenderView::RenderView::rotateBed(float degree)
 void QtRenderView::RenderView::translateBedAlongZ(float z_mm)
 {
 	static float last_z = 0.0f;
-
 	float z = z_mm - last_z;
+
 	mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_BEDBOARD_NAME);
 	if (NULL != mOgreNode && 0 != z){
 		//translate resolution:  m
@@ -542,6 +594,7 @@ void QtRenderView::RenderView::translateBedAlongY(float y_mm)
 	//本不应该将y轴的放大系数设为static,但是不设为static的话放大/缩小效果太不明显
 	static float y_scale = 1.0f;
 	static float last_y = 0.0f;
+
 	float y_trans = 0.75f;
 	float y_m = (y_mm - last_y)*0.01;//0.01 propotation
 
@@ -579,27 +632,35 @@ void QtRenderView::RenderView::drawXAxis(const QVector3D &start, const QVector3D
 		xAxis->colour(r, g, b);
 		xAxis->position(x_e, y_e, z_e);  // draw first line
 		xAxis->end();
-		centerGantry = Ogre::Vector3(0, y_s, z_s);
+		//centerGantry = Ogre::Vector3(0, y_s, z_s);
 		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(X_AXIS_NODE_NAME)->attachObject(xAxis);
+
+		Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("GantryCenter", Ogre::SceneManager::PT_SPHERE);
+		Ogre::SceneNode* ogreNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode("GantryCenterNode", Ogre::Vector3(x_s, y_s, z_s));
+		ogreNode->attachObject(ogreEntity);
+		ogreEntity->setMaterialName("Examples/green");
+		ogreNode->setScale(Ogre::Vector3(0.004f, 0.004f, 0.004f)); // Radius, in theory.
 	}
 	else{
 		Ogre::ManualObject* xAxis = mOgreSceneMgr->getManualObject(XAXIS_LINE_NAME);
 		Ogre::SceneNode* node = mOgreSceneMgr->getSceneNode(X_AXIS_NODE_NAME);
-		//xAxis->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+		node->setVisible(true);
 		xAxis->beginUpdate(0);
 		xAxis->position(x_s, y_s, z_s);  // start position
 		xAxis->colour(r, g, b);
 		xAxis->position(x_e, y_e, z_e);  // draw first line
 		xAxis->end();
 
-		centerGantry = Ogre::Vector3(0, y_s, z_s);
+		node = mOgreSceneMgr->getSceneNode("GantryCenterNode");
+		node->setPosition(x_s, y_s, z_s);
+		//centerGantry = Ogre::Vector3(0, y_s, z_s);
 	}
 	//若两个轴线都绘制完成，则开始绘制公垂线
-	m_gantry_calibrated = true;
-	if (m_gantry_calibrated && m_bed_calibrated){
-		drawVerticalLine();
-		emit ISOCenterSelected();
-	}
+	//m_gantry_calibrated = true;
+	//if (m_gantry_calibrated && m_bed_calibrated){
+	//	drawVerticalLine();
+	//	emit ISOCenterSelected();
+	//}
 }
 //画Y轴线
 //默认使用BaseWhite材质
@@ -623,52 +684,76 @@ void QtRenderView::RenderView::drawYAxis(const QVector3D &start, const QVector3D
 		yAxis->colour(r, g, b);
 		yAxis->position(x_e, y_e, z_e);// draw first line
 		yAxis->end();
-		centerBed = Ogre::Vector3(x_s, 0, z_s);
+		//centerBed = Ogre::Vector3(x_s, 0, z_s);
 		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(Y_AXIS_NODE_NAME)->attachObject(yAxis);
+
+		Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("BedCenter", Ogre::SceneManager::PT_SPHERE);
+		Ogre::SceneNode* ogreNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode("BedCenterNode", Ogre::Vector3(x_s, y_s, z_s));
+		ogreNode->attachObject(ogreEntity);
+		ogreEntity->setMaterialName("Examples/blue");
+		ogreNode->setScale(Ogre::Vector3(0.004f, 0.004f, 0.004f)); // Radius, in theory.
 	}
 	else{
 		Ogre::ManualObject* yAxis = mOgreSceneMgr->getManualObject(YAXIS_LINE_NAME);
 		Ogre::SceneNode*  node = mOgreSceneMgr->getSceneNode(Y_AXIS_NODE_NAME);
-		//yAxis->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+		node->setVisible(true);
 		yAxis->beginUpdate(0);
 		yAxis->position(x_s, y_s, z_s);// start position
 		yAxis->colour(r, g, b);
 		yAxis->position(x_e, y_e, z_e);// draw first line
 		yAxis->end();
 
-		centerBed = Ogre::Vector3(x_s, 0, z_s);
+		node =  mOgreSceneMgr->getSceneNode("BedCenterNode");
+		node->setPosition(x_s, y_s, z_s);
+		//centerBed = Ogre::Vector3(x_s, 0, z_s);
 	}
 	//若两个轴线都绘制完成，则开始绘制公垂线
-	m_bed_calibrated = true;
-	if (m_gantry_calibrated && m_bed_calibrated){
-		drawVerticalLine();
-		emit ISOCenterSelected();
-	}
+	//m_bed_calibrated = true;
+	//if (m_gantry_calibrated && m_bed_calibrated){
+	//	drawVerticalLine();
+	//	emit ISOCenterSelected();
+	//}
 }
-//画等中心小球
-void QtRenderView::RenderView::drawISOCenter(const double x, const double y, const double z)
+//画软件结算的等中心小球
+void QtRenderView::RenderView::drawSoftISOCenter(const double x, const double y, const double z)
 {
 	//set ISO Center:(0,0,0)
-	if (NULL == mOgreCenterNode){
-		Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("ISOCenter", Ogre::SceneManager::PT_SPHERE);
-		mOgreCenterNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(ISOCENTER_NAME, Ogre::Vector3(x, y, z));
-		mOgreCenterNode->attachObject(ogreEntity);
-		ogreEntity->setMaterialName("Examples/gray");
-		mOgreCenterNode->setScale(Ogre::Vector3(0.004f, 0.004f, 0.004f)); // Radius, in theory.
+	if (NULL == mOgreSoftCenterNode){
+		Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("SoftISOCenter", Ogre::SceneManager::PT_SPHERE);
+		mOgreSoftCenterNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(SOFT_ISOCENTER_NAME, Ogre::Vector3(x, y, z));
+		mOgreSoftCenterNode->attachObject(ogreEntity);
+		ogreEntity->setMaterialName("Examples/red");
+		mOgreSoftCenterNode->setScale(Ogre::Vector3(0.004f, 0.004f, 0.004f)); // Radius, in theory.
 	}else{
-		mOgreCenterNode->setPosition(x, y, z);
+		mOgreSoftCenterNode->setPosition(x, y, z);
+	}
+}
+//画激光等中心小球
+void QtRenderView::RenderView::drawLaserISOCenter(const double x, const double y, const double z)
+{
+	//set ISO Center:(0,0,0)
+	if (NULL == mOgreLaserCenterNode){
+		Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("LaserISOCenter", Ogre::SceneManager::PT_SPHERE);
+		mOgreLaserCenterNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(LASER_ISOCENTER_NAME, Ogre::Vector3(x, y, z));
+		mOgreLaserCenterNode->attachObject(ogreEntity);
+		ogreEntity->setMaterialName("Examples/lightblue");
+		mOgreLaserCenterNode->setScale(Ogre::Vector3(0.004f, 0.004f, 0.004f)); // Radius, in theory.
+	}
+	else{
+		mOgreLaserCenterNode->setPosition(x, y, z);
 	}
 }
 //实时更新小球运动位置
 void QtRenderView::RenderView::drawMarkerPoint(const double x, const double y, const double z)
 {
 	if (NULL == mOgreMarkerNode){
-		Ogre::Entity* ogreEntityCenter = mOgreSceneMgr->createEntity("Marker POint", Ogre::SceneManager::PT_SPHERE);
-		mOgreMarkerNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode("Marker Point", Ogre::Vector3(x, y, z));
+		Ogre::Entity* ogreEntityCenter = mOgreSceneMgr->createEntity("Marker Point", Ogre::SceneManager::PT_SPHERE);
+		mOgreMarkerNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(MARKER_POINT_NAME, Ogre::Vector3(x, y, z));
 		mOgreMarkerNode->attachObject(ogreEntityCenter);
 		ogreEntityCenter->setMaterialName("Examples/gray");
 		mOgreMarkerNode->setScale(Ogre::Vector3(0.004f, 0.004f, 0.004f)); // Radius, in theory.
 	}else{
+		mOgreMarkerNode->setVisible(true);
 		mOgreMarkerNode->setPosition(x, y, z);
 	}
 }
@@ -830,45 +915,31 @@ void QtRenderView::RenderView::drawCoordinate()
 
 }
 //画两个轴线的公垂线
-void QtRenderView::RenderView::drawVerticalLine()
-{
-	if (!mOgreSceneMgr->hasManualObject(VERTICAL_LINE_NAME)){
-		Ogre::ManualObject* line = mOgreSceneMgr->createManualObject(VERTICAL_LINE_NAME);
-		line->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
-		line->position(centerGantry.x, centerGantry.y, centerGantry.z);// start position
-		line->colour(1.0, 0, 0); //red color
-		line->position(centerBed.x, centerBed.y, centerBed.z);// draw first line
-		line->end();
-		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(VERTICAL_LINE_NODE_NAME)->attachObject(line);
-	}
-	else{
-		Ogre::ManualObject* line = mOgreSceneMgr->getManualObject(VERTICAL_LINE_NAME);
-		Ogre::SceneNode*  node = mOgreSceneMgr->getSceneNode(VERTICAL_LINE_NODE_NAME);
-		line->beginUpdate(0);
-		line->position(centerGantry.x, centerGantry.y, centerGantry.z);// start position
-		line->colour(1.0, 0, 0); //red color
-		line->position(centerBed.x, centerBed.y, centerBed.z);// draw first line
-		line->end();
-	}
-}
 void QtRenderView::RenderView::drawVerticalLine(const double footA[3], const double footB[3])
 {
+	double x_s = footA[2] * 0.01;
+	double y_s = footA[1] * 0.01;
+	double z_s = -footA[0] * 0.01;
+	double x_e = footB[2] * 0.01;
+	double y_e = footB[1] * 0.01;
+	double z_e = -footB[0] * 0.01;
+
 	if (!mOgreSceneMgr->hasManualObject(VERTICAL_LINE_NAME)){
 		Ogre::ManualObject* line = mOgreSceneMgr->createManualObject(VERTICAL_LINE_NAME);
 		line->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
-		line->position(footA[0], footA[1], footA[2]);// start position
+		line->position(x_s, y_s, z_s);// start position
 		line->colour(1.0, 0, 0); //red color
-		line->position(footB[0], footB[1], footB[2]);// draw first line
+		line->position(x_e, y_e, z_e);// draw first line
 		line->end();
 		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(VERTICAL_LINE_NODE_NAME)->attachObject(line);
 	}
 	else{
 		Ogre::ManualObject* line = mOgreSceneMgr->getManualObject(VERTICAL_LINE_NAME);
-		Ogre::SceneNode*  node = mOgreSceneMgr->getSceneNode(VERTICAL_LINE_NODE_NAME);
+		//Ogre::SceneNode*  node = mOgreSceneMgr->getSceneNode(VERTICAL_LINE_NODE_NAME);
 		line->beginUpdate(0);
-		line->position(footA[0], footA[1], footA[2]);// start position
+		line->position(x_s, y_s, z_s);// start position
 		line->colour(1.0, 0, 0); //red color
-		line->position(footB[0], footB[1], footB[2]);// draw first line
+		line->position(x_e, y_e, z_e);// draw first line
 		line->end();
 	}
 }

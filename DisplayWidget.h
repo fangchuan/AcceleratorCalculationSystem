@@ -18,11 +18,17 @@ class DisplayWidget : public QWidget
 public:
 	DisplayWidget(QWidget *parent = Q_NULLPTR);
 	~DisplayWidget();
-
+	//复位显示面板
+	void reset();
+	//显示面板切换到水平面注册
 	void doSwitchToHorizontalRegister();
+	//显示面板切换到机架旋转
 	void doSwitchToGantry();
+	//显示面板切换到准直器旋转
 	void doSwitchToCollimator();
+	//显示面板切换到治疗床
 	void doSwitchToBed(int mode);
+	//显示面板切换到激光等中心
 	void doSwitchToISOCenter();
 
 	void setMarkerSize(int size);

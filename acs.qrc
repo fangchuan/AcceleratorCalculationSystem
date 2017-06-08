@@ -1,29 +1,19 @@
 <RCC>
     <qresource prefix="/">
-        <file>Resources/image/SplashScreen.png</file>
-        <file>Resources/image/axix_home.png</file>
-        <file>Resources/image/configurate.png</file>
         <file>Resources/image/help.png</file>
         <file>Resources/image/plot_view.png</file>
-        <file>Resources/image/rotate__begin.png</file>
-        <file>Resources/image/rotate_stop.png</file>
-        <file>Resources/image/system_infomation.png</file>
-        <file>Resources/image/warning.png</file>
-        <file>Resources/image/window_icon.png</file>
-        <file>Resources/image/x_left.png</file>
-        <file>Resources/image/x_right.png</file>
-        <file>Resources/image/z_y_down.png</file>
-        <file>Resources/image/z_y_up.png</file>
         <file>Resources/image/3d_view.png</file>
-        <file>Resources/image/clear.xpm</file>
-        <file>Resources/image/plainText.xpm</file>
-        <file>Resources/image/filesave.png</file>
-        <file>Resources/image/exportpdf.png</file>
-        <file>Resources/image/fileprint.png</file>
-        <file>Resources/image/editredo.png</file>
-        <file>Resources/image/editundo.png</file>
         <file>Resources/image/report_1.png</file>
         <file>Resources/image/report_2.png</file>
         <file>Resources/image/report_3.png</file>
+        <file>Resources/image/clear.png</file>
+        <file>Resources/image/close.png</file>
+        <file>Resources/image/export_pdf.png</file>
+        <file>Resources/image/file_save.png</file>
+        <file>Resources/image/file_save_as.png</file>
+        <file>Resources/image/print.png</file>
+        <file>Resources/image/print_preview.png</file>
+        <file>Resources/image/report_view.png</file>
+        <file>Resources/image/splash_screen.png</file>
     </qresource>
 </RCC>

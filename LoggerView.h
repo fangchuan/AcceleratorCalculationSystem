@@ -15,18 +15,19 @@ class LoggerView : public QWidget
 
 public:
 	LoggerView(QWidget *parent = 0);
-
-	bool load();
-	QString setHtmlReport(QString& softCenter,
+	~LoggerView();
+	void setHtmlReport(QString& softCenter,
 							QString& laserCenter,
 							QString& footA,
 							QString& footB,
 							QString& d1,
 							QString& d2,
-							QString& d3);
+							QString& d3,
+							QString& gv,
+							QString& gm,
+							QString& bv,
+							QString& bm);
 public slots:
-
-	void initUi();
 	bool fileSave();
 	bool fileSaveAs();
 	void filePrint();
@@ -35,8 +36,9 @@ public slots:
 	void printPreview(QPrinter *);
 protected:
 	virtual void closeEvent(QCloseEvent* e) Q_DECL_OVERRIDE;
-	virtual void paintEvent(QPaintEvent* e) Q_DECL_OVERRIDE;
+
 private:
+	void initUi();
 	bool maybeSave();
 
 	QString fileName;

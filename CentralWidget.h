@@ -76,8 +76,8 @@ private slots:
 	void circleResult(Circle *circle);
 	void translateResult(double bias[3]);
 	void registerPosition(Point3D &point);
-	void reportResult(  const ReportData & report);
-
+	void reportResult( const ReportData & report);
+	void handleReset();
 
 private:
 	QStackedWidget*			m_StackedWidget;

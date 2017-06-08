@@ -56,7 +56,6 @@ void ControlWidget::initUi()
 	m_ReportButton = new QPushButton(QString::fromLocal8Bit("生成报告"));
 	gridLayout->addWidget(m_ReportButton, 3, 1);
 
-
 	setButtonStyle();
 }
 
@@ -68,7 +67,7 @@ void ControlWidget::buildConnections()
 	connect(m_BedButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
 	connect(m_LaserButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
 	connect(m_BedGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ControlWidget::handleButtonGroupClick);
-	connect(m_ResetButton, &QPushButton::clicked, this, &ControlWidget::resetAll);
+
 	connect(m_ResetButton, &QPushButton::clicked, this, &ControlWidget::resetRequest);
 	connect(m_ReportButton, &QPushButton::clicked, this, &ControlWidget::reportRequest);
 }
@@ -80,40 +79,35 @@ void ControlWidget::handleButtonClick()
 	if (button == m_HorizontalRegisterButton) {
 		if (buttonText == QString::fromLocal8Bit("注册水平面")) {
 			emit switchToHorizontalRegister();
-		}
-		else {
+		}else {
 			emit recordingHorizontalRegister();
 		}
 	}
 	else if (button == m_GantryButton) {
 		if (buttonText == QString::fromLocal8Bit("校准机架")) {
 			emit switchToGantry();
-		}
-		else {
+		}else {
 			emit recordingGantry();
 		}
 	}
 	else if (button == m_CollimatorButton) {
 		if (buttonText == QString::fromLocal8Bit("校准准直器")) {
 			emit switchToCollimator();
-		}
-		else {
+		}else{
 			emit recordingCollimator();
 		}
 	}
 	else if (button == m_BedButton) {
 		if (buttonText == QString::fromLocal8Bit("校准治疗床")) {
 			emit switchToBed(m_BedGroup->checkedId());
-		}
-		else {
+		}else{
 			emit recordingBed(m_BedGroup->checkedId());
 		}
 	}
 	else if (button == m_LaserButton) {
 		if (buttonText == QString::fromLocal8Bit("检测激光等中心")) {
 			emit switchToISOCenter();
-		}
-		else {
+		}else{
 			emit recordingISOCenter();
 		}
 	}
@@ -196,7 +190,7 @@ void ControlWidget::resetISOCenter()
 	m_LaserButton->setText(QString::fromLocal8Bit("检测激光等中心"));
 }
 
-void ControlWidget::resetAll()
+void ControlWidget::reset()
 {
 	resetHorizontalRegister();
 	resetGantry();
@@ -206,53 +200,53 @@ void ControlWidget::resetAll()
 }
 void ControlWidget::setButtonStyle()
 {
-	m_HorizontalRegisterButton->setStyleSheet("QPushButton{background-color:rgb(0,153,171);"
+	m_HorizontalRegisterButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
 												"min-height:80;"
 												"border:1px solid white;"
 												"border-radius:8px}"
-											  "QPushButton:pressed{background-color:rgb(0,180,180);"
+											  "QPushButton:pressed{background-color:rgb(92,156,233);"
 												"border-style: inset;}");
 
-	m_GantryButton->setStyleSheet("QPushButton{background-color:rgb(217,82,44);"
+	m_GantryButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
 										"border-radius:8px}"
-								  "QPushButton:pressed{background-color:rgb(217,100,60);"
+								  "QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
 
-	m_CollimatorButton->setStyleSheet("QPushButton{background-color:rgb(164,0,172);"
+	m_CollimatorButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
 										"border-radius:8px}"
-									  "QPushButton:pressed{background-color:rgb(180,0,180);"
+									  "QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
 
-	m_BedButton->setStyleSheet("QPushButton{background-color:rgb(87,54,177);"
+	m_BedButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
 										"border-radius:8px}"
-								"QPushButton:pressed{background-color:rgb(110,54,180);"
+								"QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
 
-	m_LaserButton->setStyleSheet("QPushButton{background-color:rgb(45,137,239);"
+	m_LaserButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
 										"border-radius:8px}"
-								 "QPushButton:pressed{background-color:rgb(65,137,250);"
+								 "QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
 
-	m_ResetButton->setStyleSheet("QPushButton{background-color:rgb(10,89,193);"
+	m_ResetButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
 										"border-radius:8px}"
-								 "QPushButton:pressed{background-color:rgb(40,90,200);"
+								 "QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
 
 
-	m_ReportButton->setStyleSheet("QPushButton{background-color:rgb(187,29,72);"
+	m_ReportButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
 										"border-radius:8px}"
-								  "QPushButton:pressed{background-color:rgb(200,29,90);"
+								  "QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
 }

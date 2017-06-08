@@ -3,6 +3,14 @@
 
 Circle::Circle()
 {
+}
+
+Circle::~Circle()
+{
+}
+
+void Circle::init()
+{
 	Angle = 0;
 	Center[0] = 0;
 	Center[1] = 0;
@@ -12,9 +20,4 @@ Circle::Circle()
 	Normal[2] = 0;
 	Radius = 0;
 	IsParallelOrPerpendicular = false;
-}
-
-
-Circle::~Circle()
-{
 }

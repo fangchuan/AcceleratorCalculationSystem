@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     initUi();
     buildConnections();
+	detectTracker();
 }
 
 MainWindow::~MainWindow()
@@ -55,6 +56,20 @@ void MainWindow::buildConnections()
 	connect(mQuit,       &QAction::triggered,    this, &MainWindow::closeWindow);
 }
 
+void MainWindow::detectTracker()
+{
+	if (OpsTrackingDevice::getInstance()->findTracker() == NDIPolaris){
+
+	   OpsTrackingDevice::getInstance()->openConnection();
+	   mTrackerDetected = true;
+	}else{
+	       
+		QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), 
+										QObject::tr("未找到相机，请检查相机连接！"));
+		mTrackerDetected = false;
+	}
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     exitMainWindow();
@@ -68,10 +83,9 @@ void MainWindow::exitMainWindow()
 
 void MainWindow::disconnectTracker()
 {
-    OpsTrackingDevice *tracker = OpsTrackingDevice::getInstance();
-	if (tracker->findTracker() == NDIPolaris){
-		if (tracker->getState() >= TrackingDevice::Setup)
-		{
+	if (mTrackerDetected){
+		OpsTrackingDevice *tracker = OpsTrackingDevice::getInstance();
+		if (tracker->getState() >= TrackingDevice::Setup){
 			tracker->stopTracking();
 		}
 		tracker->closeConnection();

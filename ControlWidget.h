@@ -18,7 +18,7 @@ public:
 	void doSwitchToCollimator();
 	void doSwitchToBed();
 	void doSwitchToISOCenter();
-
+	void reset();
 signals:
 	void switchToHorizontalRegister();
 	void recordingHorizontalRegister();
@@ -40,7 +40,6 @@ private:
 	void resetCollimator();
 	void resetBed();
 	void resetISOCenter();
-	void resetAll();
 	void setButtonStyle();
 private slots:
 	void handleButtonClick();

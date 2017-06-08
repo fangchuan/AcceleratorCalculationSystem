@@ -11,7 +11,7 @@ Logger::Logger(QObject *parent, QString fileName ) : QObject(parent)
 	if (!fileName.isEmpty()) {
 		m_file = new QFile;
 		m_file->setFileName(fileName);
-		m_file->open(QIODevice::Append | QIODevice::Text);
+		m_file->open(QIODevice::WriteOnly | QIODevice::Text);
 	}
 }
 

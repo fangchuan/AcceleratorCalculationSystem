@@ -10,7 +10,7 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
-
+#include <QDesktopWidget>
 
 
 void splashMessage(QScopedPointer<QSplashScreen>& splashScreen, const QString& message)
@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
 	QtSingleApplication::setApplicationVersion(ACS_VERSION);
 	QtSingleApplication::setDesktopSettingsAware(false);
 	QtSingleApplication app(argc, argv);
+	
 
 	QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
 
@@ -70,23 +71,22 @@ int main(int argc, char *argv[])
 
     QScopedPointer<QSplashScreen> splashScreen;
 
-    QPixmap pixmap(":/Resources/image/SplashScreen.png");
+    QPixmap pixmap(":/Resources/image/splash_screen.png");
     splashScreen.reset(new QSplashScreen(pixmap));
 	splashMessage(splashScreen, QObject::tr("初始化..."));
     splashScreen->show();
 	splashMessage(splashScreen, QObject::tr("初始化工作目录..."));
 
 // 	initWorkEnvironment();
-
-	splashMessage(splashScreen, QObject::tr("正在寻找硬件..."));
-    if (OpsTrackingDevice::getInstance()->findTracker() == NDIPolaris)
-    {
-		splashMessage(splashScreen, QObject::tr("已经找到硬件，正在初始化..."));
-        OpsTrackingDevice::getInstance()->openConnection();
-	}else{
-		splashMessage(splashScreen, QObject::tr("没有找到硬件!"));
-        QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("未找到相机，请检查相机连接！"));
-    }
+	splashMessage(splashScreen, QObject::tr("正在初始化..."));
+ //   if (OpsTrackingDevice::getInstance()->findTracker() == NDIPolaris)
+ //   {
+	//	splashMessage(splashScreen, QObject::tr("已经找到硬件，正在初始化..."));
+ //       OpsTrackingDevice::getInstance()->openConnection();
+	//}else{
+	//	splashMessage(splashScreen, QObject::tr("没有找到硬件!"));
+ //       QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("未找到相机，请检查相机连接！"));
+ //   }
 	splashMessage(splashScreen, QObject::tr("正在创建用户界面..."));
 
     MainWindow w;
@@ -95,7 +95,11 @@ int main(int argc, char *argv[])
 
 	splashMessage(splashScreen, QObject::tr("程序已经启动."));
 	splashScreen->finish(&w);
+
+	//QSize size = QSize(QtSingleApplication::desktop()->width(), QtSingleApplication::desktop()->height());
+	//w.setFixedSize(size);
 	w.showFullScreen();
+
     return app.exec();
 
 }

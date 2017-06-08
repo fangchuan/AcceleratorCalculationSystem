@@ -17,27 +17,41 @@ CentralModel::CentralModel(QObject *parent)
 	m_GantryHandler(new GantryHandler(this)),
 	m_CollimatorHandler(new CollimatorHandler(this)),
 	m_BedHandler(new BedHandler(this)),
-	m_ISOCenterHanlder(new ISOCenterHandler(this))
+	m_ISOCenterHanlder(new ISOCenterHandler(this)),
+	gantryCircle(new Circle),
+	bedCircle(new Circle)
 {
+	initTimer();
 	initData();
 	buildConnections();
 }
 
+bool CentralModel::initTimer()
+{
+	int timerId = this->startTimer(1000);
+	if (timerId != 0)
+		return true;
+	else
+		return false;
+}
 void CentralModel::initData()
 {
 	m_BedFitted = false;
 	m_GantryFitted = false;
 	m_softCenterIsCal = false;
 	m_LaserISODetected = false;
-	gantryCircle = new Circle;
-	bedCircle = new Circle;
+	m_ReadyToReport = false;
+	gantryCircle ->init();
+	bedCircle -> init();
 	reportData.softCenter[0] = 0; reportData.softCenter[1] = 0; reportData.softCenter[2] = 0;
 	reportData.laserCenter[0] = 0; reportData.laserCenter[1] = 0; reportData.laserCenter[2] = 0;
 	reportData.footA[0] = 0; reportData.footA[1] = 0; reportData.footA[2] = 0;
 	reportData.footB[0] = 0; reportData.footB[1] = 0; reportData.footB[2] = 0;
+	reportData.distanceLaser2Soft = 0;
 	reportData.bedVar = 0; reportData.bedMean = 0;
 	reportData.gantryVar = 0; reportData.gantryMean = 0;
 }
+
 CentralModel::~CentralModel()
 {
 	delete gantryCircle;
@@ -65,6 +79,15 @@ void CentralModel::buildConnections()
 	connect(m_GantryHandler, &GantryHandler::circleResult, this, &CentralModel::softISOCenter);
 }
 
+void CentralModel::timerEvent(QTimerEvent* event)
+{
+	Q_UNUSED(event);
+
+	if (m_ReadyToReport){
+		m_ReadyToReport = false;
+		emit sendReport(reportData);
+	}
+}
 void CentralModel::setHandlerToNone()
 {
 	m_Handler = nullptr;
@@ -73,18 +96,21 @@ void CentralModel::setHandlerToNone()
 void CentralModel::setHandlerToHorizontalRegister()
 {
 	m_Handler = m_HorizontalRegisterHandler;
+	//clear history data
 	m_Handler->reset();
 }
 
 void CentralModel::setHandlerToGantry()
 {
 	m_Handler = m_GantryHandler;
+	//clear history data
 	m_Handler->reset();
 }
 
 void CentralModel::setHandlerToCollimator()
 {
 	m_Handler = m_CollimatorHandler;
+	//clear  history data
 	m_Handler->reset();
 }
 
@@ -92,12 +118,14 @@ void CentralModel::setHandlerToBed(int mode)
 {
 	m_Handler = m_BedHandler;
 	m_BedHandler->setMode(mode);
+	//clear history data
 	m_Handler->reset();
 }
 
 void CentralModel::setHandlerToISOCenter()
 {
 	m_Handler = m_ISOCenterHanlder;
+	//clear history data
 	m_Handler->reset();
 }
 
@@ -162,16 +190,14 @@ void CentralModel::laserISOCenter(Point3D& point)
 
 void CentralModel::softISOCenter(Circle* circle)
 {
-	QString sender = this->sender()->objectName();
-	qDebug() << "sender name:" << sender;
-
-	if (sender == "m_GantryHandler"){
+	int handler = getHandler();
+	if (handler == GANTRY_HANDLER){
 		m_GantryFitted = true;
 		memcpy(gantryCircle, circle, sizeof(Circle));
 	}
-	if (sender == "m_BedHandler"){
+	if (handler == BED_HANDLER){
 		m_BedFitted = true;
-		memcpy(bedCircle, circle, sizeof(circle));
+		memcpy(bedCircle, circle, sizeof(Circle));
 	}
 
 	if (m_GantryFitted && m_BedFitted){
@@ -219,6 +245,9 @@ void CentralModel::calSoftISOCenterAndFoots(Circle* gantry, Circle* bed)
 	m_softCenterIsCal = true;
 }
 
+//
+//处理生成报告的请求， 报告结果在定时事件中发送
+//
 void CentralModel::handleReport()
 {
 	double distance = 0;
@@ -240,8 +269,17 @@ void CentralModel::handleReport()
 		reportData.bedVar = bedVariance;
 		reportData.bedMean = bedMean;
 
-		emit sendReport(reportData);
+		m_ReadyToReport = true;
 	}else{
+		m_ReadyToReport = false;
 		return;
 	}
+}
+//
+//复位加速器，所有数据置初值
+//
+void CentralModel::resetAccelerator()
+{ 
+	setHandlerToNone();
+	initData();
 }

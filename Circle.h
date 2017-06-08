@@ -16,6 +16,7 @@ public:
 	}
 
 	virtual ~Circle();
+	void init();
 
 	double Center[3];
 	double Normal[3];

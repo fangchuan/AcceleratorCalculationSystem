@@ -30,6 +30,7 @@ private:
     void disconnectTracker();
 	void showHelp();
 	void closeWindow();
+	void detectTracker();
 private:
     Ui::MainWindow *ui;
     CentralWidget *m_CentralWidget;
@@ -47,6 +48,7 @@ private:
 	QAction*  mTextAction;
 	QAction*  mHelpAction;
 
+	bool  mTrackerDetected;
 };
 
 #endif // MAINWINDOW_H

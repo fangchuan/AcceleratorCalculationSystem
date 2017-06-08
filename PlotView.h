@@ -540,14 +540,23 @@ class PlotView : public QWidget
 public:
 	explicit PlotView(QWidget *parent = 0);
 	~PlotView();
-
+	//复位图表
+	void resetPlot();
+	//设置更新曲线为机架旋转曲线
 	void setGantryUpdateFlag();
+	//设置更新曲线为准直器旋转曲线
 	void setCollimatorUpdateFlag();
+	//设置更新曲线为治疗床旋转曲线
 	void setBedDegreeUpdateFlag();
+	//设置更新曲线为治疗床移动曲线
 	void setBedDistanceUpdateFlag();
+	//获取当前更新标志是否是机架旋转
 	bool getGantryUpdateFlag();
+	//获取当前更新标志是否为准直器旋转标志
 	bool getCollimatorUpdateFlag();
+	//获取当前更新标志是否是治疗床旋转标志
 	bool getBedDegreeUpdateFlag();
+	//获取当前更新标志是否是治疗床移动标志
 	bool getBedDistanceUpdatFlag();
 signals:
 

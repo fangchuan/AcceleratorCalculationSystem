@@ -6,6 +6,8 @@
 #include <QTextStream>
 #include <QDateTime>
 
+#define USE_LOG
+
 class Logger : public QObject
 {
 	Q_OBJECT

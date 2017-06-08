@@ -34,14 +34,16 @@ namespace  QtRenderView{
 #define  ACCEL_BED_CONNECT2_NAME "BedConnect2Node"
 #define  ACCEL_BED_STRECH_NAME   "BedStrechNode"
 #define  ACCEL_BEDBOTTOM_NAME    "BedBottomNode"
-#define  ISOCENTER_NAME          "ISOCenterNode"
+#define  SOFT_ISOCENTER_NAME     "SoftISOCenterNode"
+#define  LASER_ISOCENTER_NAME     "LaserISOCenterNode"
+#define  MARKER_POINT_NAME       "MarkerPointNode"
 #define  X_AXIS_NODE_NAME		 "XAxisNode"
 #define  Y_AXIS_NODE_NAME		 "YAxisNode"
 #define  VERTICAL_LINE_NODE_NAME "VerticalLineNode"
 	// ManualObject name
-#define  YAXIS_LINE_NAME      "YAxis"
-#define  XAXIS_LINE_NAME      "XAxis"
-#define  VERTICAL_LINE_NAME   "VerticalLine"
+#define  YAXIS_LINE_NAME         "YAxis"
+#define  XAXIS_LINE_NAME         "XAxis"
+#define  VERTICAL_LINE_NAME      "VerticalLine"
 
 
 #define  ACCEL_BOX_BIAS          Ogre::Vector3(-24.0f,0.0f,0.0f)
@@ -100,6 +102,8 @@ namespace  QtRenderView{
 #if OGRE_VERSION >= ((2 << 16) | (0 << 8) | 0)
 		virtual void createCompositor();
 #endif
+		//复位场景
+		void resetScene();
 		//
 		void setAnimating(bool animating);
 		//确定等中心
@@ -121,13 +125,13 @@ namespace  QtRenderView{
 		//三维场景里的Y轴对应机床旋转轴线
 		void drawYAxis(const QVector3D& start, const QVector3D& end, const QColor& color = QColor(Qt::black));
 		//画出等中心
-		void drawISOCenter(const double x, const double y, const double z);
+		void drawSoftISOCenter(const double x, const double y, const double z);
+		void drawLaserISOCenter(const double x, const double y, const double z);
 		//画屏幕左下方的参考坐标系
 		void drawCoordinate();
 		//画出标定球位置
 		void drawMarkerPoint(const double x, const double y, const double z);
 		//画两个轴线的公垂线
-		void drawVerticalLine();
 		void drawVerticalLine(const double footA[3], const double footB[3]);
 		public slots:
 
@@ -150,15 +154,13 @@ namespace  QtRenderView{
 		Ogre::Camera*       mOgreCamera;
 		Ogre::ColourValue   mOgreBackground;
 		OgreQtBites::SdkQtCameraMan* mCameraMan;
-		Ogre::SceneNode*    mOgreCenterNode;
+		Ogre::SceneNode*    mOgreSoftCenterNode;
+		Ogre::SceneNode*    mOgreLaserCenterNode;
 		Ogre::SceneNode*    mOgreMarkerNode;
 
 		bool m_update_pending;
 		bool m_animating;
-		bool m_gantry_calibrated;
-		bool m_bed_calibrated;
-		Ogre::Vector3  centerGantry;
-		Ogre::Vector3  centerBed;
+
 
 		virtual void keyPressEvent(QKeyEvent * ev);
 		virtual void keyReleaseEvent(QKeyEvent * ev);

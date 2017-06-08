@@ -33,6 +33,26 @@ void DisplayWidget::initUi()
 	m_StackedWidget->addWidget(m_ISOCenterDisplayWidget);
 }
 
+void DisplayWidget::reset()
+{
+	int index = m_StackedWidget->currentIndex();
+	
+	if (index == 0){
+		//m_HorizontalWidget->reset();
+	}else{
+		if (index == 1){
+			//m_RotationWidget->reset();
+		}else{
+			if (index == 2){
+				//m_TranslationWidget->reset();
+			}
+			else{
+				//m_ISOCenterDisplayWidget->reset();
+			}
+		}
+	}
+}
+
 void DisplayWidget::setMarkerSize(int size)
 {
 	int index = m_StackedWidget->currentIndex();

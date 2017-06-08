@@ -62,10 +62,12 @@ void CentralWidget::initUi()
 
 void CentralWidget::initLogger()
 {
+#ifdef  USE_LOG
 	logger = Logger::getInstance();
 	//logger->setTextEdit(logText);
 	logger->write(QString::fromLocal8Bit("江苏富科思科技有限公司"));
 	logger->write(QString::fromLocal8Bit("LNAC setup"));
+#endif
 }
 
 void CentralWidget::initCamera()
@@ -97,7 +99,7 @@ void CentralWidget::buildConnections()
 	connect(m_ControlWidget, &ControlWidget::switchToBed, this, &CentralWidget::switchToBed);
 	connect(m_ControlWidget, &ControlWidget::recordingISOCenter, this, &CentralWidget::recordingISOCenter);
 	connect(m_ControlWidget, &ControlWidget::switchToISOCenter, this, &CentralWidget::switchToISOCenter);
-	//connect(m_ControlWidget, &ControlWidget::resetRequest,);
+	connect(m_ControlWidget, &ControlWidget::resetRequest, this, &CentralWidget::handleReset);
 	connect(m_ControlWidget, &ControlWidget::reportRequest, m_Model, &CentralModel::handleReport);
 	//建立拟合结果与界面更新信号槽(所有的结果都在加速器坐标系/三维场景坐标系下)
 	connect(m_Model, &CentralModel::markerSize, this, &CentralWidget::markerSize);
@@ -119,13 +121,11 @@ void CentralWidget::showPlotPage()
 {
 
 	m_StackedWidget->setCurrentIndex(STACKED_PLOT_VIEW_INDEX);
-
 }
 
 void CentralWidget::showLogTextPage()
 {
 	m_StackedWidget->setCurrentIndex(STACKED_PLAINTEXT_INDEX);
-
 }
 
 void CentralWidget::exportReport()
@@ -281,8 +281,9 @@ void CentralWidget::recordingCollimator()
 {
 	m_Model->setHandlerToCollimator();
 	plotWidget->setCollimatorUpdateFlag();
-
+#ifdef USE_LOG
 	logger->write(QString::fromLocal8Bit("Recording Collimator Rotate"));
+#endif
 }
 
 void CentralWidget::recordingBed(int mode)
@@ -290,19 +291,23 @@ void CentralWidget::recordingBed(int mode)
 	m_Model->setHandlerToBed(mode);
 	if (0 == mode){
 		plotWidget->setBedDegreeUpdateFlag();
+#ifdef USE_LOG
 		logger->write(QString::fromLocal8Bit("Recording Bed Rotate"));
-	}
-	else{
+#endif
+	}else{
 		plotWidget->setBedDistanceUpdateFlag();
+#ifdef USE_LOG
 		logger->write(QString::fromLocal8Bit("Recording Bed Translate"));
+#endif
 	}
 }
 
 void CentralWidget::recordingISOCenter()
 {
 	m_Model->setHandlerToISOCenter();
-
+#ifdef USE_LOG
 	logger->write(QString::fromLocal8Bit("Recording ISO Center"));
+#endif
 }
 
 void CentralWidget::monitoringMarker3D()
@@ -310,9 +315,6 @@ void CentralWidget::monitoringMarker3D()
 	MarkerPointContainerType positions;
 	m_Tracker->getMarkerPositions(&positions);
 	m_Model->handle(positions);
-
-	QString str = QStringLiteral("Monitor in 3D model");
-	logger->write(str);
 }
 
 void CentralWidget::monitoringTool6D()
@@ -320,9 +322,6 @@ void CentralWidget::monitoringTool6D()
 	Point3D point;
 	m_Tracker->getToolPosition(point);
 	m_Model->handle(point);
-
-	QString str = QStringLiteral("Monitor in 6D model");
-	logger->write(str);
 }
 //
 //update display widget and render widget
@@ -351,9 +350,10 @@ void CentralWidget::horizontalRegisterRecorded()
 {
 	m_DisplayWidget->horizontalRegisterRecorded();
 
-	//记录日志
+#ifdef USE_LOG
 	QString str = QStringLiteral("Horizon has registered!");
 	logger->write(str);
+#endif
 	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("水平面已注册"));
 }
 //
@@ -373,11 +373,11 @@ void CentralWidget::circleResult(Circle *circle)
 		plotWidget->updateGantryDegreeVelocity(angle);
 
 		renderWidget->rotateGantry(angle);
-		renderWidget->drawXAxis(QVector3D(circle_center[0], circle_center[1], circle_center[2]-5),
-								QVector3D(circle_center[0], circle_center[1], circle_center[2]+5),
+		renderWidget->drawXAxis(QVector3D(circle_center[0], circle_center[1], circle_center[2]),
+								QVector3D(circle_center[0]+normal_vector[0], circle_center[1]+normal_vector[1], circle_center[2]+normal_vector[2]),
 								QColor(Qt::blue));
 
-		//记录日志
+#ifdef USE_LOG
 		QString str = QStringLiteral("Gantry rotate result:\n");
 		str += QString("angle: %1").arg(angle, 0, 'f', 2);
 		str += "\n";
@@ -385,6 +385,7 @@ void CentralWidget::circleResult(Circle *circle)
 		str += "\n";
 		str += QString("normal: ( %1, %2, %3 )").arg(normal_vector[0], 0, 'f', 2).arg(normal_vector[1], 0, 'f', 2).arg(normal_vector[2], 0, 'f', 2);
 		logger->write(str);
+#endif
 	}
 	if (handler == COLLIMATOR_HANDLER){
 		plotWidget->updateCollimatorDegreeDistance(angle);
@@ -392,7 +393,7 @@ void CentralWidget::circleResult(Circle *circle)
 
 		renderWidget->rotateCollimator(angle);
 
-		//记录日志
+#ifdef USE_LOG
 		QString str = QStringLiteral("Collimator rotate result:\n");
 		str += QString("angle: %1").arg(angle, 0, 'f', 2);
 		str += "\n";
@@ -400,17 +401,18 @@ void CentralWidget::circleResult(Circle *circle)
 		str += "\n";
 		str += QString("normal: ( %1, %2, %3 )").arg(normal_vector[0], 0, 'f', 2).arg(normal_vector[1], 0, 'f', 2).arg(normal_vector[2], 0, 'f', 2);
 		logger->write(str);
+#endif
 	}
 	if (handler == BED_HANDLER){
 		plotWidget->updateBedDegreeDistance(angle);
 		plotWidget->updateBedDegreeVelocity(angle);
 
 		renderWidget->rotateBed(angle);
-		renderWidget->drawYAxis(QVector3D(circle_center[0], circle_center[1]-5, circle_center[2]),
-								QVector3D(circle_center[0], circle_center[1]+5, circle_center[2]),
+		renderWidget->drawYAxis(QVector3D(circle_center[0], circle_center[1], circle_center[2]),
+								QVector3D(circle_center[0] + normal_vector[0], circle_center[1] + normal_vector[1], circle_center[2] + normal_vector[2]),
 								QColor(Qt::red));
 
-		//记录日志
+#ifdef USE_LOG
 		QString str = QStringLiteral("Bed rotate result:\n");
 		str += QString("angle: %1").arg(angle, 0, 'f', 2);
 		str += "\n";
@@ -418,8 +420,8 @@ void CentralWidget::circleResult(Circle *circle)
 		str += "\n";
 		str += QString("normal: ( %1, %2, %3 )").arg(normal_vector[0], 0, 'f', 2).arg(normal_vector[1], 0, 'f', 2).arg(normal_vector[2], 0, 'f', 2);
 		logger->write(str);
+#endif
 	}
-
 }
 //
 //机床位移结果
@@ -439,7 +441,7 @@ void CentralWidget::translateResult(double bias[3])
 	plotWidget->updateBedDistance(x, y, z);
 	plotWidget->updateBedVelocity(x, y, z);
 
-	//记录日志
+#ifdef USE_LOG
 	QString str = QStringLiteral("Bed Translate Resulte:\n");
 	str += QString("x = %1").arg(x, 0, 'f', 2);
 	str += "\n";
@@ -447,23 +449,36 @@ void CentralWidget::translateResult(double bias[3])
 	str += "\n";
 	str += QString("z = %1").arg(z, 0, 'f', 2);
 	logger->write(str);
+#endif
 }
 //
-//在显示面板更新激光灯确定的等中心坐标
+//更新激光灯等中心坐标
 //
 void CentralWidget::registerPosition(Point3D &point)
 {
 	double position[3] = { point[0], point[1], point[3] };
 	m_DisplayWidget->setRegisteredPosition(position);
-	renderWidget->drawISOCenter(position[2], position[1], -position[0]);
+	renderWidget->drawLaserISOCenter(position[2]*0.01, position[1]*0.01, -position[0]*0.01);
 
-	//记录日志
+#ifdef USE_LOG
 	QString str = QStringLiteral("Laser register ISOCenter: ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
 																				.arg(point[1], 0, 'f', 2)
 																				.arg(point[2], 0, 'f', 2);
 	logger->write(str);
+#endif
 }
+
+void CentralWidget::handleReset()
+{
+	m_Model->resetAccelerator();
+	m_ControlWidget->reset();
+	m_DisplayWidget->reset();
+	renderWidget->resetScene();
+	plotWidget->resetPlot();
+}
+//
 //根据计算得到的等中心、垂足A/B坐标和公垂线长度更新报告和三维场景
+//
 void CentralWidget::reportResult(const ReportData& report)
 {
 	QString softCenter = QString("( %1, %2, %3 )").arg(report.softCenter[0], 0, 'f', 2)
@@ -485,10 +500,15 @@ void CentralWidget::reportResult(const ReportData& report)
 	QString distanceSoft2Laser = QString(" %1").arg(report.distanceLaser2Soft, 0, 'f', 2);
 
 	double distanceA = sqrt(vtkMath::Distance2BetweenPoints(report.footA, report.laserCenter));
-	double distanceB = sqrt(vtkMath::Distance2BetweenPoints(report.footB, report.laserCenter));;
+	double distanceB = sqrt(vtkMath::Distance2BetweenPoints(report.footB, report.laserCenter));
 	QString distanceA2Laser = QString(" %1").arg(distanceA, 0, 'f', 2);
 	QString distanceB2Laser = QString(" %1").arg(distanceB, 0, 'f', 2);
+	QString gantryVar = QString(" %1").arg(report.gantryVar, 0,'f', 2);
+	QString gantryMean = QString(" %1").arg(report.gantryMean, 0, 'f', 2);
+	QString bedVar = QString(" %1").arg(report.bedVar, 0, 'f', 2);
+	QString bedMean = QString(" %1").arg(report.bedMean, 0, 'f', 2);
 
-	loggerWidget->setHtmlReport(softCenter, laserCenter, foot_A, foot_B, distanceSoft2Laser, distanceA2Laser, distanceB2Laser);
+	loggerWidget->setHtmlReport(softCenter, laserCenter, foot_A, foot_B, distanceSoft2Laser, distanceA2Laser, distanceB2Laser, gantryVar, gantryMean, bedVar, bedMean);
+	renderWidget->drawSoftISOCenter(report.softCenter[2]*0.01, report.softCenter[1]*0.01, -report.softCenter[0]*0.01);
 	renderWidget->drawVerticalLine(report.footA, report.footB);
 }

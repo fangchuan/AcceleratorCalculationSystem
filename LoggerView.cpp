@@ -30,7 +30,17 @@ LoggerView::LoggerView(QWidget *parent)
 	: QWidget(parent)
 {
 	initUi();
-	load();
+	setHtmlReport(QString("N/A"), QString("N/A"),
+		QString("N/A"), QString("N/A"),
+		QString("N/A"), QString("N/A"),
+		QString("N/A"), QString("N/A"), 
+		QString("N/A"), QString("N/A"), 
+		QString("N/A"));
+}
+
+LoggerView::~LoggerView()
+{
+
 }
 
 void LoggerView::closeEvent(QCloseEvent *e)
@@ -40,42 +50,13 @@ void LoggerView::closeEvent(QCloseEvent *e)
 	else
 		e->ignore();
 }
-void LoggerView::paintEvent(QPaintEvent* e)
-{
-	QWidget::paintEvent(e);
 
-}
 void LoggerView::initUi()
 {
 	QVBoxLayout* mainLayout = new QVBoxLayout(this);
 	textEdit = new QTextEdit();
 	textEdit->setFocus();
 	mainLayout->addWidget(textEdit);
-}
-bool LoggerView::load()
-{
-	//QString f = QStringLiteral("report.htm");
-	//if (!QFile::exists(f))
-	//	return false;
-	//QFile file(f);
-	//if (!file.open(QFile::ReadOnly))
-	//	return false;
-
-	//QByteArray data = file.readAll();
-	//QTextCodec *codec = Qt::codecForHtml(data);
-	//QString str = codec->toUnicode(data);
-	//if (Qt::mightBeRichText(str)) {
-	//	textEdit->setHtml(str);
-	//}
-	//else {
-	//	str = QString::fromLocal8Bit(data);
-	//	textEdit->setPlainText(str);
-	//}
-	QString html = setHtmlReport(QString("N/A"), QString("N/A"), QString("N/A"), QString("N/A"), QString("N/A"), QString("N/A"), QString("N/A"));
-	textEdit->setHtml(html);
-
-	
-	return true;
 }
 
 bool LoggerView::maybeSave()
@@ -186,16 +167,20 @@ void LoggerView::filePrintPdf()
 //
 //
 //
-QString LoggerView::setHtmlReport(QString& softCenter, 
+void LoggerView::setHtmlReport(QString& softCenter, 
 									QString& laserCenter,
 									QString& footA,
 									QString& footB,
 									QString& d1,
 									QString& d2,
-									QString& d3)
+									QString& d3,
+									QString& gv,
+									QString& gm,
+									QString& bv,
+									QString& bm)
 {
 	QString html;
-	QString title = QString::fromLocal8Bit("加速器校验报告--江苏富科思科技有限公司");
+	QString title = QString::fromLocal8Bit("加速器校验报告--南京大学医学物理与医学影像研究中心");
 	QString current_date = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss ddd");
 	QString image1path = QStringLiteral(":/Resources/image/report_1.png");
 	QString image2path = QStringLiteral(":/Resources/image/report_2.png");
@@ -217,7 +202,6 @@ QString LoggerView::setHtmlReport(QString& softCenter,
 	QString item12 = QString::fromLocal8Bit("治疗床旋转误差--平均值:");
 	QString item13 = QString::fromLocal8Bit("治疗床旋转平均速度:");
 
-
 	item1 += softCenter;
 	item2 += laserCenter;
 	item3 += d1;
@@ -225,6 +209,11 @@ QString LoggerView::setHtmlReport(QString& softCenter,
 	item5 += footB;
 	item6 += d2;
 	item7 += d3;
+	item8 += gv;
+	item9 += gm;
+
+	item11 += bv;
+	item12 += bm;
 
 
 	html += "<h1 align=\"center\">";
@@ -272,5 +261,7 @@ QString LoggerView::setHtmlReport(QString& softCenter,
 	html += "<p align=\"left\"><br/></p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + pictrue3 + "< / p>";
 
-	return html;
+	textEdit->setHtml(html);
+
+	return ;
 }

@@ -51,6 +51,7 @@ public:
 	void handle(MarkerPointContainerType &positions);
 	void handle(Point3D &point);
 	void handleReport();
+	void resetAccelerator();
 signals:
 	void markerSize(int size);
 	void registerPosition(Point3D &point);
@@ -60,8 +61,11 @@ signals:
 	void translateResult(double bias[3]);
 	void sendReport(const ReportData & reportData);
 private:
+	bool initTimer();
 	void initData();
 	void buildConnections();
+
+	virtual void timerEvent(QTimerEvent* event);
 private slots:
 	void laserISOCenter(Point3D& point);
 	void softISOCenter(Circle* circle);
@@ -79,6 +83,7 @@ private:
 	bool m_BedFitted;
 	bool m_softCenterIsCal;
 	bool m_LaserISODetected;
+	bool m_ReadyToReport;
 	Circle* gantryCircle;
 	Circle* bedCircle;
 	ReportData reportData;

@@ -107,7 +107,7 @@ void Fit3DCircle::calculate()
 	m_Normal[1] = B;
 	m_Normal[2] = C;
 	// normalize
-	double length = sqrt(m_Normal[0] * m_Normal[0] + m_Normal[1] * m_Normal[1] + m_Normal[2] * m_Normal[2]);
+	double length = sqrt(A*A + B*B + C*C);
 	m_Normal[0] /= length;
 	m_Normal[1] /= length;
 	m_Normal[2] /= length;
