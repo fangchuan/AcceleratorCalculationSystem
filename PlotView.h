@@ -30,19 +30,14 @@ enum updateFlag{
 	UPDATE_BED_DEGREE,
 	UPDATE_BED_DISTANCE
 };
-//
-class DistancePlot : public QwtPlot
+
+class BasePlot :public QwtPlot
 {
 	Q_OBJECT
 public:
-	DistancePlot(QWidget* parent = NULL) :QwtPlot(parent),
-		mBedXDistance(NULL), mBedYDistance(NULL), mBedZDistance(NULL)
+	BasePlot(QWidget* parent = NULL) :QwtPlot(parent)
 	{
-		this->setTitle(QString::fromLocal8Bit("机床运动位移"));
 		this->setAutoDelete(true);
-		//set axis name
-		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
-		this->setAxisTitle(QwtPlot::yLeft, "Distance [mm]");
 		//set axis autp resize
 		this->setAxisAutoScale(QwtPlot::xBottom, true);
 		this->setAxisAutoScale(QwtPlot::yLeft, true);
@@ -64,6 +59,52 @@ public:
 		QwtLegend *legend = new QwtLegend;
 		legend->setDefaultItemMode(QwtLegendData::Checkable);
 		this->insertLegend(legend, QwtPlot::BottomLegend);
+
+		connect(legend, &QwtLegend::checked, this, &BasePlot::legendChecked);
+	}
+
+	void legendChecked(const QVariant &itemInfo, bool on)
+	{
+		QwtPlotItem *plotItem = infoToItem(itemInfo);
+		if (plotItem)
+			showCurve(plotItem, on);
+	}
+
+	void showCurve(QwtPlotItem *item, bool on)
+	{
+		item->setVisible(on);
+
+		QwtLegend *lgd = qobject_cast<QwtLegend *>(legend());
+
+		QList<QWidget *> legendWidgets =
+			lgd->legendWidgets(itemToInfo(item));
+
+		if (legendWidgets.size() == 1)
+		{
+			QwtLegendLabel *legendLabel =
+				qobject_cast<QwtLegendLabel*>(legendWidgets[0]);
+
+			if (legendLabel)
+				legendLabel->setChecked(on);
+		}
+
+		this->replot();
+	}
+
+	virtual void updateSample(int index, const QVector<double>&xData, const QVector<double>&yData){	};
+};
+//
+class DistancePlot : public BasePlot
+{
+	Q_OBJECT
+public:
+	DistancePlot(QWidget* parent = NULL) :BasePlot(parent),
+		mBedXDistance(NULL), mBedYDistance(NULL), mBedZDistance(NULL)
+	{
+		this->setTitle(QString::fromLocal8Bit("治疗床位移"));
+		//set axis name
+		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
+		this->setAxisTitle(QwtPlot::yLeft, "Distance [mm]");
 		//curve
 		mBedXDistance = new QwtPlotCurve("X");
 		mBedXDistance->setStyle(QwtPlotCurve::Lines);//直线形式
@@ -95,12 +136,9 @@ public:
 		mBedZDistance->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedZDistance->attach(this);//把曲线附加到plot上
 
-		connect(legend, &QwtLegend::checked, this, &DistancePlot::legendChecked);
-
 		showCurve(mBedXDistance, true);
 		showCurve(mBedYDistance, false);
 		showCurve(mBedZDistance, false);
-
 	}
 
 	void updateSample(int index, const QVector<double>&xData, const QVector<double>&yData)
@@ -124,34 +162,6 @@ public:
 		setAxisAutoScale(QwtPlot::xBottom, true);
 	}
 
-	void legendChecked(const QVariant &itemInfo, bool on)
-	{
-		QwtPlotItem *plotItem = infoToItem(itemInfo);
-		if (plotItem)
-			showCurve(plotItem, on);
-	}
-
-	void showCurve(QwtPlotItem *item, bool on)
-	{
-		item->setVisible(on);
-
-		QwtLegend *lgd = qobject_cast<QwtLegend *>(legend());
-
-		QList<QWidget *> legendWidgets =
-			lgd->legendWidgets(itemToInfo(item));
-
-		if (legendWidgets.size() == 1)
-		{
-			QwtLegendLabel *legendLabel =
-				qobject_cast<QwtLegendLabel*>(legendWidgets[0]);
-
-			if (legendLabel)
-				legendLabel->setChecked(on);
-		}
-
-		this->replot();
-	}
-
 private:
 	QwtPlotCurve*  mBedXDistance;
 	QwtPlotCurve*  mBedYDistance;
@@ -159,39 +169,17 @@ private:
 
 };
 //
-class VelocityPlot : public QwtPlot
+class VelocityPlot : public BasePlot
 {
 	Q_OBJECT
 public:
-	VelocityPlot(QWidget* parent = NULL) :QwtPlot(parent),
+	VelocityPlot(QWidget* parent = NULL) :BasePlot(parent),
 		mBedXVelocity(NULL), mBedYVelocity(NULL), mBedZVelocity(NULL)
 	{
-		this->setTitle(QString::fromLocal8Bit("机床运动速度"));
-		this->setAutoDelete(true);
+		this->setTitle(QString::fromLocal8Bit("治疗床速度"));
 		//set axis name
 		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
 		this->setAxisTitle(QwtPlot::yLeft, "Velocity [mm/s]");
-		//set axis autp resize
-		this->setAxisAutoScale(QwtPlot::xBottom, true);
-		this->setAxisAutoScale(QwtPlot::yLeft, true);
-		//set canva
-		QwtPlotCanvas *canvas = new QwtPlotCanvas();
-		canvas->setBorderRadius(10);
-		this->setCanvas(canvas);
-		this->setCanvasBackground(Qt::black);
-		//set zoom wheel
-		(void) new QwtPlotMagnifier(this->canvas());
-		//set translate by mouse left
-		(void) new QwtPlotPanner(this->canvas());
-		// grid
-		QwtPlotGrid *grid = new QwtPlotGrid;
-		grid->enableXMin(true);
-		grid->setMajorPen(Qt::gray, 0, Qt::DotLine);
-		grid->attach(this);
-		//legend
-		QwtLegend *legend = new QwtLegend;
-		legend->setDefaultItemMode(QwtLegendData::Checkable);
-		this->insertLegend(legend, QwtPlot::BottomLegend);
 		//curve
 		mBedXVelocity = new QwtPlotCurve("X");
 		mBedXVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
@@ -223,8 +211,6 @@ public:
 		mBedZVelocity->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedZVelocity->attach(this);//把曲线附加到plot上
 
-		connect(legend, &QwtLegend::checked, this, &VelocityPlot::legendChecked);
-
 		showCurve(mBedXVelocity, true);
 		showCurve(mBedYVelocity, false);
 		showCurve(mBedZVelocity, false);
@@ -251,32 +237,6 @@ public:
 		setAxisAutoScale(QwtPlot::xBottom, true);
 	}
 
-	void legendChecked(const QVariant &itemInfo, bool on)
-	{
-		QwtPlotItem *plotItem = infoToItem(itemInfo);
-		if (plotItem)
-			showCurve(plotItem, on);
-	}
-
-	void showCurve(QwtPlotItem *item, bool on)
-	{
-		item->setVisible(on);
-
-		QwtLegend *lgd = qobject_cast<QwtLegend *>(legend());
-
-		QList<QWidget *> legendWidgets =
-			lgd->legendWidgets(itemToInfo(item));
-
-		if (legendWidgets.size() == 1)
-		{
-			QwtLegendLabel *legendLabel =
-				qobject_cast<QwtLegendLabel *>(legendWidgets[0]);
-
-			if (legendLabel)
-				legendLabel->setChecked(on);
-		}
-		this->replot();
-	}
 private:
 	QwtPlotCurve* mBedXVelocity;
 	QwtPlotCurve* mBedYVelocity;
@@ -284,39 +244,17 @@ private:
 
 };
 //
-class DegreeDistancePlot : public QwtPlot
+class DegreeDistancePlot : public BasePlot
 {
 	Q_OBJECT
 public:
-	DegreeDistancePlot(QWidget* parent = NULL) :QwtPlot(parent),
+	DegreeDistancePlot(QWidget* parent = NULL) :BasePlot(parent),
 		mGantryDistance(NULL), mCollimatorDistance(NULL), mBedDistance(NULL)
 	{
-		this->setTitle(QString::fromLocal8Bit("机头/机床角度"));
-		this->setAutoDelete(true);
+		this->setTitle(QString::fromLocal8Bit("角位移"));
 		//set axis name
 		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
 		this->setAxisTitle(QwtPlot::yLeft, "Displacement [degree]");
-		//set axis autp resize
-		this->setAxisAutoScale(QwtPlot::xBottom, true);
-		this->setAxisAutoScale(QwtPlot::yLeft, true);
-		//set canva
-		QwtPlotCanvas *canvas = new QwtPlotCanvas();
-		canvas->setBorderRadius(10);
-		this->setCanvas(canvas);
-		this->setCanvasBackground(Qt::black);
-		//set zoom wheel
-		(void) new QwtPlotMagnifier(this->canvas());
-		//set translate by mouse left
-		(void) new QwtPlotPanner(this->canvas());
-		// grid
-		QwtPlotGrid *grid = new QwtPlotGrid;
-		grid->enableXMin(true);
-		grid->setMajorPen(Qt::gray, 0, Qt::DotLine);
-		grid->attach(this);
-		//legend
-		QwtLegend *legend = new QwtLegend;
-		legend->setDefaultItemMode(QwtLegendData::Checkable);
-		this->insertLegend(legend, QwtPlot::BottomLegend);
 		//curve
 		mGantryDistance = new QwtPlotCurve(QString::fromLocal8Bit("机架"));
 		mGantryDistance->setStyle(QwtPlotCurve::Lines);//直线形式
@@ -348,8 +286,6 @@ public:
 		mBedDistance->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedDistance->attach(this);//把曲线附加到plot上
 
-		connect(legend, &QwtLegend::checked, this, &DegreeDistancePlot::legendChecked);
-
 		showCurve(mGantryDistance, true);
 		showCurve(mCollimatorDistance, false);
 		showCurve(mBedDistance, false);
@@ -376,71 +312,23 @@ public:
 		setAxisAutoScale(QwtPlot::xBottom, true);
 	}
 
-	void legendChecked(const QVariant &itemInfo, bool on)
-	{
-		QwtPlotItem *plotItem = infoToItem(itemInfo);
-		if (plotItem)
-			showCurve(plotItem, on);
-	}
-
-	void showCurve(QwtPlotItem *item, bool on)
-	{
-		item->setVisible(on);
-
-		QwtLegend *lgd = qobject_cast<QwtLegend *>(legend());
-
-		QList<QWidget *> legendWidgets =
-			lgd->legendWidgets(itemToInfo(item));
-
-		if (legendWidgets.size() == 1)
-		{
-			QwtLegendLabel *legendLabel =
-				qobject_cast<QwtLegendLabel *>(legendWidgets[0]);
-
-			if (legendLabel)
-				legendLabel->setChecked(on);
-		}
-		this->replot();
-	}
 private:
 	QwtPlotCurve*  mGantryDistance;
 	QwtPlotCurve*  mCollimatorDistance;
 	QwtPlotCurve*  mBedDistance;
 };
 //
-class DegreeVelocityPlot : public QwtPlot
+class DegreeVelocityPlot : public BasePlot
 {
 	Q_OBJECT
 public:
-	DegreeVelocityPlot(QWidget* parent = NULL) :QwtPlot(parent),
+	DegreeVelocityPlot(QWidget* parent = NULL) :BasePlot(parent),
 		mGantryVelocity(NULL), mCollimatorVelocity(NULL)
 	{
-		this->setTitle(QString::fromLocal8Bit("机头/机床角速度"));
-		this->setAutoDelete(true);
+		this->setTitle(QString::fromLocal8Bit("角速度"));
 		//set axis name
 		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
 		this->setAxisTitle(QwtPlot::yLeft, "DegreeVelocity [degree/s]");
-		//set axis autp resize
-		this->setAxisAutoScale(QwtPlot::xBottom, true);
-		this->setAxisAutoScale(QwtPlot::yLeft, true);
-		//set canva
-		QwtPlotCanvas *canvas = new QwtPlotCanvas();
-		canvas->setBorderRadius(10);
-		this->setCanvas(canvas);
-		this->setCanvasBackground(Qt::black);
-		//set zoom wheel
-		(void) new QwtPlotMagnifier(this->canvas());
-		//set translate by mouse left
-		(void) new QwtPlotPanner(this->canvas());
-		// grid
-		QwtPlotGrid *grid = new QwtPlotGrid;
-		grid->enableXMin(true);
-		grid->setMajorPen(Qt::gray, 0, Qt::DotLine);
-		grid->attach(this);
-		//legend
-		QwtLegend *legend = new QwtLegend;
-		legend->setDefaultItemMode(QwtLegendData::Checkable);
-		this->insertLegend(legend, QwtPlot::BottomLegend);
 		//curve
 		mGantryVelocity = new QwtPlotCurve(QString::fromLocal8Bit("机架"));
 		mGantryVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
@@ -472,8 +360,6 @@ public:
 		mBedVelocity->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedVelocity->attach(this);//把曲线附加到plot上
 
-		connect(legend, &QwtLegend::checked, this, &DegreeVelocityPlot::legendChecked);
-
 		showCurve(mGantryVelocity, true);
 		showCurve(mCollimatorVelocity, false);
 		showCurve(mBedVelocity, false);
@@ -498,33 +384,6 @@ public:
 		}
 		replot();
 		setAxisAutoScale(QwtPlot::xBottom, true);
-	}
-
-	void legendChecked(const QVariant &itemInfo, bool on)
-	{
-		QwtPlotItem *plotItem = infoToItem(itemInfo);
-		if (plotItem)
-			showCurve(plotItem, on);
-	}
-
-	void showCurve(QwtPlotItem *item, bool on)
-	{
-		item->setVisible(on);
-
-		QwtLegend *lgd = qobject_cast<QwtLegend *>(legend());
-
-		QList<QWidget *> legendWidgets =
-			lgd->legendWidgets(itemToInfo(item));
-
-		if (legendWidgets.size() == 1)
-		{
-			QwtLegendLabel *legendLabel =
-				qobject_cast<QwtLegendLabel *>(legendWidgets[0]);
-
-			if (legendLabel)
-				legendLabel->setChecked(on);
-		}
-		this->replot();
 	}
 
 private:

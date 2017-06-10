@@ -65,7 +65,7 @@ void MainWindow::detectTracker()
 	}else{
 	       
 		QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), 
-										QObject::tr("未找到相机，请检查相机连接！"));
+                                        QObject::tr("Cannot find Camera! Please check connection"));
 		mTrackerDetected = false;
 	}
 }

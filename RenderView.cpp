@@ -19,7 +19,6 @@ QtRenderView::RenderView::RenderView(QWindow *parent)
 	, mOgreMarkerNode(NULL)
 	, m_update_pending(false)
 	, m_animating(false)
-
 {
 	setAnimating(true);
 	installEventFilter(this);
@@ -136,10 +135,10 @@ void QtRenderView::RenderView::initialize()
 
 	mOgreCamera = mOgreSceneMgr->createCamera(SCENE_CAMERA_NAME);
 	mCorSceneMgr->createCamera(COORDINATE_CAMERA_NAME);
-	mOgreCamera->setPosition(Ogre::Vector3(0.0f, 0.0f, 0.6f));
+	mOgreCamera->setPosition(Ogre::Vector3(0.0f, 0.0f, 1.0f));
 	mOgreCamera->lookAt(Ogre::Vector3(0.0f, 0.0f, -300.0f));
-	mOgreCamera->setNearClipDistance(0.1f);
-	mOgreCamera->setFarClipDistance(200000.0f);
+	mOgreCamera->setNearClipDistance(1.0f);
+	mOgreCamera->setFarClipDistance(500.0f);
 	mCameraMan = new OgreQtBites::SdkQtCameraMan(mOgreCamera);   // create a default camera controller
 
 
@@ -171,9 +170,8 @@ void QtRenderView::RenderView::createScene()
 	accelMaterial->getTechnique(0)->getPass(0)->setAmbient(0.2f, 0.2f, 0.2f);
 	accelMaterial->getTechnique(0)->getPass(0)->setDiffuse(0.9f, 0.9f, 0.9f, 1.0f);
 	accelMaterial->getTechnique(0)->getPass(0)->setSpecular(0.9f, 0.9f, 0.9f, 1.0f);
-	accelMaterial->getTechnique(0)->getPass(0)->setDepthBias(0.1f);
+	//accelMaterial->getTechnique(0)->getPass(0)->setDepthBias(10.0f, 1.0f);
 	accelMaterial->setManuallyLoaded(true);
-	//accelMaterial->setSelfIllumination(0.2f, 0.2f, 0.1f);
 
 	//load LNAC entiity: Box + Connect + Head + bedBoard + bedConnect1 + bedConnect2 + bedStrech + bedBottom
 	Ogre::Entity* ogreEntity1 = mOgreSceneMgr->createEntity("acceleratorBox.mesh");
@@ -214,19 +212,19 @@ void QtRenderView::RenderView::createScene()
 
 	Ogre::Entity* ogreEntity6 = mOgreSceneMgr->createEntity("acceleratorbedConnect2.mesh");
 	Ogre::SceneNode* ogreNode6 = ogreNode5->createChildSceneNode(ACCEL_BED_CONNECT2_NAME, ACCEL_BED_CONNECT2_BIAS);
-	ogreEntity6->setMaterialName("accelerator____");
+	ogreEntity6->setMaterialName("Example/bedconnect");
 	ogreNode6->attachObject(ogreEntity6);
 	ogreNode6->setInheritScale(false);
 	ogreNode6->setScale(Ogre::Vector3(4.0f, 4.0f, 4.0f));
 
 	Ogre::Entity* ogreEntity7 = mOgreSceneMgr->createEntity("acceleratorbedConnect1.mesh");
 	Ogre::SceneNode* ogreNode7 = ogreNode6->createChildSceneNode(ACCEL_BED_CONNECT1_NAME, ACCEL_BED_CONNECT1_BIAS);
-	ogreEntity7->setMaterialName("accelerator____");
+	ogreEntity7->setMaterialName("Example/bedconnect");
 	ogreNode7->attachObject(ogreEntity7);
 
 	Ogre::Entity* ogreEntity8 = mOgreSceneMgr->createEntity("acceleratorbedBoard.mesh");
 	Ogre::SceneNode* ogreNode8 = ogreNode7->createChildSceneNode(ACCEL_BEDBOARD_NAME, ACCEL_BED_BOARD_BIAS);
-	ogreEntity8->setMaterialName("accelerator_____2");
+	ogreEntity8->setMaterialName("Example/bedboard");
 	ogreNode8->attachObject(ogreEntity8);
 	
 
@@ -610,9 +608,8 @@ void QtRenderView::RenderView::translateBedAlongY(float y_mm)
 
 	mOgreNode = NULL;
 }
-//画X轴线
-//默认使用BaseWhite材质
-void QtRenderView::RenderView::drawXAxis(const QVector3D &start, const QVector3D &end, const QColor &color)
+
+void QtRenderView::RenderView::drawGantryAxis(const QVector3D &start, const QVector3D &end, const QColor &color)
 {
 	float x_s = start.z();
 	float y_s = start.y();
@@ -621,13 +618,17 @@ void QtRenderView::RenderView::drawXAxis(const QVector3D &start, const QVector3D
 	float y_e = end.y();
 	float z_e = -end.x();
 
+	float x_center = (x_s + x_e)*0.5;
+	float y_center = (y_s + y_e)*0.5;
+	float z_center = (z_s + z_e)*0.5;
+
 	float r = (float)color.redF();
 	float g = (float)color.greenF();
 	float b = (float)color.blueF();
 
 	if (!mOgreSceneMgr->hasManualObject(XAXIS_LINE_NAME)){
 		Ogre::ManualObject* xAxis = mOgreSceneMgr->createManualObject(XAXIS_LINE_NAME);
-		xAxis->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+		xAxis->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_STRIP);
 		xAxis->position(x_s, y_s, z_s);  // start position
 		xAxis->colour(r, g, b);
 		xAxis->position(x_e, y_e, z_e);  // draw first line
@@ -636,10 +637,10 @@ void QtRenderView::RenderView::drawXAxis(const QVector3D &start, const QVector3D
 		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(X_AXIS_NODE_NAME)->attachObject(xAxis);
 
 		Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("GantryCenter", Ogre::SceneManager::PT_SPHERE);
-		Ogre::SceneNode* ogreNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode("GantryCenterNode", Ogre::Vector3(x_s, y_s, z_s));
+		Ogre::SceneNode* ogreNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode("GantryCenterNode", Ogre::Vector3(x_center, y_center, z_center));
 		ogreNode->attachObject(ogreEntity);
 		ogreEntity->setMaterialName("Examples/green");
-		ogreNode->setScale(Ogre::Vector3(0.004f, 0.004f, 0.004f)); // Radius, in theory.
+		ogreNode->setScale(Ogre::Vector3(0.002f, 0.002f, 0.002f)); // Radius, in theory.
 	}
 	else{
 		Ogre::ManualObject* xAxis = mOgreSceneMgr->getManualObject(XAXIS_LINE_NAME);
@@ -652,7 +653,7 @@ void QtRenderView::RenderView::drawXAxis(const QVector3D &start, const QVector3D
 		xAxis->end();
 
 		node = mOgreSceneMgr->getSceneNode("GantryCenterNode");
-		node->setPosition(x_s, y_s, z_s);
+		node->setPosition(x_center, y_center, z_center);
 		//centerGantry = Ogre::Vector3(0, y_s, z_s);
 	}
 	//若两个轴线都绘制完成，则开始绘制公垂线
@@ -662,9 +663,8 @@ void QtRenderView::RenderView::drawXAxis(const QVector3D &start, const QVector3D
 	//	emit ISOCenterSelected();
 	//}
 }
-//画Y轴线
-//默认使用BaseWhite材质
-void QtRenderView::RenderView::drawYAxis(const QVector3D &start, const QVector3D &end, const QColor &color)
+
+void QtRenderView::RenderView::drawBedAxis(const QVector3D &start, const QVector3D &end, const QColor &color)
 {
 	float x_s = start.z();
 	float y_s = start.y();
@@ -673,13 +673,17 @@ void QtRenderView::RenderView::drawYAxis(const QVector3D &start, const QVector3D
 	float y_e = end.y();
 	float z_e = -end.x();
 
+	float x_center = (x_s + x_e)*0.5;
+	float y_center = (y_s + y_e)*0.5;
+	float z_center = (z_s + z_e)*0.5;
+
 	float r = (float)color.redF();
 	float g = (float)color.greenF();
 	float b = (float)color.blueF();
 
 	if (!mOgreSceneMgr->hasManualObject(YAXIS_LINE_NAME)){
 		Ogre::ManualObject* yAxis = mOgreSceneMgr->createManualObject(YAXIS_LINE_NAME);
-		yAxis->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+		yAxis->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_STRIP);
 		yAxis->position(x_s, y_s, z_s);// start position
 		yAxis->colour(r, g, b);
 		yAxis->position(x_e, y_e, z_e);// draw first line
@@ -688,10 +692,10 @@ void QtRenderView::RenderView::drawYAxis(const QVector3D &start, const QVector3D
 		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(Y_AXIS_NODE_NAME)->attachObject(yAxis);
 
 		Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("BedCenter", Ogre::SceneManager::PT_SPHERE);
-		Ogre::SceneNode* ogreNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode("BedCenterNode", Ogre::Vector3(x_s, y_s, z_s));
+		Ogre::SceneNode* ogreNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode("BedCenterNode", Ogre::Vector3(x_center, y_center, z_center));
 		ogreNode->attachObject(ogreEntity);
 		ogreEntity->setMaterialName("Examples/blue");
-		ogreNode->setScale(Ogre::Vector3(0.004f, 0.004f, 0.004f)); // Radius, in theory.
+		ogreNode->setScale(Ogre::Vector3(0.002f, 0.002f, 0.002f)); // Radius, in theory.
 	}
 	else{
 		Ogre::ManualObject* yAxis = mOgreSceneMgr->getManualObject(YAXIS_LINE_NAME);
@@ -704,7 +708,7 @@ void QtRenderView::RenderView::drawYAxis(const QVector3D &start, const QVector3D
 		yAxis->end();
 
 		node =  mOgreSceneMgr->getSceneNode("BedCenterNode");
-		node->setPosition(x_s, y_s, z_s);
+		node->setPosition(x_center, y_center, z_center);
 		//centerBed = Ogre::Vector3(x_s, 0, z_s);
 	}
 	//若两个轴线都绘制完成，则开始绘制公垂线

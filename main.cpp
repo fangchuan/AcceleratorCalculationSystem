@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QTextStream>
+#include <QTranslator>
 #include <QDesktopWidget>
 
 
@@ -33,6 +34,8 @@ bool checkEnvironment()
 
 int main(int argc, char *argv[])
 {
+	QTranslator ts;
+	ts.load("./Resources/language/lnac_zh.qm");
 
 	QtSingleApplication::setOrganizationName(QStringLiteral("Focus"));
 	QtSingleApplication::setOrganizationDomain(QStringLiteral("jsfocus.cn"));
@@ -40,7 +43,7 @@ int main(int argc, char *argv[])
 	QtSingleApplication::setApplicationVersion(ACS_VERSION);
 	QtSingleApplication::setDesktopSettingsAware(false);
 	QtSingleApplication app(argc, argv);
-	
+	app.installTranslator(&ts);
 
 	QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
 
@@ -61,7 +64,7 @@ int main(int argc, char *argv[])
     }
 #endif
     if (!checkEnvironment()) {
-		QMessageBox::critical(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("缺少必要的文件，软件无法正常工作"));
+		QMessageBox::critical(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Lack the necessary files, the software would not work properly!"));
     }
 
     if (app.isRunning())
@@ -73,27 +76,20 @@ int main(int argc, char *argv[])
 
     QPixmap pixmap(":/Resources/image/splash_screen.png");
     splashScreen.reset(new QSplashScreen(pixmap));
-	splashMessage(splashScreen, QObject::tr("初始化..."));
+	splashMessage(splashScreen, QObject::tr("Start initialization..."));
     splashScreen->show();
-	splashMessage(splashScreen, QObject::tr("初始化工作目录..."));
+	splashMessage(splashScreen, QObject::tr("Initialize working directory ..."));
 
 // 	initWorkEnvironment();
-	splashMessage(splashScreen, QObject::tr("正在初始化..."));
- //   if (OpsTrackingDevice::getInstance()->findTracker() == NDIPolaris)
- //   {
-	//	splashMessage(splashScreen, QObject::tr("已经找到硬件，正在初始化..."));
- //       OpsTrackingDevice::getInstance()->openConnection();
-	//}else{
-	//	splashMessage(splashScreen, QObject::tr("没有找到硬件!"));
- //       QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("未找到相机，请检查相机连接！"));
- //   }
-	splashMessage(splashScreen, QObject::tr("正在创建用户界面..."));
+	splashMessage(splashScreen, QObject::tr("initializing..."));
+
+	splashMessage(splashScreen, QObject::tr("Creating user interface ..."));
 
     MainWindow w;
     app.setActivationWindow(&w);
 	w.setWindowFlags(w.windowFlags() & ~Qt::WindowMaximizeButtonHint & ~Qt::WindowMinimizeButtonHint);
 
-	splashMessage(splashScreen, QObject::tr("程序已经启动."));
+	splashMessage(splashScreen, QObject::tr("The program has started"));
 	splashScreen->finish(&w);
 
 	//QSize size = QSize(QtSingleApplication::desktop()->width(), QtSingleApplication::desktop()->height());

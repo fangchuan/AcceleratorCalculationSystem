@@ -364,6 +364,7 @@ void CentralWidget::circleResult(Circle *circle)
 	double angle = circle->Angle;
 	double normal_vector[3] = { (*circle).Normal[0], (*circle).Normal[1], (*circle).Normal[2]};
 	double circle_center[3] = { (*circle).Center[0]*0.01, (*circle).Center[1]*0.01, (*circle).Center[2]*0.01 };
+	double normalx10_vector[3] = { normal_vector[0] * 10, normal_vector[1] * 10, normal_vector[2]*10 };
 
 	m_DisplayWidget->setCircleResult(circle);
 
@@ -373,9 +374,10 @@ void CentralWidget::circleResult(Circle *circle)
 		plotWidget->updateGantryDegreeVelocity(angle);
 
 		renderWidget->rotateGantry(angle);
-		renderWidget->drawXAxis(QVector3D(circle_center[0], circle_center[1], circle_center[2]),
-								QVector3D(circle_center[0]+normal_vector[0], circle_center[1]+normal_vector[1], circle_center[2]+normal_vector[2]),
-								QColor(Qt::blue));
+		renderWidget->drawGantryAxis(
+			QVector3D(circle_center[0] + normalx10_vector[0], circle_center[1] + normalx10_vector[1], circle_center[2] + normalx10_vector[2]),
+			QVector3D(circle_center[0] - normalx10_vector[0], circle_center[1] - normalx10_vector[1], circle_center[2] - normalx10_vector[2]),
+			QColor(Qt::blue));
 
 #ifdef USE_LOG
 		QString str = QStringLiteral("Gantry rotate result:\n");
@@ -408,9 +410,10 @@ void CentralWidget::circleResult(Circle *circle)
 		plotWidget->updateBedDegreeVelocity(angle);
 
 		renderWidget->rotateBed(angle);
-		renderWidget->drawYAxis(QVector3D(circle_center[0], circle_center[1], circle_center[2]),
-								QVector3D(circle_center[0] + normal_vector[0], circle_center[1] + normal_vector[1], circle_center[2] + normal_vector[2]),
-								QColor(Qt::red));
+		renderWidget->drawBedAxis(
+			QVector3D(circle_center[0] + normalx10_vector[0], circle_center[1] + normalx10_vector[1], circle_center[2] + normalx10_vector[2]),
+			QVector3D(circle_center[0] - normalx10_vector[0], circle_center[1] - normalx10_vector[1], circle_center[2] - normalx10_vector[2]),
+			QColor(Qt::red));
 
 #ifdef USE_LOG
 		QString str = QStringLiteral("Bed rotate result:\n");

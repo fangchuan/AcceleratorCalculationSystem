@@ -121,9 +121,9 @@ namespace  QtRenderView{
 		//延Y轴移动机床
 		void translateBedAlongY(float y_mm);
 		//三维场景里的X轴对应机架旋转轴线
-		void drawXAxis(const QVector3D& start, const QVector3D& end, const QColor& color = QColor(Qt::black));
+		void drawGantryAxis(const QVector3D& start, const QVector3D& end, const QColor& color = QColor(Qt::black));
 		//三维场景里的Y轴对应机床旋转轴线
-		void drawYAxis(const QVector3D& start, const QVector3D& end, const QColor& color = QColor(Qt::black));
+		void drawBedAxis(const QVector3D& start, const QVector3D& end, const QColor& color = QColor(Qt::black));
 		//画出等中心
 		void drawSoftISOCenter(const double x, const double y, const double z);
 		void drawLaserISOCenter(const double x, const double y, const double z);

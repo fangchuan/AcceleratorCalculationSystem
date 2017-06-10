@@ -182,6 +182,7 @@ void ControlWidget::resetCollimator()
 
 void ControlWidget::resetBed()
 {
+	
 	m_BedButton->setText(QString::fromLocal8Bit("Ð£×¼ÖÎÁÆ´²"));
 }
 
@@ -200,42 +201,54 @@ void ControlWidget::reset()
 }
 void ControlWidget::setButtonStyle()
 {
-	m_HorizontalRegisterButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
+	m_HorizontalRegisterButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
+												"font-size:18px;"
+												"background-color:rgb(0,71,157);"
 												"min-height:80;"
 												"border:1px solid white;"
 												"border-radius:8px}"
 											  "QPushButton:pressed{background-color:rgb(92,156,233);"
 												"border-style: inset;}");
 
-	m_GantryButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
+	m_GantryButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
+										"font-size:18px;"
+										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
 										"border-radius:8px}"
 								  "QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
 
-	m_CollimatorButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
+	m_CollimatorButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
+										"font-size:18px;"
+										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
 										"border-radius:8px}"
 									  "QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
 
-	m_BedButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
+	m_BedButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
+										"font-size:18px;"
+										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
 										"border-radius:8px}"
 								"QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
 
-	m_LaserButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
+	m_LaserButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
+										"font-size:18px;"
+										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
 										"border-radius:8px}"
 								 "QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
 
-	m_ResetButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
+	m_ResetButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
+										"font-size:18px;"
+										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
 										"border-radius:8px}"
@@ -243,7 +256,9 @@ void ControlWidget::setButtonStyle()
 										"border-style: inset;}");
 
 
-	m_ReportButton->setStyleSheet("QPushButton{background-color:rgb(0,71,157);"
+	m_ReportButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
+										"font-size:18px;"
+										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
 										"border-radius:8px}"
