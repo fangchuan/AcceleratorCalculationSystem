@@ -6,6 +6,7 @@
 #include "CollimatorHandler.h"
 #include "BedHandler.h"
 #include "ISOCenterHandler.h"
+#include "LightCenterHandler.h"
 #include <QDebug>
 #include "vtkLine.h"
 #include "vtkMath.h"
@@ -18,6 +19,7 @@ CentralModel::CentralModel(QObject *parent)
 	m_CollimatorHandler(new CollimatorHandler(this)),
 	m_BedHandler(new BedHandler(this)),
 	m_ISOCenterHanlder(new ISOCenterHandler(this)),
+	m_LightCenterHanlder(new LightCenterHandler(this)),
 	gantryCircle(new Circle),
 	bedCircle(new Circle)
 {
@@ -40,6 +42,7 @@ void CentralModel::initData()
 	m_GantryFitted = false;
 	m_softCenterIsCal = false;
 	m_LaserISODetected = false;
+	m_LightCenterDetected = false;
 	m_ReadyToReport = false;
 	gantryCircle ->init();
 	bedCircle -> init();
@@ -72,9 +75,11 @@ void CentralModel::buildConnections()
 	connect(m_BedHandler, &BedHandler::markerPosition, this, &CentralModel::markerPosition);
 	connect(m_BedHandler, &BedHandler::circleResult, this, &CentralModel::circleResult);
 	connect(m_BedHandler, &BedHandler::translateResult, this, &CentralModel::translateResult);
-	connect(m_ISOCenterHanlder, &ISOCenterHandler::registerPosition, this, &CentralModel::registerPosition);
-
-	connect(m_ISOCenterHanlder, &ISOCenterHandler::registerPosition, this, &CentralModel::laserISOCenter);
+	connect(m_ISOCenterHanlder, &ISOCenterHandler::registerLaserISO, this, &CentralModel::registerLaserISO);
+	connect(m_LightCenterHanlder, &LightCenterHandler::registerLightCenter, this, &CentralModel::registerLightCenter);
+	
+	connect(m_ISOCenterHanlder, &ISOCenterHandler::registerLaserISO, this, &CentralModel::laserISOCenterPosition);
+	connect(m_LightCenterHanlder, &LightCenterHandler::registerLightCenter, this, &CentralModel::lightCenterPosition);
 	connect(m_BedHandler, &BedHandler::circleResult, this, &CentralModel::softISOCenter);
 	connect(m_GantryHandler, &GantryHandler::circleResult, this, &CentralModel::softISOCenter);
 }
@@ -129,6 +134,13 @@ void CentralModel::setHandlerToISOCenter()
 	m_Handler->reset();
 }
 
+void CentralModel::setHandlerToLightCenter()
+{
+	m_Handler = m_LightCenterHanlder;
+	//clear history data
+	m_Handler->reset();
+}
+
 int CentralModel::getHandler()
 {
 	if (m_Handler == m_HorizontalRegisterHandler){
@@ -150,7 +162,7 @@ int CentralModel::getHandler()
 					if (m_Handler == m_ISOCenterHanlder){
 						return  ISOCENTER_HANDLER;
 					}else{
-						return 0;
+						return LIGHTCENTER_HANDLER;
 					}
 				}
 			}
@@ -179,13 +191,22 @@ void CentralModel::handle(Point3D &point)
 	}
 }
 
-void CentralModel::laserISOCenter(Point3D& point)
+void CentralModel::laserISOCenterPosition(Point3D& point)
 {
 	reportData.laserCenter[0] = point[0];
 	reportData.laserCenter[1] = point[1];
 	reportData.laserCenter[2] = point[2];
 
 	m_LaserISODetected = true;
+}
+
+void CentralModel::lightCenterPosition(Point3D& point)
+{
+	reportData.lightCenter[0] = point[0];
+	reportData.lightCenter[1] = point[1];
+	reportData.lightCenter[2] = point[2];
+
+	m_LightCenterDetected  = true;
 }
 
 void CentralModel::softISOCenter(Circle* circle)
@@ -254,7 +275,7 @@ void CentralModel::handleReport()
 	double gantryVariance =0, gantryMean =0;
 	double bedVariance=0, bedMean=0;
 
-	if (m_softCenterIsCal && m_LaserISODetected){
+	if (m_softCenterIsCal && m_LaserISODetected && m_LightCenterDetected){
 		//calculate distance between softcenter and laserCenter
 		distance = sqrt(vtkMath::Distance2BetweenPoints(reportData.softCenter, reportData.laserCenter));
 		reportData.distanceLaser2Soft = distance;

@@ -38,3 +38,9 @@ void HorizontalRegisterDisplayWidget::horizontalRegisterRecorded()
 {
 	m_StatusLabel->setText(QString::fromLocal8Bit("ÒÑ¼ÇÂ¼"));
 }
+
+void HorizontalRegisterDisplayWidget::reset()
+{
+	m_MarkerSizeLabel->setText(QString::number(0));
+	m_StatusLabel->setText("N/A");
+}

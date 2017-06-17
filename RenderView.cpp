@@ -16,6 +16,7 @@ QtRenderView::RenderView::RenderView(QWindow *parent)
 	, mCameraMan(NULL)
 	, mOgreSoftCenterNode(NULL)
 	, mOgreLaserCenterNode(NULL)
+	, mOgreLightCenterNode(NULL)
 	, mOgreMarkerNode(NULL)
 	, m_update_pending(false)
 	, m_animating(false)
@@ -227,7 +228,6 @@ void QtRenderView::RenderView::createScene()
 	ogreEntity8->setMaterialName("Example/bedboard");
 	ogreNode8->attachObject(ogreEntity8);
 	
-
 #if OGRE_VERSION >= ((2 << 16) | (0 << 8) | 0)
 	Ogre::SceneNode* pLightNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode();
 	Ogre::Light* light = mOgreSceneMgr->createLight();
@@ -238,7 +238,6 @@ void QtRenderView::RenderView::createScene()
 	light->setPosition(20.0f, 80.0f, 50.0f);
 #endif
 
-	drawSoftISOCenter(0,0,0);
 	drawCoordinate();
 }
 
@@ -473,6 +472,11 @@ void QtRenderView::RenderView::resetScene()
 		ogreNode->setVisible(false);
 	}
 	
+	if (mOgreSceneMgr->hasSceneNode(LIGHT_CENTER_NAME)){
+		ogreNode = mOgreSceneMgr->getSceneNode(LIGHT_CENTER_NAME);
+		ogreNode->setVisible(false);
+	}
+
 	if (mOgreSceneMgr->hasSceneNode(SOFT_ISOCENTER_NAME)){
 		ogreNode = mOgreSceneMgr->getSceneNode(SOFT_ISOCENTER_NAME);
 		ogreNode->setVisible(false);
@@ -505,14 +509,16 @@ void QtRenderView::RenderView::setISOCenter(const QVector3D &center)
 void QtRenderView::RenderView::rotateGantry(float degree)
 {
 	static float last_degree = 0;
-	float delt_degree = degree - last_degree;
+	if (!isnan(degree)){
+		float delt_degree = degree - last_degree;
 
-	mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_CONNECT_NAME);
-	if (NULL != mOgreNode && 0 != delt_degree){
-		mOgreNode->pitch(Ogre::Degree(delt_degree));
+		mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_CONNECT_NAME);
+		if (NULL != mOgreNode && 0 != delt_degree){
+			mOgreNode->pitch(Ogre::Degree(delt_degree));
+		}
+		last_degree = degree;
+		mOgreNode = NULL;
 	}
-	last_degree = degree;
-	mOgreNode = NULL;
 }
 /*
 *  旋转辐射头
@@ -529,26 +535,28 @@ void QtRenderView::RenderView::rotateBed(float degree)
 	float x_mm;
 	float z_mm;
 	static float last_degree = 0;
-	float delt_degree = degree - last_degree;
+	if (!isnan(degree)){
+		float delt_degree = degree - last_degree;
 
-	mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_BEDBOTTOM_NAME);
-	if (NULL != mOgreNode && 0 != delt_degree){
+		mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_BEDBOTTOM_NAME);
+		if (NULL != mOgreNode && 0 != delt_degree){
 
-		x_mm = ACCEL_BED_BOTTOM_BIAS.x * Ogre::Math::Cos(Ogre::Math::DegreesToRadians(degree));
-		z_mm = -ACCEL_BED_BOTTOM_BIAS.x * Ogre::Math::Sin(Ogre::Math::DegreesToRadians(degree));
-		
-		if (x_mm >= ACCEL_BED_BOTTOM_BIAS.x)	x_mm = ACCEL_BED_BOTTOM_BIAS.x;
-		if (x_mm <= -ACCEL_BED_BOTTOM_BIAS.x)   x_mm = -ACCEL_BED_BOTTOM_BIAS.x;
-		if (z_mm >= ACCEL_BED_BOTTOM_BIAS.x)    z_mm = ACCEL_BED_BOTTOM_BIAS.x;
-		if (z_mm <= -ACCEL_BED_BOTTOM_BIAS.x)	z_mm = -ACCEL_BED_BOTTOM_BIAS.x;
+			x_mm = ACCEL_BED_BOTTOM_BIAS.x * Ogre::Math::Cos(Ogre::Math::DegreesToRadians(degree));
+			z_mm = -ACCEL_BED_BOTTOM_BIAS.x * Ogre::Math::Sin(Ogre::Math::DegreesToRadians(degree));
 
-		mOgreNode->yaw(Ogre::Degree(delt_degree));
+			if (x_mm >= ACCEL_BED_BOTTOM_BIAS.x)	x_mm = ACCEL_BED_BOTTOM_BIAS.x;
+			if (x_mm <= -ACCEL_BED_BOTTOM_BIAS.x)   x_mm = -ACCEL_BED_BOTTOM_BIAS.x;
+			if (z_mm >= ACCEL_BED_BOTTOM_BIAS.x)    z_mm = ACCEL_BED_BOTTOM_BIAS.x;
+			if (z_mm <= -ACCEL_BED_BOTTOM_BIAS.x)	z_mm = -ACCEL_BED_BOTTOM_BIAS.x;
 
-		mOgreNode->setPosition(x_mm, ACCEL_BED_BOTTOM_BIAS.y, z_mm);
+			mOgreNode->yaw(Ogre::Degree(delt_degree));
 
+			mOgreNode->setPosition(x_mm, ACCEL_BED_BOTTOM_BIAS.y, z_mm);
+
+		}
+		last_degree = degree;
+		mOgreNode = NULL;
 	}
-	last_degree = degree;
-	mOgreNode = NULL;
 }
 /*
 *   沿着Z方向移动机床 : z_mm为绝对距离
@@ -583,6 +591,7 @@ void QtRenderView::RenderView::translateBedAlongX(float x_mm)
 	}
 
 	mOgreNode = NULL;
+
 }
 /*
 *   沿着Y方向移动机床 :y_mm为绝对距离
@@ -727,7 +736,7 @@ void QtRenderView::RenderView::drawSoftISOCenter(const double x, const double y,
 		mOgreSoftCenterNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(SOFT_ISOCENTER_NAME, Ogre::Vector3(x, y, z));
 		mOgreSoftCenterNode->attachObject(ogreEntity);
 		ogreEntity->setMaterialName("Examples/red");
-		mOgreSoftCenterNode->setScale(Ogre::Vector3(0.004f, 0.004f, 0.004f)); // Radius, in theory.
+		mOgreSoftCenterNode->setScale(Ogre::Vector3(0.001f, 0.001f, 0.001f)); // Radius, in theory.
 	}else{
 		mOgreSoftCenterNode->setPosition(x, y, z);
 	}
@@ -735,18 +744,33 @@ void QtRenderView::RenderView::drawSoftISOCenter(const double x, const double y,
 //画激光等中心小球
 void QtRenderView::RenderView::drawLaserISOCenter(const double x, const double y, const double z)
 {
-	//set ISO Center:(0,0,0)
+
 	if (NULL == mOgreLaserCenterNode){
 		Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("LaserISOCenter", Ogre::SceneManager::PT_SPHERE);
 		mOgreLaserCenterNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(LASER_ISOCENTER_NAME, Ogre::Vector3(x, y, z));
 		mOgreLaserCenterNode->attachObject(ogreEntity);
 		ogreEntity->setMaterialName("Examples/lightblue");
-		mOgreLaserCenterNode->setScale(Ogre::Vector3(0.004f, 0.004f, 0.004f)); // Radius, in theory.
+		mOgreLaserCenterNode->setScale(Ogre::Vector3(0.001f, 0.001f, 0.001f)); // Radius, in theory.
 	}
 	else{
 		mOgreLaserCenterNode->setPosition(x, y, z);
 	}
 }
+//
+void QtRenderView::RenderView::drawLightCenter(const double x, const double y, const double z)
+{
+	if (NULL == mOgreLightCenterNode){
+		Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("Light Center", Ogre::SceneManager::PT_SPHERE);
+		mOgreLightCenterNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(LIGHT_CENTER_NAME, Ogre::Vector3(x, y, z));
+		mOgreLightCenterNode->attachObject(ogreEntity);
+		ogreEntity->setMaterialName("Examples/lightblue");
+		mOgreLightCenterNode->setScale(Ogre::Vector3(0.001f, 0.001f, 0.001f)); // Radius, in theory.
+	}
+	else{
+		mOgreLightCenterNode->setPosition(x, y, z);
+	}
+}
+
 //实时更新小球运动位置
 void QtRenderView::RenderView::drawMarkerPoint(const double x, const double y, const double z)
 {

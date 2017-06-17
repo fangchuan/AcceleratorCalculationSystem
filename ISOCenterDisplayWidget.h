@@ -15,7 +15,7 @@ public:
 	~ISOCenterDisplayWidget();
 
 	void setRegisteredPosition(double point[3]);
-
+	void reset();
 private:
 	void initUi();
 

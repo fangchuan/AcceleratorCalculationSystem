@@ -109,105 +109,184 @@ bool PlotView::getBedDistanceUpdatFlag()
 {
 	return mUpdateFlag == UPDATE_BED_DISTANCE;
 }
-void PlotView::updateGantryDegreeDistance(const float y)
+void PlotView::updateGantryDegree(const float y)
 {
-	mGantryDegree->append(y);
 	setGantryUpdateFlag();
 
+	mGantryDegree->append(y);
+	updateGantryDegreeVelocity();
+
 	if (!mTimer->isActive())
 		mTimer->start();
-
 }
-void PlotView::updateGantryDegreeVelocity(const float y)
+void PlotView::updateGantryDegreeVelocity()
 {
-	static int last_y = (int)y;//截断小数点后的角度变动
-	static int last_time = 0;
-	int current_time = QTime::currentTime().msec();
-	int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
-	float v = (float)((int)y - last_y) / delt_time;
+	int size = mGantryDegree->size();
 
-	last_time = current_time;
-	last_y = (int)y;
-	v *= 1000;//degree/s
-	mGantryDegreeVelocity->append(v);
+	if (size > 1){
+		const int cur_val = (int)(mGantryDegree->at(size - 1));//截断小数点后的角度变动
+		const int last_val = (int)(mGantryDegree->at(size - 2));
+		static int last_time = 0;
+		int current_time = QTime::currentTime().msec();
+		int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
+		float v = (float)(cur_val - last_val) / delt_time;
+
+		last_time = current_time;
+		v *= 1000;//degree/s
+		mGantryDegreeVelocity->append(v);
+
+	}else{
+		return;
+	}
 }
-void PlotView::updateCollimatorDegreeDistance(const float y)
+double PlotView::getGantryAvrDegreeVelocity()
 {
-	mCollimatorDegree->append(y);
+	QMutexLocker lock(&mCurveDataMutex);//此时所有曲线都不能读写直到该函数退出
+	int size = mGantryDegree->size();
+	if (size > 0){
+		double sum = 0;
+		for (int i = 0; i < size; i++){
+			sum += mGantryDegree->at(i);
+		}
+		return sum / size;
+	}else{
+		return 0;
+	}
+}
+void PlotView::updateCollimatorDegree(const float y)
+{
 	setCollimatorUpdateFlag();
 
+	mCollimatorDegree->append(y);
+	updateCollimatorDegreeVelocity();
+
 	if (!mTimer->isActive())
 		mTimer->start();
 }
-void PlotView::updateCollimatorDegreeVelocity(const float y)
+void PlotView::updateCollimatorDegreeVelocity()
 {
-	static int last_y = (int)y;
-	static int last_time = 0;
-	int current_time = QTime::currentTime().msec();
-	int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
-	float v = (float)((int)y - last_y) / delt_time;
+	int size = mCollimatorDegree->size();
 
-	last_time = current_time;
-	last_y = (int)y;
-	v *= 1000;//degree/s
-	mCollimatorDegreeVelocity->append(v);
+	if (size > 1){
+		const int cur_val = (int)(mCollimatorDegree->at(size - 1));//截断小数点后的角度变动
+		const int last_val = (int)(mCollimatorDegree->at(size - 2));
+		static int last_time = 0;
+		int current_time = QTime::currentTime().msec();
+		int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
+		float v = (float)(cur_val - last_val) / delt_time;
+
+		last_time = current_time;
+		v *= 1000;//degree/s
+		mCollimatorDegreeVelocity->append(v);
+
+	}
+	else{
+		return;
+	}
 }
-void PlotView::updateBedDegreeDistance(const float y)
+double PlotView::getCollimatorAvrDegreeVelocity()
 {
-	mBedDegree->append(y);
+	QMutexLocker lock(&mCurveDataMutex);//此时所有曲线都不能读写直到该函数退出
+	int size = mCollimatorDegree->size();
+	if (size > 0){
+		double sum = 0;
+		for (int i = 0; i < size; i++){
+			sum += mCollimatorDegree->at(i);
+		}
+		return sum / size;
+	}else{
+		return 0;
+	}
+}
+void PlotView::updateBedDegree(const float y)
+{
 	setBedDegreeUpdateFlag();
 
+	mBedDegree->append(y);
+	updateBedDegreeVelocity();
+
 	if (!mTimer->isActive())
 		mTimer->start();
 }
-void PlotView::updateBedDegreeVelocity(const float y)
+void PlotView::updateBedDegreeVelocity()
 {
-	static int last_y = (int)y;
-	static int last_time = 0;
-	int current_time = QTime::currentTime().msec();
-	int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
-	float v = (float)((int)y - last_y) / delt_time;
+	int size = mBedDegree->size();
 
-	last_time = current_time;
-	last_y = (int)y;
-	v *= 1000;//degree/s
-	mBedDegreeVelocity->append(v);
+	if (size > 1){
+		const int cur_val = (int)(mBedDegree->at(size - 1));//截断小数点后的角度变动
+		const int last_val = (int)(mBedDegree->at(size - 2));
+		static int last_time = 0;
+		int current_time = QTime::currentTime().msec();
+		int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
+		float v = (float)(cur_val - last_val) / delt_time;
+
+		last_time = current_time;
+		v *= 1000;//degree/s
+		mBedDegreeVelocity->append(v);
+
+	}else{
+		return;
+	}
+}
+double PlotView::getBedAvrDegreeVelocity()
+{
+	QMutexLocker lock(&mCurveDataMutex);//此时所有曲线都不能读写直到该函数退出
+	int size = mBedDegree->size();
+	if (size > 0){
+		double sum = 0;
+		for (int i = 0; i < size; i++){
+			sum += mBedDegree->at(i);
+		}
+		return sum / size;
+	}else{
+		return 0;
+	}
 }
 void PlotView::updateBedDistance(const float x, const float y, const float z)
 {
+	setBedDistanceUpdateFlag();
+
 	mBedXDistance->append(x);
 	mBedYDistance->append(y);
 	mBedZDistance->append(z);
-	setBedDistanceUpdateFlag();
+	updateBedDistanceVelocity();
 
 	if (!mTimer->isActive())
 		mTimer->start();
 }
-void PlotView::updateBedVelocity(const float x, const float y, const float z)
+void PlotView::updateBedDistanceVelocity()
 {
-	static int last_x = (int)x;
-	static int last_y = (int)y;
-	static int last_z = (int)z;
+	int size_x = mBedXDistance->size();
+	int size_y = mBedYDistance->size();
+	int size_z = mBedZDistance->size();
 
-	static int last_time = 0;
-	int current_time = QTime::currentTime().msec();
-	int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
+	if (size_x > 1 && size_y > 1 && size_z > 1){
+		const int current_x = (int)(mBedXDistance->at(size_x - 1));
+		const int current_y = (int)(mBedYDistance->at(size_y - 1));
+		const int current_z = (int)(mBedZDistance->at(size_z - 1));
+		const int last_x = (int)(mBedXDistance->at(size_x - 2));
+		const int last_y = (int)(mBedYDistance->at(size_y - 2));
+		const int last_z = (int)(mBedZDistance->at(size_z - 2));
 
-	float v_x = (float)((int)x - last_x) / delt_time;
-	float v_y = (float)((int)y - last_y) / delt_time;
-	float v_z = (float)((int)z - last_z) / delt_time;
+		static int last_time = 0;
+		int current_time = QTime::currentTime().msec();
+		int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
 
-	last_time = current_time;
-	last_x = (int)x;
-	last_y = (int)y;
-	last_z = (int)z;
+		float v_x = (float)(current_x - last_x) / delt_time;
+		float v_y = (float)(current_y - last_y) / delt_time;
+		float v_z = (float)(current_z - last_z) / delt_time;
 
-	v_x *= 1000;//mm/s
-	v_y *= 1000;
-	v_z *= 1000;
-	mBedXVelocity->append(v_x);
-	mBedYVelocity->append(v_y);
-	mBedZVelocity->append(v_z);
+		last_time = current_time;
+
+		v_x *= 1000;//mm/s
+		v_y *= 1000;
+		v_z *= 1000;
+		mBedXVelocity->append(v_x);
+		mBedYVelocity->append(v_y);
+		mBedZVelocity->append(v_z);
+	}else{
+		return;
+	}
 }
 void PlotView::update()
 {

@@ -17,7 +17,7 @@ public:
 	void setMarkerSize(int size);
 	void setMarkerPosition(MarkerPointType &point);
 	void setTranslateResult(double bias[3]);
-
+	void reset();
 private:
 	void initUi();
 

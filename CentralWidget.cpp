@@ -87,7 +87,6 @@ void CentralWidget::buildConnections()
 {
 	connect(m_Tracker, &OpsTrackingDevice::OperationModeChanged, this, &CentralWidget::TrackingModeChanged);
 	connect(m_Timer, &QTimer::timeout, this, &CentralWidget::monitoring);
-
 	//建立控制面板与界面更新信号槽
 	connect(m_ControlWidget, &ControlWidget::recordingHorizontalRegister, this, &CentralWidget::recordingHorizontalRegister);
 	connect(m_ControlWidget, &ControlWidget::switchToHorizontalRegister, this, &CentralWidget::switchToHorizontalRegister);
@@ -97,8 +96,10 @@ void CentralWidget::buildConnections()
 	connect(m_ControlWidget, &ControlWidget::switchToCollimator, this, &CentralWidget::switchToCollimator);
 	connect(m_ControlWidget, &ControlWidget::recordingBed, this, &CentralWidget::recordingBed);
 	connect(m_ControlWidget, &ControlWidget::switchToBed, this, &CentralWidget::switchToBed);
-	connect(m_ControlWidget, &ControlWidget::recordingISOCenter, this, &CentralWidget::recordingISOCenter);
-	connect(m_ControlWidget, &ControlWidget::switchToISOCenter, this, &CentralWidget::switchToISOCenter);
+	connect(m_ControlWidget, &ControlWidget::recordingLaserISO, this, &CentralWidget::recordingLaserISO);
+	connect(m_ControlWidget, &ControlWidget::switchToLaserISO, this, &CentralWidget::switchToLaserISO);
+	connect(m_ControlWidget, &ControlWidget::recordingLightCenter, this, &CentralWidget::recordingLightCenter);
+	connect(m_ControlWidget, &ControlWidget::switchToLightCenter, this, &CentralWidget::switchToLightCenter);
 	connect(m_ControlWidget, &ControlWidget::resetRequest, this, &CentralWidget::handleReset);
 	connect(m_ControlWidget, &ControlWidget::reportRequest, m_Model, &CentralModel::handleReport);
 	//建立拟合结果与界面更新信号槽(所有的结果都在加速器坐标系/三维场景坐标系下)
@@ -107,7 +108,8 @@ void CentralWidget::buildConnections()
 	connect(m_Model, &CentralModel::horizontalRegisterRecorded, this, &CentralWidget::horizontalRegisterRecorded);
 	connect(m_Model, &CentralModel::circleResult, this, &CentralWidget::circleResult);
 	connect(m_Model, &CentralModel::translateResult, this, &CentralWidget::translateResult);
-	connect(m_Model, &CentralModel::registerPosition, this, &CentralWidget::registerPosition);
+	connect(m_Model, &CentralModel::registerLaserISO, this, &CentralWidget::registerLaserISOPosition);
+	connect(m_Model, &CentralModel::registerLightCenter, this, &CentralWidget::registerLightCenterPosition);
 	connect(m_Model, &CentralModel::sendReport, this, &CentralWidget::reportResult);
 
 }
@@ -123,9 +125,9 @@ void CentralWidget::showPlotPage()
 	m_StackedWidget->setCurrentIndex(STACKED_PLOT_VIEW_INDEX);
 }
 
-void CentralWidget::showLogTextPage()
+void CentralWidget::showReportPage()
 {
-	m_StackedWidget->setCurrentIndex(STACKED_PLAINTEXT_INDEX);
+	m_StackedWidget->setCurrentIndex(STACKED_REPORT_INDEX);
 }
 
 void CentralWidget::exportReport()
@@ -243,7 +245,7 @@ void CentralWidget::switchToBed(int mode)
 	m_Model->setHandlerToNone();
 }
 
-void CentralWidget::switchToISOCenter()
+void CentralWidget::switchToLaserISO()
 {
 	if (m_Tracker->getState() < TrackingDevice::Ready) {
 		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
@@ -254,7 +256,23 @@ void CentralWidget::switchToISOCenter()
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}
-	m_ControlWidget->doSwitchToISOCenter();
+	m_ControlWidget->doSwitchToLaserISO();
+	m_DisplayWidget->doSwitchToISOCenter();
+	m_Model->setHandlerToNone();
+}
+
+void CentralWidget::switchToLightCenter()
+{
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		return;
+	}
+
+	m_Tracker->startTrackingInMode(ToolTracking6D);
+	if (!m_Timer->isActive()) {
+		m_Timer->start();
+	}
+	m_ControlWidget->doSwitchToLightCenter();
 	m_DisplayWidget->doSwitchToISOCenter();
 	m_Model->setHandlerToNone();
 }
@@ -302,11 +320,19 @@ void CentralWidget::recordingBed(int mode)
 	}
 }
 
-void CentralWidget::recordingISOCenter()
+void CentralWidget::recordingLaserISO()
 {
 	m_Model->setHandlerToISOCenter();
 #ifdef USE_LOG
-	logger->write(QString::fromLocal8Bit("Recording ISO Center"));
+	logger->write(QString::fromLocal8Bit("Recording Laser ISO Center"));
+#endif
+}
+
+void CentralWidget::recordingLightCenter()
+{
+	m_Model->setHandlerToLightCenter();
+#ifdef USE_LOG
+	logger->write(QString::fromLocal8Bit("Recording Light Center"));
 #endif
 }
 
@@ -314,6 +340,16 @@ void CentralWidget::monitoringMarker3D()
 {
 	MarkerPointContainerType positions;
 	m_Tracker->getMarkerPositions(&positions);
+
+	//int size = positions.size();
+	//for (int i = 0; i < size; i++){
+	//	Point3D p = positions.at(i);
+	//	double x = p[0];
+	//	double y = p[1];
+	//	double z = p[2];
+	//	QString str = QString("%1 : ( %2, %3, %4)").arg(i).arg(x, 0, 'f', 2).arg(y, 0, 'f', 2).arg(z, 0, 'f', 2);
+	//	qDebug() << str;
+	//}
 	m_Model->handle(positions);
 }
 
@@ -369,10 +405,9 @@ void CentralWidget::circleResult(Circle *circle)
 	m_DisplayWidget->setCircleResult(circle);
 
 	int handler = m_Model->getHandler();
+	//更新机架运动
 	if (handler == GANTRY_HANDLER){
-		plotWidget->updateGantryDegreeDistance(angle);
-		plotWidget->updateGantryDegreeVelocity(angle);
-
+		plotWidget->updateGantryDegree(angle);
 		renderWidget->rotateGantry(angle);
 		renderWidget->drawGantryAxis(
 			QVector3D(circle_center[0] + normalx10_vector[0], circle_center[1] + normalx10_vector[1], circle_center[2] + normalx10_vector[2]),
@@ -389,10 +424,9 @@ void CentralWidget::circleResult(Circle *circle)
 		logger->write(str);
 #endif
 	}
+	//更新准直器运动
 	if (handler == COLLIMATOR_HANDLER){
-		plotWidget->updateCollimatorDegreeDistance(angle);
-		plotWidget->updateCollimatorDegreeVelocity(angle);
-
+		plotWidget->updateCollimatorDegree(angle);
 		renderWidget->rotateCollimator(angle);
 
 #ifdef USE_LOG
@@ -405,9 +439,9 @@ void CentralWidget::circleResult(Circle *circle)
 		logger->write(str);
 #endif
 	}
+	//更新治疗床运动
 	if (handler == BED_HANDLER){
-		plotWidget->updateBedDegreeDistance(angle);
-		plotWidget->updateBedDegreeVelocity(angle);
+		plotWidget->updateBedDegree(angle);
 
 		renderWidget->rotateBed(angle);
 		renderWidget->drawBedAxis(
@@ -442,7 +476,6 @@ void CentralWidget::translateResult(double bias[3])
 	renderWidget->translateBedAlongZ(z);
 
 	plotWidget->updateBedDistance(x, y, z);
-	plotWidget->updateBedVelocity(x, y, z);
 
 #ifdef USE_LOG
 	QString str = QStringLiteral("Bed Translate Resulte:\n");
@@ -457,16 +490,32 @@ void CentralWidget::translateResult(double bias[3])
 //
 //更新激光灯等中心坐标
 //
-void CentralWidget::registerPosition(Point3D &point)
+void CentralWidget::registerLaserISOPosition(Point3D &point)
 {
 	double position[3] = { point[0], point[1], point[3] };
 	m_DisplayWidget->setRegisteredPosition(position);
 	renderWidget->drawLaserISOCenter(position[2]*0.01, position[1]*0.01, -position[0]*0.01);
 
 #ifdef USE_LOG
-	QString str = QStringLiteral("Laser register ISOCenter: ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
-																				.arg(point[1], 0, 'f', 2)
-																				.arg(point[2], 0, 'f', 2);
+	QString str = QStringLiteral("Laser ISOCenter Position: ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
+									.arg(point[1], 0, 'f', 2)
+									.arg(point[2], 0, 'f', 2);
+	logger->write(str);
+#endif
+}
+//
+//更新模拟光野中心坐标
+//
+void CentralWidget::registerLightCenterPosition(Point3D &point)
+{
+	double position[3] = { point[0], point[1], point[3] };
+	m_DisplayWidget->setRegisteredPosition(position);
+	renderWidget->drawLightCenter(position[2] * 0.01, position[1] * 0.01, -position[0] * 0.01);
+
+#ifdef USE_LOG
+	QString str = QStringLiteral("Light Center Position: ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
+									.arg(point[1], 0, 'f', 2)
+									.arg(point[2], 0, 'f', 2);
 	logger->write(str);
 #endif
 }
@@ -492,6 +541,10 @@ void CentralWidget::reportResult(const ReportData& report)
 												.arg(report.laserCenter[1], 0, 'f', 2)
 												.arg(report.laserCenter[2], 0, 'f', 2);
 
+	QString lightCenter = QString("( %1, %2, %3 )").arg(report.lightCenter[0], 0, 'f', 2)
+												.arg(report.lightCenter[1], 0, 'f', 2)
+												.arg(report.lightCenter[2], 0, 'f', 2);
+
 	QString foot_A = QString("( %1, %2, %3)").arg(report.footA[0], 0, 'f', 2)
 											.arg(report.footA[1], 0, 'f', 2)
 											.arg(report.footA[2], 0, 'f', 2);
@@ -500,18 +553,25 @@ void CentralWidget::reportResult(const ReportData& report)
 											.arg(report.footB[1], 0, 'f', 2)
 											.arg(report.footB[2], 0, 'f', 2);
 
-	QString distanceSoft2Laser = QString(" %1").arg(report.distanceLaser2Soft, 0, 'f', 2);
+	QString distanceSoft2Laser = QString(" %1 mm").arg(report.distanceLaser2Soft, 0, 'f', 2);
 
 	double distanceA = sqrt(vtkMath::Distance2BetweenPoints(report.footA, report.laserCenter));
 	double distanceB = sqrt(vtkMath::Distance2BetweenPoints(report.footB, report.laserCenter));
-	QString distanceA2Laser = QString(" %1").arg(distanceA, 0, 'f', 2);
-	QString distanceB2Laser = QString(" %1").arg(distanceB, 0, 'f', 2);
+	QString distanceA2Laser = QString(" %1 mm").arg(distanceA, 0, 'f', 2);
+	QString distanceB2Laser = QString(" %1 mm").arg(distanceB, 0, 'f', 2);
 	QString gantryVar = QString(" %1").arg(report.gantryVar, 0,'f', 2);
-	QString gantryMean = QString(" %1").arg(report.gantryMean, 0, 'f', 2);
+	QString gantryMean = QString(" %1 mm").arg(report.gantryMean, 0, 'f', 2);
 	QString bedVar = QString(" %1").arg(report.bedVar, 0, 'f', 2);
-	QString bedMean = QString(" %1").arg(report.bedMean, 0, 'f', 2);
+	QString bedMean = QString(" %1 mm").arg(report.bedMean, 0, 'f', 2);
 
-	loggerWidget->setHtmlReport(softCenter, laserCenter, foot_A, foot_B, distanceSoft2Laser, distanceA2Laser, distanceB2Laser, gantryVar, gantryMean, bedVar, bedMean);
+	double gantryVelocity = plotWidget->getGantryAvrDegreeVelocity();
+	double bedVelocity = plotWidget->getBedAvrDegreeVelocity();
+	QString gantryVel = QString(" %1  degree/s").arg(gantryVelocity, 0, 'f', 2);
+	QString bedVel = QString(" %1  degree/s").arg(bedVelocity, 0, 'f', 2);
+
+
+	loggerWidget->setHtmlReport(softCenter, laserCenter, lightCenter, foot_A, foot_B, distanceSoft2Laser, distanceA2Laser, distanceB2Laser, 
+															gantryVar, gantryMean, gantryVel, bedVar, bedMean, bedVel);
 	renderWidget->drawSoftISOCenter(report.softCenter[2]*0.01, report.softCenter[1]*0.01, -report.softCenter[0]*0.01);
 	renderWidget->drawVerticalLine(report.footA, report.footB);
 }

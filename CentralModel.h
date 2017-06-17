@@ -12,26 +12,28 @@ class GantryHandler;
 class CollimatorHandler;
 class BedHandler;
 class ISOCenterHandler;
-
+class LightCenterHandler;
 
 #define  HORIZONTALREGISTER_HANDLER  1
 #define	 GANTRY_HANDLER              2
 #define  COLLIMATOR_HANDLER			 3
 #define  BED_HANDLER				 4
 #define  ISOCENTER_HANDLER			 5
-
+#define  LIGHTCENTER_HANDLER         6
 
 typedef struct ReportData{
 	double softCenter[3];
 	double laserCenter[3];
+	double lightCenter[3];
 	double footA[3];
 	double footB[3];
 	double distanceLaser2Soft;
 	double gantryVar;
 	double gantryMean;
+	double gantryVelocity;
 	double bedVar;
 	double bedMean;
-
+	double bedVelocity;
 }ReportData;
 class CentralModel : public QObject
 {
@@ -47,6 +49,7 @@ public:
 	void setHandlerToCollimator();
 	void setHandlerToBed(int mode);
 	void setHandlerToISOCenter();
+	void setHandlerToLightCenter();
 	int  getHandler();
 	void handle(MarkerPointContainerType &positions);
 	void handle(Point3D &point);
@@ -54,7 +57,8 @@ public:
 	void resetAccelerator();
 signals:
 	void markerSize(int size);
-	void registerPosition(Point3D &point);
+	void registerLaserISO(Point3D &point);
+	void registerLightCenter(Point3D &point);
 	void horizontalRegisterRecorded();
 	void markerPosition(MarkerPointType &point);
 	void circleResult(Circle *circle);
@@ -67,7 +71,8 @@ private:
 
 	virtual void timerEvent(QTimerEvent* event);
 private slots:
-	void laserISOCenter(Point3D& point);
+	void laserISOCenterPosition(Point3D& point);
+	void lightCenterPosition(Point3D& point);
 	void softISOCenter(Circle* circle);
 	//计算软件等中心和公垂线垂足
 	void calSoftISOCenterAndFoots(Circle* gantry, Circle* bed);
@@ -78,11 +83,13 @@ private:
 	CollimatorHandler *m_CollimatorHandler;
 	BedHandler *m_BedHandler;
 	ISOCenterHandler* m_ISOCenterHanlder;
+	LightCenterHandler* m_LightCenterHanlder;
 
 	bool m_GantryFitted;
 	bool m_BedFitted;
 	bool m_softCenterIsCal;
 	bool m_LaserISODetected;
+	bool m_LightCenterDetected;
 	bool m_ReadyToReport;
 	Circle* gantryCircle;
 	Circle* bedCircle;

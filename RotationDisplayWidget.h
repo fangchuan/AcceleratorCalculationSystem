@@ -19,7 +19,7 @@ public:
 	void setMarkerPosition(MarkerPointType &point);
 	void setCurrentAngle(double angle);
 	void setCircleResult(Circle *circle);
-
+	void reset();
 private:
 	void initUi();
 

@@ -28,7 +28,7 @@ class LoggerView;
 
 #define  STACKED_THREED_VIEW_INDEX   0
 #define  STACKED_PLOT_VIEW_INDEX     1
-#define  STACKED_PLAINTEXT_INDEX     2
+#define  STACKED_REPORT_INDEX        2
 
 class CentralWidget : public QWidget
 {
@@ -41,7 +41,7 @@ public:
 public slots:
 	void show3DPage();
 	void showPlotPage();
-	void showLogTextPage();
+	void showReportPage();
 	void exportReport();
 	void printReport();
 	void printPreviewReport();
@@ -68,14 +68,17 @@ private slots:
 	void recordingCollimator();
 	void switchToBed(int mode);
 	void recordingBed(int mode);
-	void switchToISOCenter();
-	void recordingISOCenter();
+	void switchToLaserISO();
+	void recordingLaserISO();
+	void switchToLightCenter();
+	void recordingLightCenter();
 	void markerSize(int size);
 	void markerPosition(MarkerPointType &point);
 	void horizontalRegisterRecorded();
 	void circleResult(Circle *circle);
 	void translateResult(double bias[3]);
-	void registerPosition(Point3D &point);
+	void registerLaserISOPosition(Point3D& point);
+	void registerLightCenterPosition(Point3D &point);
 	void reportResult( const ReportData & report);
 	void handleReset();
 

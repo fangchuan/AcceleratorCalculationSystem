@@ -17,7 +17,8 @@ public:
 	void doSwitchToGantry();
 	void doSwitchToCollimator();
 	void doSwitchToBed();
-	void doSwitchToISOCenter();
+	void doSwitchToLaserISO();
+	void doSwitchToLightCenter();
 	void reset();
 signals:
 	void switchToHorizontalRegister();
@@ -28,8 +29,10 @@ signals:
 	void recordingCollimator();
 	void switchToBed(int mode);
 	void recordingBed(int mode);
-	void switchToISOCenter();
-	void recordingISOCenter();
+	void switchToLaserISO();
+	void recordingLaserISO();
+	void switchToLightCenter();
+	void recordingLightCenter();
 	void resetRequest();
 	void reportRequest();
 private:
@@ -39,7 +42,8 @@ private:
 	void resetGantry();
 	void resetCollimator();
 	void resetBed();
-	void resetISOCenter();
+	void resetLaserISO();
+	void resetLightCenter();
 	void setButtonStyle();
 private slots:
 	void handleButtonClick();
@@ -52,6 +56,7 @@ private:
 	QPushButton* m_BedButton;
 	QButtonGroup* m_BedGroup;
 	QPushButton* m_LaserButton;
+	QPushButton* m_LightButton;
 	QPushButton* m_ResetButton;
 	QPushButton* m_ReportButton;
 };

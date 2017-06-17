@@ -37,3 +37,8 @@
 			重写BasePlot,详见PlotView.h
 			添加lnac_zh.ts，但还没有把所有字符全部改为tr()
 			
+2017-6-17: 公垂线距离正常
+		   解决PlotView更新速度曲线问题，抛弃函数内使用static变量方法
+		   增加LightCenterHandler类， 用于检测准直器模拟光野的十字中心
+		   所有功能基本实现
+			

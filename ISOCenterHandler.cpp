@@ -15,8 +15,8 @@ AbstractMonitorHandler *ISOCenterHandler::handle(MarkerPointContainerType &posit
 {
 	return this;
 }
-//计算等中心
-//point是NDI下的中心dian
+//
+//point是NDI下的中心点坐标
 //转换到加速器坐标系下后m_RegisteredPoint是最终等中心点
 AbstractMonitorHandler *ISOCenterHandler::handle(Point3D &point)
 {
@@ -30,7 +30,7 @@ AbstractMonitorHandler *ISOCenterHandler::handle(Point3D &point)
 	memcpy(m_RegisteredPoint, out, sizeof(m_RegisteredPoint));
 	m_IsRegistered = true;
 	
-	emit registerPosition(MarkerPointType(out));
+	emit registerLaserISO(MarkerPointType(out));
 	
 	return nullptr;
 }

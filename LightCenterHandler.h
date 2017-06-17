@@ -1,14 +1,13 @@
 #pragma once
-
 #include "AbstractMonitorHandler.h"
 
-class ISOCenterHandler : public AbstractMonitorHandler
+class LightCenterHandler : public AbstractMonitorHandler
 {
 	Q_OBJECT
 
 public:
-	ISOCenterHandler(QObject *parent = Q_NULLPTR);
-	virtual ~ISOCenterHandler();
+	LightCenterHandler(QObject *parent = Q_NULLPTR);
+	virtual ~LightCenterHandler();
 
 	virtual AbstractMonitorHandler* handle(MarkerPointContainerType &positions);
 	virtual AbstractMonitorHandler* handle(Point3D &point);
@@ -16,7 +15,7 @@ public:
 	virtual void reset();
 
 signals:
-	void  registerLaserISO(Point3D& point);
+	void  registerLightCenter(Point3D& point);
 
 private:
 	double m_RegisteredPoint[3];

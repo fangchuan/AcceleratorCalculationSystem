@@ -38,16 +38,16 @@ void DisplayWidget::reset()
 	int index = m_StackedWidget->currentIndex();
 	
 	if (index == 0){
-		//m_HorizontalWidget->reset();
+		m_HorizontalWidget->reset();
 	}else{
 		if (index == 1){
-			//m_RotationWidget->reset();
+			m_RotationWidget->reset();
 		}else{
 			if (index == 2){
-				//m_TranslationWidget->reset();
+				m_TranslationWidget->reset();
 			}
 			else{
-				//m_ISOCenterDisplayWidget->reset();
+				m_ISOCenterDisplayWidget->reset();
 			}
 		}
 	}
@@ -109,24 +109,33 @@ void DisplayWidget::setRegisteredPosition(double point[3])
 void DisplayWidget::doSwitchToHorizontalRegister()
 {
 	m_StackedWidget->setCurrentIndex(0);
+	m_HorizontalWidget->reset();
 }
 
 void DisplayWidget::doSwitchToGantry()
 {
 	m_StackedWidget->setCurrentIndex(1);
+	m_RotationWidget->reset();
 }
 
 void DisplayWidget::doSwitchToCollimator()
 {
 	m_StackedWidget->setCurrentIndex(1);
+	m_RotationWidget->reset();
 }
 
 void DisplayWidget::doSwitchToBed(int mode)
 {
-	m_StackedWidget->setCurrentIndex(mode+1);
+	int index = mode + 1;
+	m_StackedWidget->setCurrentIndex(index);
+	if (index == 1)
+		m_RotationWidget->reset();
+	else
+		m_TranslationWidget->reset();
 }
 
 void DisplayWidget::doSwitchToISOCenter()
 {
 	m_StackedWidget->setCurrentIndex(3);
+	m_ISOCenterDisplayWidget->reset();
 }

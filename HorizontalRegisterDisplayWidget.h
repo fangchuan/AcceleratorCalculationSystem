@@ -14,7 +14,7 @@ public:
 
 	void setMarkerSize(int number);
 	void horizontalRegisterRecorded();
-
+	void reset();
 private:
 	void initUi();
 

@@ -35,7 +35,8 @@ LoggerView::LoggerView(QWidget *parent)
 		QString("N/A"), QString("N/A"),
 		QString("N/A"), QString("N/A"), 
 		QString("N/A"), QString("N/A"), 
-		QString("N/A"));
+		QString("N/A"), QString("N/A"), 
+		QString("N/A"), QString("N/A"));
 }
 
 LoggerView::~LoggerView()
@@ -169,6 +170,7 @@ void LoggerView::filePrintPdf()
 //
 void LoggerView::setHtmlReport(QString& softCenter, 
 									QString& laserCenter,
+									QString& lightCenter,
 									QString& footA,
 									QString& footB,
 									QString& d1,
@@ -176,8 +178,10 @@ void LoggerView::setHtmlReport(QString& softCenter,
 									QString& d3,
 									QString& gv,
 									QString& gm,
+									QString& gVel,
 									QString& bv,
-									QString& bm)
+									QString& bm,
+									QString& bVel)
 {
 	QString html;
 	QString title = QString::fromLocal8Bit("加速器校验报告--南京大学医学物理与医学影像研究中心");
@@ -190,31 +194,33 @@ void LoggerView::setHtmlReport(QString& softCenter,
 	QString pictrue3 = QString::fromLocal8Bit("图3、治疗床运动");
 	QString item1 = QString::fromLocal8Bit("机械等中心:");
 	QString item2 = QString::fromLocal8Bit("激光等中心:");
-	QString item3 = QString::fromLocal8Bit("机械等中心到激光等中心距离:");
-	QString item4 = QString::fromLocal8Bit("垂足A:");
-	QString item5 = QString::fromLocal8Bit("垂足B:");
-	QString item6 = QString::fromLocal8Bit("激光等中心到垂足A距离:");
-	QString item7 = QString::fromLocal8Bit("激光等中心到垂足B距离:");
-	QString item8 = QString::fromLocal8Bit("机架旋转误差--方差:");
-	QString item9 = QString::fromLocal8Bit("机架旋转误差--平均值:");
-	QString item10 = QString::fromLocal8Bit("机架旋转平均速度:");
-	QString item11 = QString::fromLocal8Bit("治疗床旋转误差--方差:");
-	QString item12 = QString::fromLocal8Bit("治疗床旋转误差--平均值:");
-	QString item13 = QString::fromLocal8Bit("治疗床旋转平均速度:");
+	QString item3 = QString::fromLocal8Bit("模拟光野中心:");
+	QString item4 = QString::fromLocal8Bit("机械等中心到激光等中心距离:");
+	QString item5 = QString::fromLocal8Bit("垂足A:");
+	QString item6 = QString::fromLocal8Bit("垂足B:");
+	QString item7 = QString::fromLocal8Bit("激光等中心到垂足A距离:");
+	QString item8 = QString::fromLocal8Bit("激光等中心到垂足B距离:");
+	QString item9 = QString::fromLocal8Bit("机架旋转误差--方差:");
+	QString item10 = QString::fromLocal8Bit("机架旋转误差--平均值:");
+	QString item11 = QString::fromLocal8Bit("机架旋转平均速度:");
+	QString item12 = QString::fromLocal8Bit("治疗床旋转误差--方差:");
+	QString item13 = QString::fromLocal8Bit("治疗床旋转误差--平均值:");
+	QString item14 = QString::fromLocal8Bit("治疗床旋转平均速度:");
 
 	item1 += softCenter;
 	item2 += laserCenter;
-	item3 += d1;
-	item4 += footA;
-	item5 += footB;
-	item6 += d2;
-	item7 += d3;
-	item8 += gv;
-	item9 += gm;
-
-	item11 += bv;
-	item12 += bm;
-
+	item3 += lightCenter;
+	item4 += d1;
+	item5 += footA;
+	item6 += footB;
+	item7 += d2;
+	item8 += d3;
+	item9 += gv;
+	item10 += gm;
+	item11 += gVel;
+	item12 += bv;
+	item13 += bm;
+	item14 += bVel;
 
 	html += "<h1 align=\"center\">";
 	html += "<strong><span bgcolor=\"red\">"+ title +"< / span>< / strong>";
@@ -234,8 +240,8 @@ void LoggerView::setHtmlReport(QString& softCenter,
 	html += "<p align=\"left\">&nbsp;&nbsp;5." + item5 + "</p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;6." + item6 + "</p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;7." + item7 + "</p>";
-	//html += "<p align=\"left\">&nbsp;&nbsp;8.</p>";
-	html += "<p align=\"left\"><br/>< / p>";
+	html += "<p align=\"left\">&nbsp;&nbsp;8." + item8 + "</p>";
+	//html += "<p align=\"left\"><br/>< / p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + pictrue1 + "< / p>";
 	
 	html += "<p>";
@@ -243,9 +249,9 @@ void LoggerView::setHtmlReport(QString& softCenter,
 	html += "</p>";
 	html += "<p align=\"left\"><br/>< / p>";
 	html += "<p align=\"left\"><br/>< / p>";
-	html += "<p align=\"left\">&nbsp;&nbsp; 8." + item8 + "</p>";
 	html += "<p align=\"left\">&nbsp;&nbsp; 9." + item9 + "</p>";
 	html += "<p align=\"left\">&nbsp;&nbsp; 10." + item10 + "</p>";
+	html += "<p align=\"left\">&nbsp;&nbsp;	11." + item11 + "</p>";
 	html += "<p align=\"left\"><br/>< / p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + pictrue2 + "< / p>";
 
@@ -254,9 +260,9 @@ void LoggerView::setHtmlReport(QString& softCenter,
 	html += "</p>";
 	html += "<p align=\"left\"><br/></p>";
 	html += "<p align=\"left\"><br/></p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;	11." + item11 + "</p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;	12." + item12 + "</p>";
 	html += "<p align=\"left\">&nbsp;&nbsp; 13." + item13 + "</p>";
+	html += "<p align=\"left\">&nbsp;&nbsp; 13." + item14 + "</p>";
 	html += "<p align=\"left\"><br/></p>";
 	html += "<p align=\"left\"><br/></p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + pictrue3 + "< / p>";

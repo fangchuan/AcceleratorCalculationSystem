@@ -56,3 +56,11 @@ void TranslationDisplayWidget::setTranslateResult(double bias[3])
 	m_YLabel->setText(QString::number(bias[1], 'f', 2));
 	m_ZLabel->setText(QString::number(bias[2], 'f', 2));
 }
+
+void TranslationDisplayWidget::reset()
+{
+	m_MarkerSizeOrPosition->setText("0");
+	m_XLabel->setText("N/A");
+	m_YLabel->setText("N/A");
+	m_ZLabel->setText("N/A");
+}

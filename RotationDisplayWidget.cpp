@@ -56,3 +56,10 @@ void RotationDisplayWidget::setCircleResult(Circle *circle)
 	setCurrentAngle(circle->Angle);
 	m_ParallelOrPerpendicular->setText(QString::fromLocal8Bit(circle->IsParallelOrPerpendicular ? "ÊÇ" : "·ñ"));
 }
+
+void RotationDisplayWidget::reset()
+{
+	m_MarkerSizeOrPosition->setText("0");
+	m_ParallelOrPerpendicular->setText("N/A");
+	m_CurrentAngle->setText("N/A");
+}

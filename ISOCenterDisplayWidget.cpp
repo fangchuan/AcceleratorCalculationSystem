@@ -5,9 +5,9 @@
 
 ISOCenterDisplayWidget::ISOCenterDisplayWidget(QWidget *parent)
 	: QWidget(parent),
-	m_XLabel(new QLabel("等中心")),
-	m_YLabel(new QLabel("等中心")),
-	m_ZLabel(new QLabel("等中心"))
+	m_XLabel(new QLabel("XXX.XX")),
+	m_YLabel(new QLabel("XXX.XX")),
+	m_ZLabel(new QLabel("XXX.XX"))
 {
 	initUi();
 }
@@ -38,4 +38,11 @@ void ISOCenterDisplayWidget::setRegisteredPosition(double point[3])
 	m_XLabel->setText(QString::number(point[0], 'f', 2));
 	m_YLabel->setText(QString::number(point[1], 'f', 2));
 	m_ZLabel->setText(QString::number(point[2], 'f', 2));
+}
+
+void ISOCenterDisplayWidget::reset()
+{
+	m_XLabel->setText(QString::number(0, 'f', 2));
+	m_YLabel->setText(QString::number(0, 'f', 2));
+	m_ZLabel->setText(QString::number(0, 'f', 2));
 }

@@ -17,16 +17,19 @@ public:
 	LoggerView(QWidget *parent = 0);
 	~LoggerView();
 	void setHtmlReport(QString& softCenter,
-							QString& laserCenter,
-							QString& footA,
-							QString& footB,
-							QString& d1,
-							QString& d2,
-							QString& d3,
-							QString& gv,
-							QString& gm,
-							QString& bv,
-							QString& bm);
+						QString& laserCenter,
+						QString& lightCenter,
+						QString& footA,
+						QString& footB,
+						QString& d1,
+						QString& d2,
+						QString& d3,
+						QString& gv,
+						QString& gm,
+						QString& gVel,
+						QString& bv,
+						QString& bm,
+						QString& bVel);
 public slots:
 	bool fileSave();
 	bool fileSaveAs();

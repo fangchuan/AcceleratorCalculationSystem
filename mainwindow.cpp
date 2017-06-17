@@ -44,16 +44,16 @@ void MainWindow::initUi()
 void MainWindow::buildConnections()
 {
 	connect(mThreeDAction, &QAction::triggered, m_CentralWidget, &CentralWidget::show3DPage);
-	connect(mPlotAction, &QAction::triggered,   m_CentralWidget, &CentralWidget::showPlotPage);
+	connect(mPlotAction,   &QAction::triggered, m_CentralWidget, &CentralWidget::showPlotPage);
 	connect(mExportAction, &QAction::triggered, m_CentralWidget, &CentralWidget::exportReport );
-	connect(mSaveAction, &QAction::triggered,   m_CentralWidget, &CentralWidget::saveReport);
+	connect(mSaveAction,   &QAction::triggered, m_CentralWidget, &CentralWidget::saveReport);
 	connect(mSaveAsAction, &QAction::triggered, m_CentralWidget, &CentralWidget::saveAsReport);
-	connect(mPrintAction, &QAction::triggered,  m_CentralWidget, &CentralWidget::printReport);
-	connect(mPreviewAction, &QAction::triggered, m_CentralWidget, &CentralWidget::printPreviewReport);
-	connect(mClearAction, &QAction::triggered,   m_CentralWidget, &CentralWidget::clearAllPlot);
-	connect(mTextAction, &QAction::triggered,    m_CentralWidget, &CentralWidget::showLogTextPage);
-	connect(mHelpAction, &QAction::triggered,    this, &MainWindow::showHelp);
-	connect(mQuit,       &QAction::triggered,    this, &MainWindow::closeWindow);
+	connect(mPrintAction,  &QAction::triggered, m_CentralWidget, &CentralWidget::printReport);
+	connect(mPreviewAction, &QAction::triggered,m_CentralWidget, &CentralWidget::printPreviewReport);
+	connect(mClearAction,  &QAction::triggered, m_CentralWidget, &CentralWidget::clearAllPlot);
+	connect(mTextAction,   &QAction::triggered, m_CentralWidget, &CentralWidget::showReportPage);
+	connect(mHelpAction,   &QAction::triggered,  this, &MainWindow::showHelp);
+	connect(mQuit,         &QAction::triggered,  this, &MainWindow::closeWindow);
 }
 
 void MainWindow::detectTracker()

@@ -24,37 +24,38 @@ void ControlWidget::initUi()
 	QGridLayout* gridLayout = new QGridLayout(this);
 	gridLayout->setSpacing(5);
 	
-	m_HorizontalRegisterButton = new QPushButton(QString::fromLocal8Bit("注册水平面"));
-	gridLayout->addWidget(m_HorizontalRegisterButton, 0, 0);
-
-	m_GantryButton = new QPushButton(QString::fromLocal8Bit("校准机架"));
-	gridLayout->addWidget(m_GantryButton, 0, 1);
-
-	m_CollimatorButton = new QPushButton(QString::fromLocal8Bit("校准准直器"));
-	gridLayout->addWidget(m_CollimatorButton, 1, 0);
-
-	m_LaserButton = new QPushButton(QString::fromLocal8Bit("检测激光等中心"));
-	gridLayout->addWidget(m_LaserButton, 1, 1);
-
-	m_BedButton = new QPushButton(QString::fromLocal8Bit("校准治疗床"));
-	gridLayout->addWidget(m_BedButton, 2, 0);
-
 	m_BedGroup = new QButtonGroup;
-	QVBoxLayout *bedLayout = new QVBoxLayout;
 	QRadioButton *rotationButton = new QRadioButton(QString::fromLocal8Bit("旋转治疗床"));
 	m_BedGroup->addButton(rotationButton, 0);
 	rotationButton->setChecked(true);
-	bedLayout->addWidget(rotationButton);
+	gridLayout->addWidget(rotationButton, 0, 0);
 	QRadioButton *translateButton = new QRadioButton(QString::fromLocal8Bit("平移治疗床"));
 	m_BedGroup->addButton(translateButton, 1);
-	bedLayout->addWidget(translateButton);
-	gridLayout->addLayout(bedLayout, 2, 1);
+	gridLayout->addWidget(translateButton, 0, 1);
+
+	m_HorizontalRegisterButton = new QPushButton(QString::fromLocal8Bit("注册水平面"));
+	gridLayout->addWidget(m_HorizontalRegisterButton, 1, 0);
+
+	m_GantryButton = new QPushButton(QString::fromLocal8Bit("校准机架"));
+	gridLayout->addWidget(m_GantryButton, 1, 1);
+
+	m_CollimatorButton = new QPushButton(QString::fromLocal8Bit("校准准直器"));
+	gridLayout->addWidget(m_CollimatorButton, 2, 0);
+
+	m_LaserButton = new QPushButton(QString::fromLocal8Bit("检测激光等中心"));
+	gridLayout->addWidget(m_LaserButton, 2, 1);
+
+	m_BedButton = new QPushButton(QString::fromLocal8Bit("校准治疗床"));
+	gridLayout->addWidget(m_BedButton, 3, 0);
+
+	m_LightButton = new QPushButton(QString::fromLocal8Bit("检测模拟光野中心"));
+	gridLayout->addWidget(m_LightButton, 3, 1);
 
 	m_ResetButton = new  QPushButton(QString::fromLocal8Bit("加速器复位"));
-	gridLayout->addWidget(m_ResetButton, 3, 0);
+	gridLayout->addWidget(m_ResetButton, 4, 0);
 
 	m_ReportButton = new QPushButton(QString::fromLocal8Bit("生成报告"));
-	gridLayout->addWidget(m_ReportButton, 3, 1);
+	gridLayout->addWidget(m_ReportButton, 4, 1);
 
 	setButtonStyle();
 }
@@ -66,6 +67,7 @@ void ControlWidget::buildConnections()
 	connect(m_CollimatorButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
 	connect(m_BedButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
 	connect(m_LaserButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
+	connect(m_LightButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
 	connect(m_BedGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ControlWidget::handleButtonGroupClick);
 
 	connect(m_ResetButton, &QPushButton::clicked, this, &ControlWidget::resetRequest);
@@ -106,11 +108,19 @@ void ControlWidget::handleButtonClick()
 	}
 	else if (button == m_LaserButton) {
 		if (buttonText == QString::fromLocal8Bit("检测激光等中心")) {
-			emit switchToISOCenter();
+			emit switchToLaserISO();
 		}else{
-			emit recordingISOCenter();
+			emit recordingLaserISO();
 		}
 	}
+	else if (button == m_LightButton){
+		if (buttonText == QString::fromLocal8Bit("检测模拟光野中心")){
+			emit switchToLightCenter();
+		}else{
+			emit recordingLightCenter();
+		}
+	}
+
 }
 
 void ControlWidget::handleButtonGroupClick(int id)
@@ -126,7 +136,8 @@ void ControlWidget::doSwitchToHorizontalRegister()
 	resetGantry();
 	resetCollimator();
 	resetBed();
-	resetISOCenter();
+	resetLaserISO();
+	resetLightCenter();
 }
 
 void ControlWidget::doSwitchToGantry()
@@ -135,7 +146,8 @@ void ControlWidget::doSwitchToGantry()
 	m_GantryButton->setText(QString::fromLocal8Bit("旋转机架"));
 	resetCollimator();
 	resetBed();
-	resetISOCenter();
+	resetLaserISO();
+	resetLightCenter();
 }
 
 void ControlWidget::doSwitchToCollimator()
@@ -144,7 +156,8 @@ void ControlWidget::doSwitchToCollimator()
 	resetGantry();
 	m_CollimatorButton->setText(QString::fromLocal8Bit("旋转准直器"));
 	resetBed();
-	resetISOCenter();
+	resetLaserISO();
+	resetLightCenter();
 }
 
 void ControlWidget::doSwitchToBed()
@@ -153,18 +166,29 @@ void ControlWidget::doSwitchToBed()
 	resetGantry();
 	resetCollimator();
 	m_BedButton->setText(QString::fromLocal8Bit("移动治疗床"));
-	resetISOCenter();
+	resetLaserISO();
+	resetLightCenter();
 }
 
-void ControlWidget::doSwitchToISOCenter()
+void ControlWidget::doSwitchToLaserISO()
 {
 	resetHorizontalRegister();
 	resetGantry();
 	resetCollimator();
 	resetBed();
+	resetLightCenter();
 	m_LaserButton->setText(QString::fromLocal8Bit("记录激光等中心"));
 }
 
+void ControlWidget::doSwitchToLightCenter()
+{
+	resetHorizontalRegister();
+	resetGantry();
+	resetCollimator();
+	resetBed();
+	resetLaserISO();
+	m_LightButton->setText(QString::fromLocal8Bit("记录模拟光野中心"));
+}
 void ControlWidget::resetHorizontalRegister()
 {
 	m_HorizontalRegisterButton->setText(QString::fromLocal8Bit("注册水平面"));
@@ -186,18 +210,23 @@ void ControlWidget::resetBed()
 	m_BedButton->setText(QString::fromLocal8Bit("校准治疗床"));
 }
 
-void ControlWidget::resetISOCenter()
+void ControlWidget::resetLaserISO()
 {
 	m_LaserButton->setText(QString::fromLocal8Bit("检测激光等中心"));
 }
 
+void ControlWidget::resetLightCenter()
+{
+	m_LightButton->setText(QString::fromLocal8Bit("检测模拟光野中心"));
+}
 void ControlWidget::reset()
 {
 	resetHorizontalRegister();
 	resetGantry();
 	resetCollimator();
 	resetBed();
-	resetISOCenter();
+	resetLaserISO();
+	resetLightCenter();
 }
 void ControlWidget::setButtonStyle()
 {
@@ -245,6 +274,15 @@ void ControlWidget::setButtonStyle()
 										"border-radius:8px}"
 								 "QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
+
+	m_LightButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
+										"font-size:18px;"
+										"background-color:rgb(0,71,157);"
+										"min-height:80; "
+										"border:1px solid white;"
+										"border-radius:8px}"
+								 "QPushButton:pressed{background-color:rgb(92,156,233);"
+								 "border-style: inset;}");
 
 	m_ResetButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
 										"font-size:18px;"

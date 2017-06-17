@@ -35,7 +35,8 @@ namespace  QtRenderView{
 #define  ACCEL_BED_STRECH_NAME   "BedStrechNode"
 #define  ACCEL_BEDBOTTOM_NAME    "BedBottomNode"
 #define  SOFT_ISOCENTER_NAME     "SoftISOCenterNode"
-#define  LASER_ISOCENTER_NAME     "LaserISOCenterNode"
+#define  LASER_ISOCENTER_NAME    "LaserISOCenterNode"
+#define  LIGHT_CENTER_NAME       "LightCenterNode"
 #define  MARKER_POINT_NAME       "MarkerPointNode"
 #define  X_AXIS_NODE_NAME		 "XAxisNode"
 #define  Y_AXIS_NODE_NAME		 "YAxisNode"
@@ -126,7 +127,10 @@ namespace  QtRenderView{
 		void drawBedAxis(const QVector3D& start, const QVector3D& end, const QColor& color = QColor(Qt::black));
 		//画出等中心
 		void drawSoftISOCenter(const double x, const double y, const double z);
+		//画激光灯中心
 		void drawLaserISOCenter(const double x, const double y, const double z);
+		//画模拟光野中心
+		void drawLightCenter(const double x, const double y, const double z);
 		//画屏幕左下方的参考坐标系
 		void drawCoordinate();
 		//画出标定球位置
@@ -156,6 +160,7 @@ namespace  QtRenderView{
 		OgreQtBites::SdkQtCameraMan* mCameraMan;
 		Ogre::SceneNode*    mOgreSoftCenterNode;
 		Ogre::SceneNode*    mOgreLaserCenterNode;
+		Ogre::SceneNode*    mOgreLightCenterNode;
 		Ogre::SceneNode*    mOgreMarkerNode;
 
 		bool m_update_pending;
