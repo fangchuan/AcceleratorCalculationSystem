@@ -48,39 +48,39 @@ int main(int argc, char *argv[])
 	QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
 
 #ifdef LICENSE
-    if (!ACSUtils::CheckSoftwareLicense())
-    {
-        exit(-1);
-        return false;
-    }
+	if (!ACSUtils::CheckSoftwareLicense())
+	{
+		exit(-1);
+		return false;
+	}
 #endif
 
-    //Check Registry
+	//Check Registry
 #ifdef REGISTRY
-    if (!ACSUtils::CheckSoftwareRegistry())
-    {
-        exit(-1);
-        return false;
-    }
+	if (!ACSUtils::CheckSoftwareRegistry())
+	{
+		exit(-1);
+		return false;
+	}
 #endif
-    if (!checkEnvironment()) {
+	if (!checkEnvironment()) {
 		QMessageBox::critical(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Lack the necessary files, the software would not work properly!"));
-    }
+	}
 
-    if (app.isRunning())
-    {
-        return !app.sendMessage("activate");
-    }
+	if (app.isRunning())
+	{
+		return !app.sendMessage("activate");
+	}
 
-    QScopedPointer<QSplashScreen> splashScreen;
+	QScopedPointer<QSplashScreen> splashScreen;
 
-    QPixmap pixmap(":/Resources/image/splash_screen.png");
-    splashScreen.reset(new QSplashScreen(pixmap));
+	QPixmap pixmap(":/Resources/image/splash_screen.png");
+	splashScreen.reset(new QSplashScreen(pixmap));
 	splashMessage(splashScreen, QObject::tr("Start initialization..."));
-    splashScreen->show();
+	splashScreen->show();
 	splashMessage(splashScreen, QObject::tr("Initialize working directory ..."));
 
-// 	initWorkEnvironment();
+	// 	initWorkEnvironment();
 	splashMessage(splashScreen, QObject::tr("initializing..."));
 
 	splashMessage(splashScreen, QObject::tr("Creating user interface ..."));
@@ -92,8 +92,6 @@ int main(int argc, char *argv[])
 	splashMessage(splashScreen, QObject::tr("The program has started"));
 	splashScreen->finish(&w);
 
-	//QSize size = QSize(QtSingleApplication::desktop()->width(), QtSingleApplication::desktop()->height());
-	//w.setFixedSize(size);
 	w.showFullScreen();
 
     return app.exec();

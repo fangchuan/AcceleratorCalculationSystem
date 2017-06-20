@@ -341,15 +341,15 @@ void CentralWidget::monitoringMarker3D()
 	MarkerPointContainerType positions;
 	m_Tracker->getMarkerPositions(&positions);
 
-	//int size = positions.size();
-	//for (int i = 0; i < size; i++){
-	//	Point3D p = positions.at(i);
-	//	double x = p[0];
-	//	double y = p[1];
-	//	double z = p[2];
-	//	QString str = QString("%1 : ( %2, %3, %4)").arg(i).arg(x, 0, 'f', 2).arg(y, 0, 'f', 2).arg(z, 0, 'f', 2);
-	//	qDebug() << str;
-	//}
+	int size = positions.size();
+	for (int i = 0; i < size; i++){
+		Point3D p = positions.at(i);
+		double x = p[0];
+		double y = p[1];
+		double z = p[2];
+		QString str = QString("%1 : ( %2, %3, %4)").arg(i).arg(x, 0, 'f', 2).arg(y, 0, 'f', 2).arg(z, 0, 'f', 2);
+		qDebug() << str;
+	}
 	m_Model->handle(positions);
 }
 

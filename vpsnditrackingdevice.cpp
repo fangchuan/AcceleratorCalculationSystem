@@ -366,7 +366,6 @@ bool NDITrackingDevice::OpenConnection()
 	if (m_SerialCommunication->OpenConnection() == 0) // 0 == ERROR_VALUE
 	{
 		m_SerialCommunication->CloseConnection();
-		m_SerialCommunication = NULL;
 		vpsThrowException(IGTHardwareException) << "Can not open serial port";
 	}
 
@@ -383,7 +382,6 @@ bool NDITrackingDevice::OpenConnection()
 		if (m_SerialCommunication.IsNotNull())
 		{
 			m_SerialCommunication->CloseConnection();
-			m_SerialCommunication = NULL;
 		}
 		vpsThrowException(IGTHardwareException) << "Hardware Reset of tracking device did not work";
 	}
@@ -581,7 +579,6 @@ bool NDITrackingDevice::InitializeWiredTools()
 	return true;
 }
 
-
 TrackingDeviceType NDITrackingDevice::TestConnection()
 {
 	if (this->GetState() != Setup)
@@ -644,13 +641,12 @@ TrackingDeviceType NDITrackingDevice::TestConnection()
 	returnvalue = m_DeviceProtocol->VER(deviceType);
 	if ((returnvalue != NDIOKAY) || (deviceType == TrackingSystemNotSpecified))
 	{
-		m_SerialCommunication = NULL;
 		return TrackingSystemNotSpecified;
 	}
 	m_SerialCommunication = NULL;
+
 	return deviceType;
 }
-
 
 bool NDITrackingDevice::CloseConnection()
 {
@@ -664,7 +660,7 @@ bool NDITrackingDevice::CloseConnection()
 		this->InvalidateAll();
 		/* return to setup mode */
 		this->SetState(Setup);
-		m_SerialCommunication = NULL;
+
 	}
 	return true;
 }

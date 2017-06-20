@@ -55,8 +55,8 @@ void QtRenderView::RenderView::initialize()
 	Ogre::String  mResourcesCfg = "resources_d.cfg";
 	Ogre::String  mPluginsCfg = "plugins_d.cfg";
 #else
-	mResourcesCfg = "resources.cfg";
-	mPluginsCfg = "plugins.cfg";
+	Ogre::String mResourcesCfg = "resources.cfg";
+	Ogre::String mPluginsCfg = "plugins.cfg";
 #endif
 #ifdef _MSC_VER
 	mOgreRoot = new Ogre::Root(mPluginsCfg);
@@ -83,8 +83,8 @@ void QtRenderView::RenderView::initialize()
 	}
 
 	//setup the search order for used render system.
-	Ogre::RenderSystem *rs = mOgreRoot->getRenderSystemByName("OpenGL Rendering Subsystem");
-	mOgreRoot->setRenderSystem(rs);
+	//Ogre::RenderSystem *rs = mOgreRoot->getRenderSystemByName("OpenGL Rendering Subsystem");
+	Ogre::RenderSystem *rs = mOgreRoot->getRenderSystemByName("Direct3D9 Rendering Subsystem");
 	QString dimensions = QString("%1x%2").arg(this->width()).arg(this->height());
 	rs->setConfigOption("Full Screen", "No");
 	rs->setConfigOption("Video Mode", dimensions.toStdString());
@@ -770,7 +770,6 @@ void QtRenderView::RenderView::drawLightCenter(const double x, const double y, c
 		mOgreLightCenterNode->setPosition(x, y, z);
 	}
 }
-
 //实时更新小球运动位置
 void QtRenderView::RenderView::drawMarkerPoint(const double x, const double y, const double z)
 {
@@ -792,17 +791,17 @@ void QtRenderView::RenderView::drawCoordinate()
 	Ogre::Camera* cam = mCorSceneMgr->getCamera(COORDINATE_CAMERA_NAME);
 	cam->setProjectionType(Ogre::PT_ORTHOGRAPHIC);
 	mCorSceneMgr->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
-	vp = mOgreWindow->addViewport(cam, 1, 0.0, 0.8, 0.2, 0.2);
+	vp = mOgreWindow->addViewport(cam, 1, 0.0f, 0.8f, 0.2f, 0.2f);
 	vp->setBackgroundColour(mOgreBackground);
 	//    cam->setAspectRatio(Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));
 	cam->setOrthoWindow(9,9);
 	cam->setPosition(0, 0, 7);
 	cam->lookAt(0, 0, -300);
-	cam->setNearClipDistance(0.1);
+	cam->setNearClipDistance(0.1f);
 	cam->setFarClipDistance(200000);
 
 
-	Ogre::SceneNode* ogreNodeCoordinate = mCorSceneMgr->getRootSceneNode()->createChildSceneNode("Coordinate", Ogre::Vector3(-0.8, -1, 0));
+	Ogre::SceneNode* ogreNodeCoordinate = mCorSceneMgr->getRootSceneNode()->createChildSceneNode("Coordinate", Ogre::Vector3(-0.8f, -1.0f, 0.0f));
 
 	Ogre::Entity* ogreEntity9 = mOgreSceneMgr->createEntity("coordinateBox002.mesh");
 	Ogre::SceneNode* ogreNode9 = ogreNodeCoordinate->createChildSceneNode("X002", Ogre::Vector3(0, 0, 0));
@@ -812,7 +811,7 @@ void QtRenderView::RenderView::drawCoordinate()
 	ogreNode9->yaw(Ogre::Degree(180));
 
 	Ogre::Entity* ogreEntity10 = mOgreSceneMgr->createEntity("coordinateBox001.mesh");
-	Ogre::SceneNode* ogreNode10 = ogreNode9->createChildSceneNode("X001", Ogre::Vector3(0, 0, 0.2));
+	Ogre::SceneNode* ogreNode10 = ogreNode9->createChildSceneNode("X001", Ogre::Vector3(0.0f, 0.0f, 0.2f));
 	ogreEntity10->setMaterialName("Examples/blue");
 	ogreNode10->attachObject(ogreEntity10);
 
@@ -824,35 +823,35 @@ void QtRenderView::RenderView::drawCoordinate()
 	ogreNode11->yaw(Ogre::Degree(90));
 
 	Ogre::Entity* ogreEntity12 = mOgreSceneMgr->createEntity("coordinateBox001.mesh");
-	Ogre::SceneNode* ogreNode12 = ogreNode11->createChildSceneNode("Z001", Ogre::Vector3(0, 0, 0.2));
+	Ogre::SceneNode* ogreNode12 = ogreNode11->createChildSceneNode("Z001", Ogre::Vector3(0.0f, 0.0f, 0.2f));
 	ogreEntity12->setMaterialName("Examples/green");
 	ogreNode12->attachObject(ogreEntity12);
 
 	Ogre::Entity* ogreEntity13 = mOgreSceneMgr->createEntity("coordinateBox002.mesh");
-	Ogre::SceneNode* ogreNode13 = ogreNodeCoordinate->createChildSceneNode("Y002", Ogre::Vector3(0, 0, 0));
+	Ogre::SceneNode* ogreNode13 = ogreNodeCoordinate->createChildSceneNode("Y002", Ogre::Vector3(0.0f, 0.0f, 0.0f));
 	ogreEntity13->setMaterialName("Examples/red");
 	ogreNode13->attachObject(ogreEntity13);
 	ogreNode13->setScale(Ogre::Vector3(5.0f, 5.0f, 10.0f));
 	ogreNode13->pitch(Ogre::Degree(-90));
 
 	Ogre::Entity* ogreEntity14 = mOgreSceneMgr->createEntity("coordinateBox001.mesh");
-	Ogre::SceneNode* ogreNode14 = ogreNode13->createChildSceneNode("Y001", Ogre::Vector3(0, 0, 0.2));
+	Ogre::SceneNode* ogreNode14 = ogreNode13->createChildSceneNode("Y001", Ogre::Vector3(0.0f, 0.0f, 0.2f));
 	ogreEntity14->setMaterialName("Examples/red");
 	ogreNode14->attachObject(ogreEntity14);
 
 	Ogre::Entity* ogreEntity15 = mOgreSceneMgr->createEntity("coordinatetextZ.mesh");
-	Ogre::SceneNode* ogreNode15 = ogreNode11->createChildSceneNode("Z", Ogre::Vector3(0, 0, 0.28));
+	Ogre::SceneNode* ogreNode15 = ogreNode11->createChildSceneNode("Z", Ogre::Vector3(0.0f, 0.0f, 0.28f));
 	ogreEntity15->setMaterialName("Examples/green");
 	ogreNode15->attachObject(ogreEntity15);
 
 	Ogre::Entity* ogreEntity16 = mOgreSceneMgr->createEntity("coordinatetextY.mesh");
-	Ogre::SceneNode* ogreNode16 = ogreNode13->createChildSceneNode("Y", Ogre::Vector3(0, 0, 0.28));
+	Ogre::SceneNode* ogreNode16 = ogreNode13->createChildSceneNode("Y", Ogre::Vector3(0.0f, 0.0f, 0.28f));
 	ogreEntity16->setMaterialName("Examples/red");
 	ogreNode16->attachObject(ogreEntity16);
 	ogreNode16->pitch(Ogre::Degree(90));
 
 	Ogre::Entity* ogreEntity17 = mOgreSceneMgr->createEntity("coordinatetextX.mesh");
-	Ogre::SceneNode* ogreNode17 = ogreNode9->createChildSceneNode("X", Ogre::Vector3(0, 0, 0.28));
+	Ogre::SceneNode* ogreNode17 = ogreNode9->createChildSceneNode("X", Ogre::Vector3(0.0f, 0.0f, 0.28f));
 	ogreEntity17->setMaterialName("Examples/blue");
 	ogreNode17->attachObject(ogreEntity17);
 	/*

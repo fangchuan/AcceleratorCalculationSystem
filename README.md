@@ -41,4 +41,8 @@
 		   解决PlotView更新速度曲线问题，抛弃函数内使用static变量方法
 		   增加LightCenterHandler类， 用于检测准直器模拟光野的十字中心
 		   所有功能基本实现
+		   
+2017-6-20： 笔记本上重新编译ITK，不会出现 mSerialCommunication析构时报错，奇怪，难道真的是我台式机上的ITK变异的有问题？？？
+			修改渲染引擎为D3D9_RenderSystem。在其他电脑上测试时发现OpenGL渲染加载场景太慢(主要是win10 OpenGL版本太高，Ogre支持的不好)
+			改为D3D9_RenderSystem后，凡是使用本软件的电脑要安装directx
 			

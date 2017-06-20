@@ -7,10 +7,23 @@
 #include <QMessageBox>
 
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    m_CentralWidget(Q_NULLPTR)
+MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent)
+    ,ui(new Ui::MainWindow)
+    ,m_CentralWidget(Q_NULLPTR)
+	, mThreeDAction(Q_NULLPTR)
+	, mPlotAction(Q_NULLPTR)
+	, mExportAction(Q_NULLPTR)
+	, mSaveAction(Q_NULLPTR)
+	, mSaveAsAction(Q_NULLPTR)
+	, mPrintAction(Q_NULLPTR)
+	, mPreviewAction(Q_NULLPTR)
+	, mQuit(Q_NULLPTR)
+	, mUndoAction(Q_NULLPTR)
+	, mRedoAction(Q_NULLPTR)
+	, mClearAction(Q_NULLPTR)
+	, mTextAction(Q_NULLPTR)
+	, mHelpAction(Q_NULLPTR)
+	, mTrackerDetected(false)
 {
 
     initUi();
@@ -29,14 +42,14 @@ void MainWindow::initUi()
     m_CentralWidget = new CentralWidget(this);
     setCentralWidget(m_CentralWidget);
 	setWindowTitle(QCoreApplication::applicationName());
-	setWindowIcon(QIcon(":/Resources/image/window_icon.png"));
+	//setWindowIcon(QIcon(":/Resources/image/window_icon.png"));
 
 	setupFileActions();
 	setupViewActions();
 	setupHelpAction();
 
-	this->setObjectName("mainWindow");
-	this->setStyleSheet("#mainWindow{background-color:rgb(205, 205, 205);}");
+	setObjectName("mainWindow");
+	setStyleSheet("#mainWindow{background-color:rgb(205, 205, 205);}");
 
 	ui->mainToolBar->setIconSize(QSize(32, 32));
 }
@@ -83,13 +96,13 @@ void MainWindow::exitMainWindow()
 
 void MainWindow::disconnectTracker()
 {
-	if (mTrackerDetected){
+	//if (mTrackerDetected){
 		OpsTrackingDevice *tracker = OpsTrackingDevice::getInstance();
 		if (tracker->getState() >= TrackingDevice::Setup){
 			tracker->stopTracking();
 		}
 		tracker->closeConnection();
-	}
+	//}
 }
 
 void MainWindow::showHelp()
