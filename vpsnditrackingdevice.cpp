@@ -14,7 +14,7 @@ const unsigned char LF = 0xA; // == '\n' - line feed
 
 
 NDITrackingDevice::NDITrackingDevice() :
-TrackingDevice(),m_DeviceName(""), m_PortNumber(SerialCommunication::COM5), m_BaudRate(SerialCommunication::BaudRate9600),
+TrackingDevice(), m_DeviceName(""), m_PortNumber(SerialCommunication::COM5), m_BaudRate(SerialCommunication::BaudRate9600),
 m_DataBits(SerialCommunication::DataBits8), m_Parity(SerialCommunication::None), m_StopBits(SerialCommunication::StopBits1),
 m_HardwareHandshake(SerialCommunication::HardwareHandshakeOff),
 m_IlluminationActivationRate(Hz20), m_DataTransferMode(TX), m_6DTools(), m_ToolsMutex(NULL),

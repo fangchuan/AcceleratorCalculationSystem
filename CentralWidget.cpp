@@ -7,7 +7,8 @@
 #include <QTimer>
 #include <QSplitter>
 #include <QPlainTextEdit>
-#include <qmessagebox.h>
+#include <QMessageBox>
+
 #include "vtkMath.h"
 
 CentralWidget::CentralWidget(QWidget *parent)
@@ -64,7 +65,6 @@ void CentralWidget::initLogger()
 {
 #ifdef  USE_LOG
 	logger = Logger::getInstance();
-	//logger->setTextEdit(logText);
 	logger->write(QString::fromLocal8Bit("江苏富科思科技有限公司"));
 	logger->write(QString::fromLocal8Bit("LNAC setup"));
 #endif

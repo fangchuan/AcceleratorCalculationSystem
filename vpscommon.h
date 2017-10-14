@@ -18,7 +18,7 @@
 // /**
 // * Macro for Constructors with one parameter for classes derived from itk::Lightobject
 // **/
-// #define mitkNewMacro1Param(classname,type) \
+//#define mitkNewMacro1Param(classname,type) \
 // static Pointer New(type _arg) \
 // { \
 //   Pointer smartPtr = new classname ( _arg ); \

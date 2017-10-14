@@ -4,11 +4,11 @@
 #include <QMap>
 #include <QPointer>
 
-QT_BEGIN_NAMESPACE
+
 class QTextEdit;
 class QPrinter;
-QT_END_NAMESPACE
 
+// 报告视图类
 class LoggerView : public QWidget
 {
 	Q_OBJECT

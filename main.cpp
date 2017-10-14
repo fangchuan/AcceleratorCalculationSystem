@@ -1,10 +1,10 @@
 #include "mainwindow.h"
-//#include <QApplication>
 #include "ACSConfigure.h"
 #include "ACSConstants.h"
 #include "ACSUtils.h"
 #include "OpsTrackingDevice.h"
 #include "qtsingleapplication.h"
+
 #include <QTextCodec>
 #include <QSplashScreen>
 #include <QMessageBox>
@@ -13,7 +13,7 @@
 #include <QTranslator>
 #include <QDesktopWidget>
 
-
+//
 void splashMessage(QScopedPointer<QSplashScreen>& splashScreen, const QString& message)
 {
     if (splashScreen.isNull())
@@ -21,9 +21,9 @@ void splashMessage(QScopedPointer<QSplashScreen>& splashScreen, const QString& m
         return;
     }
     splashScreen->showMessage(message, Qt::AlignBottom | Qt::AlignLeft);
-    //splashScreen->repaint();
 }
 
+//检测水平仪文件
 bool checkEnvironment()
 {
     bool ok = true;
@@ -34,9 +34,10 @@ bool checkEnvironment()
 
 int main(int argc, char *argv[])
 {
+	//添加翻译文件
 	QTranslator ts;
 	ts.load("./Resources/language/lnac_zh.qm");
-
+	//singleApplication
 	QtSingleApplication::setOrganizationName(QStringLiteral("Focus"));
 	QtSingleApplication::setOrganizationDomain(QStringLiteral("jsfocus.cn"));
 	QtSingleApplication::setApplicationName(QStringLiteral("Accelerator Calibration System"));
@@ -80,7 +81,6 @@ int main(int argc, char *argv[])
 	splashScreen->show();
 	splashMessage(splashScreen, QObject::tr("Initialize working directory ..."));
 
-	// 	initWorkEnvironment();
 	splashMessage(splashScreen, QObject::tr("initializing..."));
 
 	splashMessage(splashScreen, QObject::tr("Creating user interface ..."));

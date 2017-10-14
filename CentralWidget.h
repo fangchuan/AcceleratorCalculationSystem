@@ -48,6 +48,7 @@ public slots:
 	void saveReport();
 	void saveAsReport();
 	void clearAllPlot();
+
 private:
 	void initUi();
 	void initLogger();
@@ -83,15 +84,15 @@ private slots:
 	void handleReset();
 
 private:
-	QStackedWidget*			m_StackedWidget;
-	DisplayWidget*			m_DisplayWidget;
-	ControlWidget*			m_ControlWidget;
+	QStackedWidget*			m_StackedWidget;//
+	DisplayWidget*			m_DisplayWidget;//3D坐标显示面板 对象
+	ControlWidget*			m_ControlWidget;//控制面板对象
 	QTimer*							m_Timer;
 	OpsTrackingDevice*			  m_Tracker;
 	OperationMode			 m_TrackingMode;
 	CentralModel*					m_Model;
-	QtRenderView::RenderView*  renderWidget;
-	PlotView*					 plotWidget;
-	LoggerView*                loggerWidget;
-	Logger*							 logger;
+	QtRenderView::RenderView*  renderWidget;//3维显示面板对象
+	PlotView*					 plotWidget;//曲线显示面板对象
+	LoggerView*                loggerWidget;  //报告视图 对象
+	Logger*							 logger;  //日志 对象
 };

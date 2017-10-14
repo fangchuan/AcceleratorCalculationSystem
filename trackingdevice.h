@@ -23,7 +23,7 @@ public:
 	/** Defines the rotation modes of this tracking device which results in different representations
 	*  of quaternions.
 	*
-	*  - Standard: normal representation, rawdata from the device is not changed (DEFAULT)
+	*  - Standard: normal representation, raw data from the device is not changed (DEFAULT)
 	*
 	*  - Transposed: the rotation is stored transposed, which is (by mistake!) expected by some older MITK classes due
 	*                to an ambigious method naming in VNL.

@@ -8,6 +8,7 @@
 
 #define USE_LOG
 
+// 单例模式的日志输出类
 class Logger : public QObject
 {
 	Q_OBJECT

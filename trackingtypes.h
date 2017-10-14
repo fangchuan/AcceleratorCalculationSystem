@@ -4,6 +4,7 @@
 #include <itkPoint.h>
 #include <vector>
 
+
 /**Documentation
 * \brief Error codes of NDI tracking devices
 */

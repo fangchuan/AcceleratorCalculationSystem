@@ -16,24 +16,37 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
 protected:
     void closeEvent(QCloseEvent *event);
 
 private:
-    void initUi();
-	void setupFileActions();
-	void setupViewActions();
-	void setupHelpAction();
+    //初始化window
+	void initUi();
+	//初始化File toolbar
+	void initFileActions();
+	//初始化 view toolbar
+	void initViewActions();
+	// 初始化 help toolbar
+	void initHelpAction();
 	//void setupTextActions();
-    void buildConnections();
-    void exitMainWindow();
-    void disconnectTracker();
+    // 建立信号槽
+	void buildConnections();
+    // 断开相机
+	void disconnectTracker();
+	// 打开帮助文档....
 	void showHelp();
+	// 关闭系统
 	void closeWindow();
+	//检测相机是否连接
 	void detectTracker();
+
+
 private:
+
     Ui::MainWindow *ui;
     CentralWidget *m_CentralWidget;
+
 	QAction*  mThreeDAction;
 	QAction*  mPlotAction;
 	QAction*  mExportAction;
