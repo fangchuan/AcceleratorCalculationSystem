@@ -1,8 +1,8 @@
 #include "mainwindow.h"
-#include "ACSConfigure.h"
-#include "ACSConstants.h"
-#include "ACSUtils.h"
-#include "OpsTrackingDevice.h"
+#include "acsconfigure.h"
+#include "acsconstants.h"
+#include "acsutils.h"
+#include "opstrackingdevice.h"
 #include "qtsingleapplication.h"
 
 #include <QTextCodec>
@@ -12,6 +12,10 @@
 #include <QTextStream>
 #include <QTranslator>
 #include <QDesktopWidget>
+#include "QScopedPointer"
+#include <QMutex>
+#include <QWaitCondition>
+#include "QTime"
 
 //
 void splashMessage(QScopedPointer<QSplashScreen>& splashScreen, const QString& message)
@@ -30,6 +34,19 @@ bool checkEnvironment()
     ok = ok && QFile::exists("./Resources/data/HorizontalRegister.dat");
 
     return ok;
+}
+
+void msecASleep(quint32 msec)
+{
+	//QMutex lock;
+	//QWaitCondition sleep;
+	//lock.lock();
+	//sleep.wait(&lock, msec);
+	//lock.unlock();
+	QTime dieTime = QTime::currentTime().addMSecs(msec);
+	while (QTime::currentTime() < dieTime)
+		QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+
 }
 
 int main(int argc, char *argv[])

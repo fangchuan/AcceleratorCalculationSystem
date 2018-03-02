@@ -1,5 +1,5 @@
-#include "LightCenterHandler.h"
-#include "HorizontalRegister.h"
+#include "lightcenterhandler.h"
+#include "horizontalregister.h"
 
 LightCenterHandler::LightCenterHandler(QObject *parent) :AbstractMonitorHandler(parent),
 m_IsRegistered(false)

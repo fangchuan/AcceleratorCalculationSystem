@@ -83,8 +83,8 @@ void QtRenderView::RenderView::initialize()
 	}
 
 	//setup the search order for used render system.
-	//Ogre::RenderSystem *rs = mOgreRoot->getRenderSystemByName("OpenGL Rendering Subsystem");
-	Ogre::RenderSystem *rs = mOgreRoot->getRenderSystemByName("Direct3D9 Rendering Subsystem");
+	Ogre::RenderSystem *rs = mOgreRoot->getRenderSystemByName("OpenGL Rendering Subsystem");
+	//Ogre::RenderSystem *rs = mOgreRoot->getRenderSystemByName("Direct3D11 Rendering Subsystem");
 	QString dimensions = QString("%1x%2").arg(this->width()).arg(this->height());
 	rs->setConfigOption("Full Screen", "No");
 	rs->setConfigOption("Video Mode", dimensions.toStdString());

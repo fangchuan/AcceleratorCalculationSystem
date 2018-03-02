@@ -9,13 +9,13 @@ class QTextEdit;
 class QPrinter;
 
 // 报告视图类
-class LoggerView : public QWidget
+class ReportView : public QWidget
 {
 	Q_OBJECT
 
 public:
-	LoggerView(QWidget *parent = 0);
-	~LoggerView();
+	ReportView(QWidget *parent = 0);
+	~ReportView();
 	void setHtmlReport(QString& softCenter,
 						QString& laserCenter,
 						QString& lightCenter,

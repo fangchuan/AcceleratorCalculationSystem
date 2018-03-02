@@ -1,5 +1,5 @@
-#include "ISOCenterHandler.h"
-#include "HorizontalRegister.h"
+#include "isocenterhandler.h"
+#include "horizontalregister.h"
 
 ISOCenterHandler::ISOCenterHandler(QObject *parent)
 	: AbstractMonitorHandler(parent),

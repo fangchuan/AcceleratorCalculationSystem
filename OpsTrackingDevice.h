@@ -1,5 +1,5 @@
-#ifndef OPSTRACKINGDEVICE_H
-#define OPSTRACKINGDEVICE_H
+#ifndef OpsTrackingDevice_H
+#define OpsTrackingDevice_H
 
 #include <QObject>
 
@@ -45,4 +45,4 @@ private:
 	NDIPassiveTool::Pointer m_TrackingTool;
 };
 
-#endif // OPSTRACKINGDEVICE_H
+#endif // OpsTrackingDevice_H

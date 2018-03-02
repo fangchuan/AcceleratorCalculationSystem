@@ -46,3 +46,10 @@
 			修改渲染引擎为D3D9_RenderSystem。在其他电脑上测试时发现OpenGL渲染加载场景太慢(主要是win10 OpenGL版本太高，Ogre支持的不好)
 			改为D3D9_RenderSystem后，凡是使用本软件的电脑要安装directx
 			
+2018-01-03: 迁移工程到win10，修改渲染引擎为D3D11,一直无法正常显示渲染界面.
+
+2018-01-30： 为应用添加图标；
+
+2018-03-02： 添加class CBCTHandler;
+			 修改部分signals，slots;
+			

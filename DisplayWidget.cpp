@@ -1,9 +1,9 @@
-#include "DisplayWidget.h"
+#include "displaywidget.h"
 
-#include "HorizontalRegisterDisplayWidget.h"
-#include "RotationDisplayWidget.h"
-#include "TranslationDisplayWidget.h"
-#include "ISOCenterDisplayWidget.h"
+#include "horizontalregisterdisplaywidget.h"
+#include "rotationdisplaywidget.h"
+#include "translationdisplaywidget.h"
+#include "isocenterdisplaywidget.h"
 
 #include <QStackedWidget>
 #include <QVBoxLayout>

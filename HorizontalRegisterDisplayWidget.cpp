@@ -1,4 +1,4 @@
-#include "HorizontalRegisterDisplayWidget.h"
+#include "horizontalregisterdisplaywidget.h"
 
 #include <QVBoxLayout>
 #include <QLabel>

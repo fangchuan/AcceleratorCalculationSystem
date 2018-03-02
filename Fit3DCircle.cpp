@@ -1,4 +1,4 @@
-#include "Fit3DCircle.h"
+#include "fit3dcircle.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkLandmarkTransform.h"
@@ -56,7 +56,7 @@ void Fit3DCircle::addPoint(MarkerPointType &point)
 {
 	m_Positions.push_back(point);
 	if (!m_IsCalculated) {
-		if (m_Positions.size() > 3 && (fabs(point[0] - m_Positions.at(0)[0]) > 100 )) {   // threshold 100
+		if (m_Positions.size() > 3 && (fabs(point[0] - m_Positions.at(0)[0]) > 10 )) {   // threshold 10
 			calculate();
 		}
 	}
@@ -68,6 +68,7 @@ void Fit3DCircle::addPoint(MarkerPointType &point)
 }
 //calculate circle in 3D
 //https://www.zhihu.com/question/23427820
+//http://www.voidcn.com/article/p-pxbbigez-beq.html
 //
 void Fit3DCircle::calculate()
 {

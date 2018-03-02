@@ -2,7 +2,6 @@
 
 #include <QWidget>
 
-#include "trackingtypes.h"
 
 class QLabel;
 

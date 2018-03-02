@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "CentralWidget.h"
-#include "OpsTrackingDevice.h"
+#include "centralwidget.h"
+#include "opstrackingdevice.h"
 #include <qdesktopservices.h>
 #include <QToolBar>
 #include <QMessageBox>
@@ -42,7 +42,7 @@ void MainWindow::initUi()
     m_CentralWidget = new CentralWidget(this);
     setCentralWidget(m_CentralWidget);
 	setWindowTitle(QCoreApplication::applicationName());
-	//setWindowIcon(QIcon(":/Resources/image/window_icon.png"));
+	//setWindowIcon(QIcon(":/Resources/image/splash_screen.png"));
 
 	initFileActions();
 	initViewActions();

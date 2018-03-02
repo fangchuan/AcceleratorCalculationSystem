@@ -1,4 +1,4 @@
-#include "ISOCenterDisplayWidget.h"
+#include "isocenterdisplaywidget.h"
 
 #include <QLabel>
 #include <QVBoxLayout>

@@ -1,4 +1,4 @@
-#include "HorizontalRegister.h"
+#include "horizontalregister.h"
 
 #include "vtkLandmarkTransform.h"
 #include "vtkPoints.h"

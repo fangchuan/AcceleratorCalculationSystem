@@ -1,4 +1,4 @@
-#include "LoggerView.h"
+#include "reportview.h"
 #include <QCoreApplication>
 #include <QColorDialog>
 #include <QFile>
@@ -26,7 +26,7 @@
 
 
 
-LoggerView::LoggerView(QWidget *parent)
+ReportView::ReportView(QWidget *parent)
 	: QWidget(parent)
 {
 	initUi();
@@ -39,12 +39,12 @@ LoggerView::LoggerView(QWidget *parent)
 		QString("N/A"), QString("N/A"));
 }
 
-LoggerView::~LoggerView()
+ReportView::~ReportView()
 {
 
 }
 
-void LoggerView::closeEvent(QCloseEvent *e)
+void ReportView::closeEvent(QCloseEvent *e)
 {
 	if (maybeSave())
 		e->accept();
@@ -52,7 +52,7 @@ void LoggerView::closeEvent(QCloseEvent *e)
 		e->ignore();
 }
 
-void LoggerView::initUi()
+void ReportView::initUi()
 {
 	QVBoxLayout* mainLayout = new QVBoxLayout(this);
 	textEdit = new QTextEdit();
@@ -60,7 +60,7 @@ void LoggerView::initUi()
 	mainLayout->addWidget(textEdit);
 }
 
-bool LoggerView::maybeSave()
+bool ReportView::maybeSave()
 {
 	if (!textEdit->document()->isModified())
 		return true;
@@ -77,7 +77,7 @@ bool LoggerView::maybeSave()
 	return true;
 }
 
-bool LoggerView::fileSave()
+bool ReportView::fileSave()
 {
 	if (fileName.isEmpty())
 		return fileSaveAs();
@@ -96,7 +96,7 @@ bool LoggerView::fileSave()
 	return success;
 }
 
-bool LoggerView::fileSaveAs()
+bool ReportView::fileSaveAs()
 {
 	QFileDialog fileDialog(this, tr("Save as..."));
 	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -111,7 +111,7 @@ bool LoggerView::fileSaveAs()
 	return fileSave();
 }
 
-void LoggerView::filePrint()
+void ReportView::filePrint()
 {
 #if !defined(QT_NO_PRINTER) && !defined(QT_NO_PRINTDIALOG)
 	QPrinter printer(QPrinter::HighResolution);
@@ -128,17 +128,17 @@ void LoggerView::filePrint()
 #endif
 }
 
-void LoggerView::filePrintPreview()
+void ReportView::filePrintPreview()
 {
 #if !defined(QT_NO_PRINTER) && !defined(QT_NO_PRINTDIALOG)
 	QPrinter printer(QPrinter::HighResolution);
 	QPrintPreviewDialog preview(&printer, this);
-	connect(&preview, &QPrintPreviewDialog::paintRequested, this, &LoggerView::printPreview);
+	connect(&preview, &QPrintPreviewDialog::paintRequested, this, &ReportView::printPreview);
 	preview.exec();
 #endif
 }
 
-void LoggerView::printPreview(QPrinter *printer)
+void ReportView::printPreview(QPrinter *printer)
 {
 #ifdef QT_NO_PRINTER
 	Q_UNUSED(printer);
@@ -147,7 +147,7 @@ void LoggerView::printPreview(QPrinter *printer)
 #endif
 }
 
-void LoggerView::filePrintPdf()
+void ReportView::filePrintPdf()
 {
 #ifndef QT_NO_PRINTER
 	//
@@ -168,7 +168,7 @@ void LoggerView::filePrintPdf()
 //
 //
 //
-void LoggerView::setHtmlReport(QString& softCenter, 
+void ReportView::setHtmlReport(QString& softCenter, 
 									QString& laserCenter,
 									QString& lightCenter,
 									QString& footA,

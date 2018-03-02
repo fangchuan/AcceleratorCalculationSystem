@@ -1,5 +1,5 @@
-#include "RotationDisplayWidget.h"
-#include "Circle.h"
+#include "rotationdisplaywidget.h"
+#include "circle.h"
 
 #include <QLabel>
 #include <QVBoxLayout>

@@ -15,6 +15,7 @@
 #include <QHBoxLayout>
 #include <qwt_point_3d.h>
 #include <QTimer>
+#include <QMutex>
 
 enum curveIndex{
 	CURVE_X = 0,

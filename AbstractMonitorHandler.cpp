@@ -1,5 +1,5 @@
-﻿#include "AbstractMonitorHandler.h"
-#include "HorizontalRegister.h"
+﻿#include "abstractmonitorhandler.h"
+#include "horizontalregister.h"
 
 HorizontalRegister *AbstractMonitorHandler::m_Register = HorizontalRegister::getInstance();
 
