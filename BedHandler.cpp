@@ -1,7 +1,7 @@
-#include "BedHandler.h"
-#include "Circle.h"
-#include "Fit3DCircle.h"
-#include "HorizontalRegister.h"
+#include "bedhandler.h"
+#include "circle.h"
+#include "fit3dcircle.h"
+#include "horizontalregister.h"
 #include "vtkPoints.h"
 #include <qdebug.h>
 #include <qlogging.h>
@@ -34,7 +34,7 @@ AbstractMonitorHandler *BedHandler::handle(MarkerPointContainerType &positions)
 {
 	int size = positions.size();
 	if (size != 1) {
-		emit markerSize(size);
+		emit pseudoMarkerSize(size);
 		return this;
 	}
 	//else {

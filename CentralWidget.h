@@ -4,14 +4,14 @@
 
 #include "trackingtypes.h"
 #include "vpsvector.h"
-#include "DisplayWidget.h"
-#include "ControlWidget.h"
-#include "OpsTrackingDevice.h"
-#include "CentralModel.h"
-#include "Circle.h"
-#include "RenderView.h"
-#include "PlotView.h"
-#include "LoggerView.h"
+#include "displaywidget.h"
+#include "controlwidget.h"
+#include "opstrackingdevice.h"
+#include "centralmodel.h"
+#include "circle.h"
+#include "renderview.h"
+#include "plotview.h"
+#include "reportview.h"
 #include "logger.h"
 
 class QStackedWidget;
@@ -23,7 +23,7 @@ class CentralModel;
 class Circle;
 class RenderView;
 class PlotView;
-class LoggerView;
+class ReportView;
 
 
 #define  STACKED_THREED_VIEW_INDEX   0
@@ -63,6 +63,8 @@ private slots:
 	void monitoring();
 	void switchToHorizontalRegister();
 	void recordingHorizontalRegister();
+	void horizontalRegisterFailed();
+	void loadHorizontalRegisterData(int index);
 	void switchToGantry();
 	void recordingGantry();
 	void switchToCollimator();
@@ -74,6 +76,7 @@ private slots:
 	void switchToLightCenter();
 	void recordingLightCenter();
 	void markerSize(int size);
+	void pseudoMarkerSize(int size);
 	void markerPosition(MarkerPointType &point);
 	void horizontalRegisterRecorded();
 	void circleResult(Circle *circle);
@@ -93,6 +96,6 @@ private:
 	CentralModel*					m_Model;
 	QtRenderView::RenderView*  renderWidget;//3维显示面板对象
 	PlotView*					 plotWidget;//曲线显示面板对象
-	LoggerView*                loggerWidget;  //报告视图 对象
+	ReportView*                reportWidget;  //报告视图 对象
 	Logger*							 logger;  //日志 对象
 };

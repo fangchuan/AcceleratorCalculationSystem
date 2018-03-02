@@ -1,5 +1,5 @@
-#include "HorizontalRegisterHandler.h"
-#include "HorizontalRegister.h"
+#include "horizontalregisterhandler.h"
+#include "horizontalregister.h"
 
 #include "vtkPoints.h"
 #include "vtkMath.h"
@@ -54,7 +54,7 @@ void HorizontalRegisterHandler::loadHorizontalRegister()
 		QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("未找到水平面注册数据"));
 	}
 }
-
+//当配套水平注册仪的三点距离发生变化时，直接以当前水平注册仪的三点坐标作为水平注册文件
 void HorizontalRegisterHandler::loadHorizontalRegister(MarkerPointContainerType &positions)
 {
 	QFile file("HorizontalRegister.dat");
@@ -64,6 +64,7 @@ void HorizontalRegisterHandler::loadHorizontalRegister(MarkerPointContainerType 
 		if (file.open(QIODevice::WriteOnly)){
 			double p[3] = { positions.at(0)[0], positions.at(0)[1], positions.at(0)[2] };
 			in << p[0] << p[1] << p[2];
+			m_SourcePoints->InsertNextPoint(p);
 			file.close();
 		}
 	}
@@ -71,6 +72,7 @@ void HorizontalRegisterHandler::loadHorizontalRegister(MarkerPointContainerType 
 		if (file.open(QIODevice::Append)){
 			double p[3] = { positions.at(0)[0], positions.at(0)[1], positions.at(0)[2] };
 			in << p[0] << p[1] << p[2];
+			m_SourcePoints->InsertNextPoint(p);
 			file.close();
 		}
 	}
@@ -89,8 +91,11 @@ AbstractMonitorHandler *HorizontalRegisterHandler::handle(MarkerPointContainerTy
 {
 	int targetSize = positions.size();
 	if (targetSize == 1) {
+		static int counts = 1;
 		loadHorizontalRegister(positions);
-		return this;
+		emit loadHorizontalRegisterData(counts++);
+
+		return NULL;
 	}
 
 	int index[3] = { -1, -1, -1 };
@@ -149,7 +154,8 @@ AbstractMonitorHandler *HorizontalRegisterHandler::handle(MarkerPointContainerTy
 		}
 	}
 	emit markerSize(targetSize);
-	return this;
+	emit horizontalRegisterFailed();
+	return NULL;
 label:
 	vtkPoints *points = vtkPoints::New();
 	points->SetNumberOfPoints(3);

@@ -1,5 +1,5 @@
-#include "CentralWidget.h"
-#include "LoggerView.h"
+#include "centralwidget.h"
+#include "reportview.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -23,6 +23,7 @@ CentralWidget::CentralWidget(QWidget *parent)
 	initCamera();
 	initTimer();
 	buildConnections();
+
 }
 
 CentralWidget::~CentralWidget()
@@ -41,10 +42,10 @@ void CentralWidget::initUi()
 	renderWidget  = new QtRenderView::RenderView();
 	QWidget* renderContainer = QWidget::createWindowContainer(renderWidget, m_StackedWidget);
 	plotWidget = new PlotView();
-	loggerWidget = new LoggerView();
+	reportWidget = new ReportView();
 	m_StackedWidget->addWidget(renderContainer);
 	m_StackedWidget->addWidget(plotWidget);
-	m_StackedWidget->addWidget(loggerWidget);
+	m_StackedWidget->addWidget(reportWidget);
 	leftLayout->addWidget(m_StackedWidget);
 
 	QVBoxLayout *rightLayout = new QVBoxLayout();
@@ -104,8 +105,11 @@ void CentralWidget::buildConnections()
 	connect(m_ControlWidget, &ControlWidget::reportRequest, m_Model, &CentralModel::handleReport);
 	//建立拟合结果与界面更新信号槽(所有的结果都在加速器坐标系/三维场景坐标系下)
 	connect(m_Model, &CentralModel::markerSize, this, &CentralWidget::markerSize);
+	connect(m_Model, &CentralModel::pseudoMarkerSize, this, &CentralWidget::pseudoMarkerSize);
 	connect(m_Model, &CentralModel::markerPosition, this, &CentralWidget::markerPosition);
 	connect(m_Model, &CentralModel::horizontalRegisterRecorded, this, &CentralWidget::horizontalRegisterRecorded);
+	connect(m_Model, &CentralModel::horizontalRegisterFailed, this, &CentralWidget::horizontalRegisterFailed);
+	connect(m_Model, &CentralModel::loadHorizontalRegisterData, this, &CentralWidget::loadHorizontalRegisterData);
 	connect(m_Model, &CentralModel::circleResult, this, &CentralWidget::circleResult);
 	connect(m_Model, &CentralModel::translateResult, this, &CentralWidget::translateResult);
 	connect(m_Model, &CentralModel::registerLaserISO, this, &CentralWidget::registerLaserISOPosition);
@@ -132,28 +136,28 @@ void CentralWidget::showReportPage()
 
 void CentralWidget::exportReport()
 {
-	loggerWidget->filePrintPdf();
+	reportWidget->filePrintPdf();
 }
 
 void CentralWidget::saveReport()
 {
-	loggerWidget->fileSave();
+	reportWidget->fileSave();
 }
 
 void CentralWidget::saveAsReport()
 {
-	loggerWidget->fileSaveAs();
+	reportWidget->fileSaveAs();
 
 }
 
 void CentralWidget::printReport()
 {
-	loggerWidget->filePrint();
+	reportWidget->filePrint();
 }
 
 void CentralWidget::printPreviewReport()
 {
-	loggerWidget->filePrintPreview();
+	reportWidget->filePrintPreview();
 }
 
 void CentralWidget::clearAllPlot()
@@ -284,7 +288,7 @@ void CentralWidget::recordingHorizontalRegister()
 	//MarkerPointContainerType positions;
 	//m_Tracker->getMarkerPositions(&positions);
 	//m_Model->handle(positions);
-	logger->write(QString::fromLocal8Bit("Recording HorizonRegister"));
+	logger->write(QString::fromLocal8Bit("Recording horizontal plane register"));
 }
 
 void CentralWidget::recordingGantry()
@@ -341,15 +345,15 @@ void CentralWidget::monitoringMarker3D()
 	MarkerPointContainerType positions;
 	m_Tracker->getMarkerPositions(&positions);
 
-	int size = positions.size();
-	for (int i = 0; i < size; i++){
-		Point3D p = positions.at(i);
-		double x = p[0];
-		double y = p[1];
-		double z = p[2];
-		QString str = QString("%1 : ( %2, %3, %4)").arg(i).arg(x, 0, 'f', 2).arg(y, 0, 'f', 2).arg(z, 0, 'f', 2);
-		qDebug() << str;
-	}
+	//int size = positions.size();
+	//for (int i = 0; i < size; i++){
+	//	Point3D p = positions.at(i);
+	//	double x = p[0];
+	//	double y = p[1];
+	//	double z = p[2];
+	//	QString str = QString("%1 : ( %2, %3, %4)").arg(i).arg(x, 0, 'f', 2).arg(y, 0, 'f', 2).arg(z, 0, 'f', 2);
+	//	qDebug() << str;
+	//}
 	m_Model->handle(positions);
 }
 
@@ -366,6 +370,18 @@ void CentralWidget::markerSize(int size)
 {
 	m_DisplayWidget->setMarkerSize(size);
 }
+
+void CentralWidget::pseudoMarkerSize(int size)
+{
+	m_DisplayWidget->setMarkerSize(size);
+    QString str;
+    str += QString("find pseudo marker points: %1").arg(size);
+#ifdef USE_LOG
+	logger->write(str);
+#endif
+    QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromStdString(str.toStdString()));
+}
+
 //
 //在显示面板和3D界面更新小球位置
 //
@@ -387,10 +403,44 @@ void CentralWidget::horizontalRegisterRecorded()
 	m_DisplayWidget->horizontalRegisterRecorded();
 
 #ifdef USE_LOG
-	QString str = QStringLiteral("Horizon has registered!");
+	QString str = QStringLiteral("Horizontal plane has registered!");
 	logger->write(str);
 #endif
 	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("水平面已注册"));
+}
+
+void CentralWidget::horizontalRegisterFailed()
+{
+#ifdef USE_LOG
+	QString str = QStringLiteral("Horizontal plane registered Failed, check for horizontalRegister or record register data again!");
+	logger->write(str);
+#endif
+	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("水平面注册失败，请检查水平仪或重新记录注册数据!\n如需记录注册数据请再次点击记录水平面按钮"));
+}
+void CentralWidget::loadHorizontalRegisterData(int index)
+{
+	if (index == 1) {
+#ifdef USE_LOG
+		QString str = QStringLiteral("Horizontal plane register data 1 recorded, please hit the button again to record data 2!");
+		logger->write(str);
+#endif
+		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("1号水平面数据点记录成功！\n请点击记录水平面按钮记录2号数据点。"));
+	}
+	if (index == 2) {
+#ifdef USE_LOG
+		QString str = QStringLiteral("Horizontal plane register data 2 recorded, please hit the button again to record data 3!");
+		logger->write(str);
+#endif
+		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("2号水平面数据点记录成功！\n请点击记录水平面按钮记录3号数据点。"));
+	}
+	if (index == 3) {
+#ifdef USE_LOG
+		QString str = QStringLiteral("Horizontal plane register data 3 recorded, complete horizontal plane register data record!");
+		logger->write(str);
+#endif
+		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("3号水平面数据点记录成功！\n完成水平面数据点记录，请拿掉小球遮挡套。"));
+	}
+
 }
 //
 //在曲线图表和显示面板更新
@@ -570,7 +620,7 @@ void CentralWidget::reportResult(const ReportData& report)
 	QString bedVel = QString(" %1  degree/s").arg(bedVelocity, 0, 'f', 2);
 
 
-	loggerWidget->setHtmlReport(softCenter, laserCenter, lightCenter, foot_A, foot_B, distanceSoft2Laser, distanceA2Laser, distanceB2Laser, 
+	reportWidget->setHtmlReport(softCenter, laserCenter, lightCenter, foot_A, foot_B, distanceSoft2Laser, distanceA2Laser, distanceB2Laser, 
 															gantryVar, gantryMean, gantryVel, bedVar, bedMean, bedVel);
 	renderWidget->drawSoftISOCenter(report.softCenter[2]*0.01, report.softCenter[1]*0.01, -report.softCenter[0]*0.01);
 	renderWidget->drawVerticalLine(report.footA, report.footB);

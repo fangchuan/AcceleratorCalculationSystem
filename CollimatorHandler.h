@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AbstractMonitorHandler.h"
+#include "abstractmonitorhandler.h"
 
 class Circle;
 class Fit3DCircle;
@@ -19,7 +19,7 @@ public:
 	virtual void reset();
 
 signals:
-	void markerSize(int size);
+	void pseudoMarkerSize(int size);
 	void markerPosition(MarkerPointType &point);
 	void circleResult(Circle *circle);
 

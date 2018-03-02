@@ -1,12 +1,13 @@
-#include "CentralModel.h"
-#include "OpsTrackingDevice.h"
-#include "AbstractMonitorHandler.h"
-#include "HorizontalRegisterHandler.h"
-#include "GantryHandler.h"
-#include "CollimatorHandler.h"
-#include "BedHandler.h"
-#include "ISOCenterHandler.h"
-#include "LightCenterHandler.h"
+#include "centralmodel.h"
+#include "opstrackingdevice.h"
+#include "abstractmonitorhandler.h"
+#include "horizontalregisterhandler.h"
+#include "gantryhandler.h"
+#include "collimatorhandler.h"
+#include "bedhandler.h"
+#include "isocenterhandler.h"
+#include "lightcenterhandler.h"
+#include "cbcthandler.h"
 #include <QDebug>
 #include "vtkLine.h"
 #include "vtkMath.h"
@@ -20,6 +21,7 @@ CentralModel::CentralModel(QObject *parent)
 	m_BedHandler(new BedHandler(this)),
 	m_ISOCenterHanlder(new ISOCenterHandler(this)),
 	m_LightCenterHanlder(new LightCenterHandler(this)),
+	m_CbctHandler(new CbctHandler(this)),
 	gantryCircle(new Circle),
 	bedCircle(new Circle)
 {
@@ -65,25 +67,32 @@ void CentralModel::buildConnections()
 {
 	connect(m_HorizontalRegisterHandler, &HorizontalRegisterHandler::markerSize, this, &CentralModel::markerSize);
 	connect(m_HorizontalRegisterHandler, &HorizontalRegisterHandler::horizontalRegisterRecorded, this, &CentralModel::horizontalRegisterRecorded);
-	connect(m_GantryHandler, &GantryHandler::markerSize, this, &CentralModel::markerSize);
+	connect(m_HorizontalRegisterHandler, &HorizontalRegisterHandler::horizontalRegisterFailed, this, &CentralModel::horizontalRegisterFailed);
+	connect(m_HorizontalRegisterHandler, &HorizontalRegisterHandler::loadHorizontalRegisterData, this, &CentralModel::loadHorizontalRegisterData);
+	connect(m_GantryHandler, &GantryHandler::pseudoMarkerSize, this, &CentralModel::pseudoMarkerSize);
 	connect(m_GantryHandler, &GantryHandler::markerPosition, this, &CentralModel::markerPosition);
 	connect(m_GantryHandler, &GantryHandler::circleResult, this, &CentralModel::circleResult);
-	connect(m_CollimatorHandler, &CollimatorHandler::markerSize, this, &CentralModel::markerSize);
+	connect(m_CollimatorHandler, &CollimatorHandler::pseudoMarkerSize, this, &CentralModel::pseudoMarkerSize);
 	connect(m_CollimatorHandler, &CollimatorHandler::markerPosition, this, &CentralModel::markerPosition);
 	connect(m_CollimatorHandler, &CollimatorHandler::circleResult, this, &CentralModel::circleResult);
-	connect(m_BedHandler, &BedHandler::markerSize, this, &CentralModel::markerSize);
+	connect(m_BedHandler, &BedHandler::pseudoMarkerSize, this, &CentralModel::pseudoMarkerSize);
 	connect(m_BedHandler, &BedHandler::markerPosition, this, &CentralModel::markerPosition);
 	connect(m_BedHandler, &BedHandler::circleResult, this, &CentralModel::circleResult);
 	connect(m_BedHandler, &BedHandler::translateResult, this, &CentralModel::translateResult);
 	connect(m_ISOCenterHanlder, &ISOCenterHandler::registerLaserISO, this, &CentralModel::registerLaserISO);
 	connect(m_LightCenterHanlder, &LightCenterHandler::registerLightCenter, this, &CentralModel::registerLightCenter);
+	connect(m_CbctHandler, &CbctHandler::pseudoMarkerSize, this, &CentralModel::pseudoMarkerSize);
+	connect(m_CbctHandler, &CbctHandler::markerPosition, this, &CentralModel::markerPosition);
+	connect(m_CbctHandler, &CbctHandler::circleResult, this, &CentralModel::circleResult);
 	
 	connect(m_ISOCenterHanlder, &ISOCenterHandler::registerLaserISO, this, &CentralModel::laserISOCenterPosition);
 	connect(m_LightCenterHanlder, &LightCenterHandler::registerLightCenter, this, &CentralModel::lightCenterPosition);
 	connect(m_BedHandler, &BedHandler::circleResult, this, &CentralModel::softISOCenter);
 	connect(m_GantryHandler, &GantryHandler::circleResult, this, &CentralModel::softISOCenter);
 }
-
+//
+//因为槽函数中不能发射信号，所以把sendreport动作放在定时器事件中
+//
 void CentralModel::timerEvent(QTimerEvent* event)
 {
 	Q_UNUSED(event);
@@ -141,6 +150,13 @@ void CentralModel::setHandlerToLightCenter()
 	m_Handler->reset();
 }
 
+void CentralModel::setHandlerToCbct()
+{
+	m_Handler = m_CbctHandler;
+	//clear history data
+	m_Handler->reset();
+}
+
 int CentralModel::getHandler()
 {
 	if (m_Handler == m_HorizontalRegisterHandler){
@@ -181,16 +197,16 @@ void CentralModel::handle(MarkerPointContainerType &positions)
 		emit markerSize(positions.size());
 	}
 }
-//
-//记录激光灯的等中心
-//
+
 void CentralModel::handle(Point3D &point)
 {
 	if (m_Handler) {
 		m_Handler = m_Handler->handle(point);
 	}
 }
-
+//
+//记录激光灯的等中心
+//
 void CentralModel::laserISOCenterPosition(Point3D& point)
 {
 	reportData.laserCenter[0] = point[0];
@@ -199,7 +215,9 @@ void CentralModel::laserISOCenterPosition(Point3D& point)
 
 	m_LaserISODetected = true;
 }
-
+//
+//记录模拟光野中心
+//
 void CentralModel::lightCenterPosition(Point3D& point)
 {
 	reportData.lightCenter[0] = point[0];
@@ -208,7 +226,9 @@ void CentralModel::lightCenterPosition(Point3D& point)
 
 	m_LightCenterDetected  = true;
 }
-
+//
+//记录软件结算的等中心
+//
 void CentralModel::softISOCenter(Circle* circle)
 {
 	int handler = getHandler();

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AbstractMonitorHandler.h"
+#include "abstractmonitorhandler.h"
 
 class Circle;
 class Fit3DCircle;
@@ -18,7 +18,7 @@ public:
 	void setMode(int mode);
 	bool getRotateStatistical(double& variance, double& mean);
 signals:
-	void markerSize(int size);
+	void pseudoMarkerSize(int size);
 	void markerPosition(MarkerPointType &point);
 	void circleResult(Circle *circle);
 	void translateResult(double bias[3]);

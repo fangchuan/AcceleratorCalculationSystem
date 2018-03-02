@@ -1,7 +1,7 @@
-#include "GantryHandler.h"
-#include "HorizontalRegister.h"
-#include "Fit3DCircle.h"
-#include "Circle.h"
+#include "gantryhandler.h"
+#include "horizontalregister.h"
+#include "fit3dcircle.h"
+#include "circle.h"
 
 #include "vtkPoints.h"
 
@@ -21,7 +21,7 @@ AbstractMonitorHandler *GantryHandler::handle(MarkerPointContainerType &position
 	int size = positions.size();
 	if (size != 1) {
 		//看到多个标定球则直接返回
-		emit markerSize(size);
+		emit pseudoMarkerSize(size);
 		return this;
 	}
 

@@ -1,7 +1,7 @@
-#include "CollimatorHandler.h"
-#include "HorizontalRegister.h"
-#include "Fit3DCircle.h"
-#include "Circle.h"
+#include "collimatorhandler.h"
+#include "horizontalregister.h"
+#include "fit3dcircle.h"
+#include "circle.h"
 
 #include "vtkPoints.h"
 
@@ -19,7 +19,7 @@ AbstractMonitorHandler *CollimatorHandler::handle(MarkerPointContainerType &posi
 {
 	int size = positions.size();
 	if (size != 1) {
-		emit markerSize(size);
+		emit pseudoMarkerSize(size);
 		return this;
 	}
 	//else {

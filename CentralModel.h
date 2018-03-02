@@ -4,7 +4,7 @@
 
 #include "trackingtypes.h"
 #include "vpsvector.h"
-#include "Circle.h"
+#include "circle.h"
 
 class AbstractMonitorHandler;
 class HorizontalRegisterHandler;
@@ -13,6 +13,8 @@ class CollimatorHandler;
 class BedHandler;
 class ISOCenterHandler;
 class LightCenterHandler;
+class CbctHandler;
+
 
 #define  HORIZONTALREGISTER_HANDLER  1
 #define	 GANTRY_HANDLER              2
@@ -50,6 +52,7 @@ public:
 	void setHandlerToBed(int mode);
 	void setHandlerToISOCenter();
 	void setHandlerToLightCenter();
+	void setHandlerToCbct();
 	int  getHandler();
 	void handle(MarkerPointContainerType &positions);
 	void handle(Point3D &point);
@@ -57,13 +60,16 @@ public:
 	void resetAccelerator();
 signals:
 	void markerSize(int size);
+	void pseudoMarkerSize(int size);
 	void registerLaserISO(Point3D &point);
 	void registerLightCenter(Point3D &point);
 	void horizontalRegisterRecorded();
+	void horizontalRegisterFailed();
+	void loadHorizontalRegisterData(int index);
 	void markerPosition(MarkerPointType &point);
 	void circleResult(Circle *circle);
 	void translateResult(double bias[3]);
-	void sendReport(const ReportData & reportData);
+	void sendReport(const ReportData &reportData);
 private:
 	bool initTimer();
 	void initData();
@@ -84,6 +90,7 @@ private:
 	BedHandler *m_BedHandler;
 	ISOCenterHandler* m_ISOCenterHanlder;
 	LightCenterHandler* m_LightCenterHanlder;
+	CbctHandler*   m_CbctHandler;
 
 	bool m_GantryFitted;
 	bool m_BedFitted;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AbstractMonitorHandler.h"
+#include "abstractmonitorhandler.h"
 
 class HorizontalRegister;
 class vtkPoints;
@@ -21,6 +21,8 @@ public:
 signals:
 	void markerSize(int size);
 	void horizontalRegisterRecorded();
+	void horizontalRegisterFailed();
+	void loadHorizontalRegisterData(int index);
 	
 private:
 	void loadHorizontalRegister();
