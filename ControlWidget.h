@@ -16,6 +16,7 @@ public:
 	void doSwitchToHorizontalRegister();
 	void doSwitchToGantry();
 	void doSwitchToCollimator();
+	void doSwitchToCbct();
 	void doSwitchToBed();
 	void doSwitchToLaserISO();
 	void doSwitchToLightCenter();
@@ -29,6 +30,8 @@ signals:
 	void recordingCollimator();
 	void switchToBed(int mode);
 	void recordingBed(int mode);
+	void switchToCbct();
+	void recordingCbct();
 	void switchToLaserISO();
 	void recordingLaserISO();
 	void switchToLightCenter();
@@ -42,6 +45,7 @@ private:
 	void resetGantry();
 	void resetCollimator();
 	void resetBed();
+	void resetCbct();
 	void resetLaserISO();
 	void resetLightCenter();
 	void setButtonStyle();

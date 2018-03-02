@@ -1,4 +1,4 @@
-#include "ControlWidget.h"
+#include "controlwidget.h"
 
 #include <QVBoxLayout>
 #include <QPushButton>
@@ -160,6 +160,10 @@ void ControlWidget::doSwitchToCollimator()
 	resetLightCenter();
 }
 
+void ControlWidget::doSwitchToCbct()
+{
+}
+
 void ControlWidget::doSwitchToBed()
 {
 	resetHorizontalRegister();
@@ -189,6 +193,8 @@ void ControlWidget::doSwitchToLightCenter()
 	resetLaserISO();
 	m_LightButton->setText(QString::fromLocal8Bit("记录模拟光野中心"));
 }
+
+
 void ControlWidget::resetHorizontalRegister()
 {
 	m_HorizontalRegisterButton->setText(QString::fromLocal8Bit("注册水平面"));
@@ -210,6 +216,10 @@ void ControlWidget::resetBed()
 	m_BedButton->setText(QString::fromLocal8Bit("校准治疗床"));
 }
 
+void ControlWidget::resetCbct()
+{
+}
+
 void ControlWidget::resetLaserISO()
 {
 	m_LaserButton->setText(QString::fromLocal8Bit("检测激光等中心"));
@@ -227,7 +237,9 @@ void ControlWidget::reset()
 	resetBed();
 	resetLaserISO();
 	resetLightCenter();
+	resetCbct();
 }
+
 void ControlWidget::setButtonStyle()
 {
 	m_HorizontalRegisterButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
