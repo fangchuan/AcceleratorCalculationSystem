@@ -69,6 +69,8 @@ private slots:
 	void recordingGantry();
 	void switchToCollimator();
 	void recordingCollimator();
+	void switchToCbct();
+	void recordingCbct();
 	void switchToBed(int mode);
 	void recordingBed(int mode);
 	void switchToLaserISO();

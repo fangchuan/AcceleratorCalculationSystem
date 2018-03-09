@@ -6,6 +6,8 @@
 #include <qdebug.h>
 #include <qlogging.h>
 
+#include "vtkMath.h"
+
 BedHandler::BedHandler(QObject *parent)
 	: AbstractMonitorHandler(parent),
 	m_FitCircle(new Fit3DCircle(this)),
@@ -20,13 +22,6 @@ BedHandler::~BedHandler()
 
 void BedHandler::setMode(int mode)
 {
-	if (mode < 0) {
-		mode = 0;
-	}
-	if (mode > 1) {
-		mode = 1;
-	}
-
 	m_Mode = mode;
 }
 
@@ -35,22 +30,28 @@ AbstractMonitorHandler *BedHandler::handle(MarkerPointContainerType &positions)
 	int size = positions.size();
 	if (size != 1) {
 		emit pseudoMarkerSize(size);
-		return this;
+		return NULL;
 	}
 	//else {
 	//	emit markerPosition(positions.at(0));
 	//}
-	switch (m_Mode){
+	switch (m_Mode) {
 	case 0:
 		handleRotation(positions);
 		break;
 	case 1:
 		handleTranslation(positions);
 		break;
+	case  2:
+		handleRotation(positions);
+		break;
+	case 3:
+		handleTranslation(positions);
+		break;
 	default:
 		break;
 	}
-	
+
 	return this;
 }
 
@@ -75,15 +76,15 @@ void BedHandler::handleRotation(MarkerPointContainerType &positions)
 	point[0] = p[0]; point[1] = p[1]; point[2] = p[2];
 
 	double out[3];
-    //transform to Accelerator Coordinate(==Scene Coordinate)
+	//transform to Accelerator Coordinate(==Scene Coordinate)
 	m_Register->transform(point, out);
 	MarkerPointType  marker(out);
 	emit markerPosition(marker);
 
 	m_FitCircle->addPoint(marker);
-	double center[3], normal[3], radius;
+	double center[3], normal[3], horizontalPlaneNormal[3], radius;
 	if (m_FitCircle->getCircle(center, normal, radius)) {
-		
+
 		double rad = (out[2] - center[2]) / radius;
 		rad = rad > 1 ? 1 : rad;
 		rad = rad < -1 ? -1 : rad;
@@ -96,10 +97,15 @@ void BedHandler::handleRotation(MarkerPointContainerType &positions)
 		memcpy(circle.Normal, normal, sizeof(normal));
 		circle.Radius = radius;
 		circle.Angle = angle;
-		circle.IsParallelOrPerpendicular = normal[0] < 1e-5 && normal[2] < 1e-5;
+		if (m_Register->getHorizontalPlaneNormal(horizontalPlaneNormal))
+		{
+			circle.angleBettwenC2H = vtkMath::AngleBetweenVectors(normal, horizontalPlaneNormal)*RAD2DEGREE;
+			m_angleC2HContainer.push_back(circle.angleBettwenC2H);
+		}
 		emit circleResult(&circle);
 	}
 }
+
 //测量位移
 //以初始的静止小球为零点，每次返回绝对位移
 void BedHandler::handleTranslation(MarkerPointContainerType &positions)
@@ -108,7 +114,7 @@ void BedHandler::handleTranslation(MarkerPointContainerType &positions)
 	double point[3];
 	point[0] = p[0]; point[1] = p[1]; point[2] = p[2];
 
-    double out[3];
+	double out[3];
 	m_Register->transform(point, out);
 
 	emit markerPosition(MarkerPointType(out));
@@ -125,7 +131,23 @@ void BedHandler::handleTranslation(MarkerPointContainerType &positions)
 bool BedHandler::getRotateStatistical(double& variance, double& mean)
 {
 	if (m_FitCircle->calRotateError(variance, mean))
+	{
+		int size = m_angleC2HContainer.size();
+		if (size > 0)
+		{
+			double sum;
+			for (int i = 0; i < size; i++)
+			{
+				sum += m_angleC2HContainer.at(i);
+			}
+			//angleMean = sum / size;
+		}
+		else
+		{
+			//angleMean = 0;
+		}
 		return true;
+	}
 	else
 		return false;
 }

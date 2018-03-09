@@ -19,5 +19,5 @@ void Circle::init()
 	Normal[1] = 0;
 	Normal[2] = 0;
 	Radius = 0;
-	IsParallelOrPerpendicular = false;
+	angleBettwenC2H = 0;
 }

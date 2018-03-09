@@ -4,6 +4,7 @@
 #include "circle.h"
 
 #include "vtkPoints.h"
+#include "vtkMath.h"
 
 CbctHandler::CbctHandler(QObject *parent)
 	: AbstractMonitorHandler(parent),
@@ -22,7 +23,7 @@ AbstractMonitorHandler *CbctHandler::handle(MarkerPointContainerType &positions)
 	if (size != 1) {
 		//看到多个标定球则直接返回
 		emit pseudoMarkerSize(size);
-		return this;
+		return NULL;
 	}
 
 	//只取第一个标定球位置参与圆拟合
@@ -36,7 +37,7 @@ AbstractMonitorHandler *CbctHandler::handle(MarkerPointContainerType &positions)
 	emit markerPosition(marker);
 
 	m_FitCircle->addPoint(marker);
-	double center[3], normal[3], radius;
+	double center[3], normal[3], horizontalPlaneNormal[3], radius;
 	if (m_FitCircle->getCircle(center, normal, radius)) {
 
 		double rad = (out[1] - center[1]) / radius;
@@ -51,7 +52,11 @@ AbstractMonitorHandler *CbctHandler::handle(MarkerPointContainerType &positions)
 		memcpy(circle.Normal, normal, sizeof(normal));
 		circle.Radius = radius;
 		circle.Angle = angle;
-		circle.IsParallelOrPerpendicular = normal[0] < 1e-5 && normal[1] < 1e-5;
+		if (m_Register->getHorizontalPlaneNormal(horizontalPlaneNormal))
+		{
+			circle.angleBettwenC2H = vtkMath::AngleBetweenVectors(normal, horizontalPlaneNormal);
+			m_angleC2HContainer.push_back(circle.angleBettwenC2H);
+		}
 		emit circleResult(&circle);
 	}
 
@@ -72,7 +77,23 @@ void CbctHandler::reset()
 bool CbctHandler::getRotateStatistical(double& variance, double& mean)
 {
 	if (m_FitCircle->calRotateError(variance, mean))
+	{
+		int size = m_angleC2HContainer.size();
+		if (size > 0)
+		{
+			double sum;
+			for (int i = 0; i < size; i++)
+			{
+				sum += m_angleC2HContainer.at(i);
+			}
+			//angleMean = sum / size;
+		}
+		else
+		{
+			//angleMean = 0;
+		}
 		return true;
+	}
 	else
 		return false;
 }

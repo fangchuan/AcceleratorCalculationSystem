@@ -4,6 +4,7 @@
 #include "circle.h"
 
 #include "vtkPoints.h"
+#include "vtkMath.h"
 
 CollimatorHandler::CollimatorHandler(QObject *parent)
 	: AbstractMonitorHandler(parent),
@@ -20,7 +21,7 @@ AbstractMonitorHandler *CollimatorHandler::handle(MarkerPointContainerType &posi
 	int size = positions.size();
 	if (size != 1) {
 		emit pseudoMarkerSize(size);
-		return this;
+		return NULL;
 	}
 	//else {
 	//	emit markerPosition(positions.at(0));
@@ -36,7 +37,7 @@ AbstractMonitorHandler *CollimatorHandler::handle(MarkerPointContainerType &posi
 
 	m_FitCircle->addPoint(marker);
 
-	double center[3], normal[3], radius;
+	double center[3], normal[3], horizontalPlaneNormal[3], radius;
 	if (m_FitCircle->getCircle(center, normal, radius)) {
 
 		double rad = (out[2] - center[2]) / radius;
@@ -44,13 +45,16 @@ AbstractMonitorHandler *CollimatorHandler::handle(MarkerPointContainerType &posi
 		rad = rad < -1 ? -1 : rad;
 		double angle = acos(rad) * RAD2DEGREE;
 		angle *= out[0] < center[0] ? 1 : -1;
-		
+
 		Circle circle;
 		memcpy(circle.Center, center, sizeof(center));
 		memcpy(circle.Normal, normal, sizeof(normal));
 		circle.Radius = radius;
 		circle.Angle = angle;
-		circle.IsParallelOrPerpendicular = normal[0] < 1e-5 && normal[2] < 1e-5;
+		if (m_Register->getHorizontalPlaneNormal(horizontalPlaneNormal))
+		{
+			circle.angleBettwenC2H = vtkMath::AngleBetweenVectors(normal, horizontalPlaneNormal);
+		}
 		emit circleResult(&circle);
 	}
 

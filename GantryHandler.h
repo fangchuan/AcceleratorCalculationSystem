@@ -25,4 +25,5 @@ signals:
 
 private:
 	Fit3DCircle *m_FitCircle;
+	std::vector<double>  m_angleC2HContainer;
 };

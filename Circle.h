@@ -12,7 +12,7 @@ public:
 		memcpy(Normal, circle.Normal, sizeof(Normal));
 		Radius = circle.Radius;
 		Angle = circle.Angle;
-		IsParallelOrPerpendicular = circle.IsParallelOrPerpendicular;
+		angleBettwenC2H = circle.angleBettwenC2H;
 	}
 
 	virtual ~Circle();
@@ -22,6 +22,5 @@ public:
 	double Normal[3];
 	double Radius;
 	double Angle;
-	bool IsParallelOrPerpendicular;
+	double angleBettwenC2H; //angle bettwen circle and horizontal plane
 };
-

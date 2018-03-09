@@ -95,6 +95,8 @@ void CentralWidget::buildConnections()
 	connect(m_ControlWidget, &ControlWidget::switchToGantry, this, &CentralWidget::switchToGantry);
 	connect(m_ControlWidget, &ControlWidget::recordingCollimator, this, &CentralWidget::recordingCollimator);
 	connect(m_ControlWidget, &ControlWidget::switchToCollimator, this, &CentralWidget::switchToCollimator);
+	connect(m_ControlWidget, &ControlWidget::switchToCbct, this, &CentralWidget::switchToCbct);
+	connect(m_ControlWidget, &ControlWidget::recordingCbct, this, &CentralWidget::recordingCbct);
 	connect(m_ControlWidget, &ControlWidget::recordingBed, this, &CentralWidget::recordingBed);
 	connect(m_ControlWidget, &ControlWidget::switchToBed, this, &CentralWidget::switchToBed);
 	connect(m_ControlWidget, &ControlWidget::recordingLaserISO, this, &CentralWidget::recordingLaserISO);
@@ -281,13 +283,26 @@ void CentralWidget::switchToLightCenter()
 	m_Model->setHandlerToNone();
 }
 
+void CentralWidget::switchToCbct()
+{
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		return;
+	}
+
+	m_Tracker->startTrackingInMode(MarkerTracking3D);
+	if (!m_Timer->isActive()) {
+		m_Timer->start();
+	}
+	m_ControlWidget->doSwitchToCbct();
+	m_DisplayWidget->doSwitchToCbct();
+	m_Model->setHandlerToNone();
+}
+
 void CentralWidget::recordingHorizontalRegister()
 {
 	m_Model->setHandlerToHorizontalRegister();
 
-	//MarkerPointContainerType positions;
-	//m_Tracker->getMarkerPositions(&positions);
-	//m_Model->handle(positions);
 	logger->write(QString::fromLocal8Bit("Recording horizontal plane register"));
 }
 
@@ -308,19 +323,48 @@ void CentralWidget::recordingCollimator()
 #endif
 }
 
+void CentralWidget::recordingCbct()
+{
+	m_Model->setHandlerToCbct();
+	//plotWidget->setCbctUpdateFlag();
+#ifdef USE_LOG
+	logger->write(QString::fromLocal8Bit("Recording CBCT Rotate"));
+#endif
+
+}
+
 void CentralWidget::recordingBed(int mode)
 {
 	m_Model->setHandlerToBed(mode);
-	if (0 == mode){
-		plotWidget->setBedDegreeUpdateFlag();
+
+	switch (mode)
+	{
+	case 0:
+		plotWidget->setEmptyBedDegreeUpdateFlag();
 #ifdef USE_LOG
-		logger->write(QString::fromLocal8Bit("Recording Bed Rotate"));
+		logger->write(QString::fromLocal8Bit("Recording Bed Rotate on no payload condition: "));
 #endif
-	}else{
-		plotWidget->setBedDistanceUpdateFlag();
+		break;
+	case 1:
+		plotWidget->setEmptyBedDistanceUpdateFlag();
 #ifdef USE_LOG
-		logger->write(QString::fromLocal8Bit("Recording Bed Translate"));
+		logger->write(QString::fromLocal8Bit("Recording Bed Translate on no payload condition: "));
 #endif
+		break;
+	case 2:
+		plotWidget->setPayloadBedDegreeUpdateFlag();
+#ifdef USE_LOG
+		logger->write(QString::fromLocal8Bit("Recording Bed Rotate on payload condition: "));
+#endif
+		break;
+	case 3:
+		plotWidget->setPayloadBedDistanceUpdateFlag();
+#ifdef USE_LOG
+		logger->write(QString::fromLocal8Bit("Recording Bed Translate on payload condition: "));
+#endif
+		break;
+	default:
+		break;
 	}
 }
 
@@ -406,7 +450,7 @@ void CentralWidget::horizontalRegisterRecorded()
 	QString str = QStringLiteral("Horizontal plane has registered!");
 	logger->write(str);
 #endif
-	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("水平面已注册"));
+	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("水平面注册成功!"));
 }
 
 void CentralWidget::horizontalRegisterFailed()
@@ -481,6 +525,21 @@ void CentralWidget::circleResult(Circle *circle)
 
 #ifdef USE_LOG
 		QString str = QStringLiteral("Collimator rotate result:\n");
+		str += QString("angle: %1").arg(angle, 0, 'f', 2);
+		str += "\n";
+		str += QString("circle: ( %1, %2, %3 )").arg(circle_center[0], 0, 'f', 2).arg(circle_center[1], 0, 'f', 2).arg(circle_center[2], 0, 'f', 2);
+		str += "\n";
+		str += QString("normal: ( %1, %2, %3 )").arg(normal_vector[0], 0, 'f', 2).arg(normal_vector[1], 0, 'f', 2).arg(normal_vector[2], 0, 'f', 2);
+		logger->write(str);
+#endif
+	}
+	//更新CBCT运动
+	if (handler == CBCT_HANDLER) {
+		plotWidget->updateCollimatorDegree(angle);
+		renderWidget->rotateCollimator(angle);
+
+#ifdef USE_LOG
+		QString str = QStringLiteral("CBCT rotate result:\n");
 		str += QString("angle: %1").arg(angle, 0, 'f', 2);
 		str += "\n";
 		str += QString("circle: ( %1, %2, %3 )").arg(circle_center[0], 0, 'f', 2).arg(circle_center[1], 0, 'f', 2).arg(circle_center[2], 0, 'f', 2);

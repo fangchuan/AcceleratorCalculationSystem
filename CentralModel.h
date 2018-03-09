@@ -22,6 +22,7 @@ class CbctHandler;
 #define  BED_HANDLER				 4
 #define  ISOCENTER_HANDLER			 5
 #define  LIGHTCENTER_HANDLER         6
+#define  CBCT_HANDLER				 7
 
 typedef struct ReportData{
 	double softCenter[3];

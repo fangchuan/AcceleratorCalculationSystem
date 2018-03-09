@@ -178,7 +178,10 @@ int CentralModel::getHandler()
 					if (m_Handler == m_ISOCenterHanlder){
 						return  ISOCENTER_HANDLER;
 					}else{
-						return LIGHTCENTER_HANDLER;
+						if (m_Handler == m_CbctHandler)
+							return CBCT_HANDLER;
+						else
+							return LIGHTCENTER_HANDLER;
 					}
 				}
 			}
