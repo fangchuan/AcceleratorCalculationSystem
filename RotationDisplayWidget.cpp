@@ -7,7 +7,7 @@
 RotationDisplayWidget::RotationDisplayWidget(QWidget *parent)
 	: QWidget(parent),
 	m_MarkerSizeOrPosition(new QLabel("0")),
-	m_ParallelOrPerpendicular(new QLabel("N/A")),
+	m_AngleBettwenHorizontal(new QLabel("N/A")),
 	m_CurrentAngle(new QLabel("N/A"))
 {
 	initUi();
@@ -25,12 +25,12 @@ void RotationDisplayWidget::initUi()
 	layout_1->addWidget(m_MarkerSizeOrPosition);
 	mainLayout->addLayout(layout_1);
 	QHBoxLayout *layout_2 = new QHBoxLayout;
-	layout_2->addWidget(new QLabel(QString::fromLocal8Bit("平行/垂直:")));
-	layout_2->addWidget(m_ParallelOrPerpendicular);
+	layout_2->addWidget(new QLabel(QString::fromLocal8Bit("旋转角度:")));
+	layout_2->addWidget(m_CurrentAngle);
 	mainLayout->addLayout(layout_2);
 	QHBoxLayout *layout_3 = new QHBoxLayout;
-	layout_3->addWidget(new QLabel(QString::fromLocal8Bit("旋转角度:")));
-	layout_3->addWidget(m_CurrentAngle);
+	layout_3->addWidget(new QLabel(QString::fromLocal8Bit("旋转平面与注册水平面夹角:")));
+	layout_3->addWidget(m_AngleBettwenHorizontal);
 	mainLayout->addLayout(layout_3);
 }
 
@@ -54,12 +54,13 @@ void RotationDisplayWidget::setCurrentAngle(double angle)
 void RotationDisplayWidget::setCircleResult(Circle *circle)
 {
 	setCurrentAngle(circle->Angle);
-	m_ParallelOrPerpendicular->setText(QString::fromLocal8Bit(circle->IsParallelOrPerpendicular ? "是" : "否"));
+
+	m_AngleBettwenHorizontal->setText(QString::number(circle->angleBettwenC2H, 'f', 2));
 }
 
 void RotationDisplayWidget::reset()
 {
 	m_MarkerSizeOrPosition->setText("0");
-	m_ParallelOrPerpendicular->setText("N/A");
+	m_AngleBettwenHorizontal->setText("N/A");
 	m_CurrentAngle->setText("N/A");
 }

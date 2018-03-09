@@ -25,6 +25,6 @@ private:
 
 private:
 	QLabel *m_MarkerSizeOrPosition;
-	QLabel *m_ParallelOrPerpendicular;
+	QLabel *m_AngleBettwenHorizontal;//旋转平面与水平面之间的夹角
 	QLabel *m_CurrentAngle;
 };

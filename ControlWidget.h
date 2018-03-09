@@ -59,6 +59,8 @@ private:
 	QPushButton* m_CollimatorButton;
 	QPushButton* m_BedButton;
 	QButtonGroup* m_BedGroup;
+	QPushButton* m_CbctButton;
+	QPushButton* m_PayloadBedButton;
 	QPushButton* m_LaserButton;
 	QPushButton* m_LightButton;
 	QPushButton* m_ResetButton;

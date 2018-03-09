@@ -124,14 +124,23 @@ void DisplayWidget::doSwitchToCollimator()
 	m_RotationWidget->reset();
 }
 
+void DisplayWidget::doSwitchToCbct()
+{
+	m_StackedWidget->setCurrentIndex(1);
+	m_RotationWidget->reset();
+}
+
 void DisplayWidget::doSwitchToBed(int mode)
 {
 	int index = mode + 1;
-	m_StackedWidget->setCurrentIndex(index);
-	if (index == 1)
+	if (index == 1 || index == 3) {
+		m_StackedWidget->setCurrentIndex(1);
 		m_RotationWidget->reset();
-	else
+	}
+	else {
+		m_StackedWidget->setCurrentIndex(2);
 		m_TranslationWidget->reset();
+	}
 }
 
 void DisplayWidget::doSwitchToISOCenter()
