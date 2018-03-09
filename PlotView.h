@@ -21,15 +21,23 @@ enum curveIndex{
 	CURVE_X = 0,
 	CURVE_Y,
 	CURVE_Z,
+	CURVE_X_PAYLOAD,
+	CURVE_Y_PAYLOAD,
+	CURVE_Z_PAYLOAD,
 	CURVE_BED,
 	CURVE_GANTRY,
-	CURVE_COLLIMATOR
+	CURVE_COLLIMATOR,
+	CURVE_CBCT,
+	CURVE_BED_PAYLOAD
 };
 enum updateFlag{
 	UPDATE_GANTRY_DEGREE = 1,
 	UPDATE_COLLIMATOR_DEGREE,
-	UPDATE_BED_DEGREE,
-	UPDATE_BED_DISTANCE
+	UPDATE_BED_EMPTY_DEGREE,
+	UPDATE_BED_EMPTY_DISTANCE,
+	UPDATE_BED_PAYLOAD_DEGREE,
+	UPDATE_BED_PAYLOAD_DISTANCE,
+	UPDATE_CBCT_DEGREE
 };
 
 class BasePlot :public QwtPlot
@@ -100,14 +108,15 @@ class DistancePlot : public BasePlot
 	Q_OBJECT
 public:
 	DistancePlot(QWidget* parent = NULL) :BasePlot(parent),
-		mBedXDistance(NULL), mBedYDistance(NULL), mBedZDistance(NULL)
+		mBedXDistance(NULL), mBedYDistance(NULL), mBedZDistance(NULL),
+		mPayloadBedXDistance(NULL), mPayloadBedYDistance(NULL),mPayloadBedZDistance(NULL)
 	{
 		this->setTitle(QString::fromLocal8Bit("治疗床位移"));
 		//set axis name
 		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
 		this->setAxisTitle(QwtPlot::yLeft, "Distance [mm]");
 		//curve
-		mBedXDistance = new QwtPlotCurve("X");
+		mBedXDistance = new QwtPlotCurve("X(Empty)");
 		mBedXDistance->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterX = new QwtSplineCurveFitter();
 		fitterX->setSplineSize(150);
@@ -117,7 +126,7 @@ public:
 		mBedXDistance->setPen(QPen(Qt::red, 1));//设置画笔
 		mBedXDistance->attach(this);//把曲线附加到plot上
 
-		mBedYDistance = new QwtPlotCurve("Y");
+		mBedYDistance = new QwtPlotCurve("Y(Empty)");
 		mBedYDistance->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterY = new QwtSplineCurveFitter();
 		fitterY->setSplineSize(150);
@@ -127,7 +136,7 @@ public:
 		mBedYDistance->setPen(QPen(Qt::yellow, 1));//设置画笔
 		mBedYDistance->attach(this);//把曲线附加到plot上
 
-		mBedZDistance = new QwtPlotCurve("Z");
+		mBedZDistance = new QwtPlotCurve("Z(Empty)");
 		mBedZDistance->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterZ = new QwtSplineCurveFitter();
 		fitterZ->setSplineSize(150);
@@ -137,9 +146,43 @@ public:
 		mBedZDistance->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedZDistance->attach(this);//把曲线附加到plot上
 
+		mPayloadBedXDistance = new QwtPlotCurve("X(Payload)");
+		mPayloadBedXDistance->setStyle(QwtPlotCurve::Lines);//直线形式
+		QwtSplineCurveFitter *fitterXPayload = new QwtSplineCurveFitter();
+		fitterXPayload->setSplineSize(150);
+		mPayloadBedXDistance->setCurveFitter(fitterXPayload);//设置曲线插值
+		mPayloadBedXDistance->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+		mPayloadBedXDistance->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mPayloadBedXDistance->setPen(QPen(Qt::darkRed, 1));//设置画笔
+		mPayloadBedXDistance->attach(this);//把曲线附加到plot上
+
+		mPayloadBedYDistance = new QwtPlotCurve("Y(Payload)");
+		mPayloadBedYDistance->setStyle(QwtPlotCurve::Lines);//直线形式
+		QwtSplineCurveFitter *fitterYPayload = new QwtSplineCurveFitter();
+		fitterYPayload->setSplineSize(150);
+		mPayloadBedYDistance->setCurveFitter(fitterYPayload);//设置曲线插值
+		mPayloadBedYDistance->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+		mPayloadBedYDistance->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mPayloadBedYDistance->setPen(QPen(Qt::darkYellow, 1));//设置画笔
+		mPayloadBedYDistance->attach(this);//把曲线附加到plot上
+
+		mPayloadBedZDistance = new QwtPlotCurve("Z(Payload)");
+		mPayloadBedZDistance->setStyle(QwtPlotCurve::Lines);//直线形式
+		QwtSplineCurveFitter *fitterZPayload = new QwtSplineCurveFitter();
+		fitterZPayload->setSplineSize(150);
+		mPayloadBedZDistance->setCurveFitter(fitterZPayload);//设置曲线插值
+		mPayloadBedZDistance->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+		mPayloadBedZDistance->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mPayloadBedZDistance->setPen(QPen(Qt::darkGreen, 1));//设置画笔
+		mPayloadBedZDistance->attach(this);//把曲线附加到plot上
+
 		showCurve(mBedXDistance, true);
 		showCurve(mBedYDistance, false);
 		showCurve(mBedZDistance, false);
+		showCurve(mPayloadBedXDistance, false);
+		showCurve(mPayloadBedYDistance, false);
+		showCurve(mPayloadBedZDistance, false);
+
 	}
 
 	void updateSample(int index, const QVector<double>&xData, const QVector<double>&yData)
@@ -157,6 +200,18 @@ public:
 			if (NULL != mBedZDistance)
 				mBedZDistance->setSamples(xData, yData);
 			break;
+		case CURVE_X_PAYLOAD:
+			if (NULL != mPayloadBedXDistance)
+				mPayloadBedXDistance->setSamples(xData, yData);
+			break;
+		case CURVE_Y_PAYLOAD:
+			if (NULL != mPayloadBedYDistance)
+				mPayloadBedYDistance->setSamples(xData, yData);
+			break;
+		case CURVE_Z_PAYLOAD:
+			if (NULL != mPayloadBedZDistance)
+				mPayloadBedZDistance->setSamples(xData, yData);
+			break;
 		default:break;
 		}
 		replot();
@@ -167,6 +222,9 @@ private:
 	QwtPlotCurve*  mBedXDistance;
 	QwtPlotCurve*  mBedYDistance;
 	QwtPlotCurve*  mBedZDistance;
+	QwtPlotCurve*  mPayloadBedXDistance;
+	QwtPlotCurve*  mPayloadBedYDistance;
+	QwtPlotCurve*  mPayloadBedZDistance;
 
 };
 //
@@ -175,14 +233,15 @@ class VelocityPlot : public BasePlot
 	Q_OBJECT
 public:
 	VelocityPlot(QWidget* parent = NULL) :BasePlot(parent),
-		mBedXVelocity(NULL), mBedYVelocity(NULL), mBedZVelocity(NULL)
+		mBedXVelocity(NULL), mBedYVelocity(NULL), mBedZVelocity(NULL),
+		mPayloadBedXVelocity(NULL), mPayloadBedYVelocity(NULL),mPayloadBedZVelocity(NULL)
 	{
 		this->setTitle(QString::fromLocal8Bit("治疗床速度"));
 		//set axis name
 		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
 		this->setAxisTitle(QwtPlot::yLeft, "Velocity [mm/s]");
 		//curve
-		mBedXVelocity = new QwtPlotCurve("X");
+		mBedXVelocity = new QwtPlotCurve("X(Empty)");
 		mBedXVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterX = new QwtSplineCurveFitter();
 		fitterX->setSplineSize(150);
@@ -192,7 +251,7 @@ public:
 		mBedXVelocity->setPen(QPen(Qt::red, 1));//设置画笔
 		mBedXVelocity->attach(this);//把曲线附加到plot上
 
-		mBedYVelocity = new QwtPlotCurve("Y");
+		mBedYVelocity = new QwtPlotCurve("Y(Empty)");
 		mBedYVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterY = new QwtSplineCurveFitter();
 		fitterY->setSplineSize(150);
@@ -202,7 +261,7 @@ public:
 		mBedYVelocity->setPen(QPen(Qt::yellow, 1));//设置画笔
 		mBedYVelocity->attach(this);//把曲线附加到plot上
 
-		mBedZVelocity = new QwtPlotCurve("Z");
+		mBedZVelocity = new QwtPlotCurve("Z(Empty)");
 		mBedZVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterZ = new QwtSplineCurveFitter();
 		fitterZ->setSplineSize(150);
@@ -212,9 +271,42 @@ public:
 		mBedZVelocity->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedZVelocity->attach(this);//把曲线附加到plot上
 
+		mPayloadBedXVelocity = new QwtPlotCurve("X(Payload)");
+		mPayloadBedXVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
+		QwtSplineCurveFitter *fitterXPayload = new QwtSplineCurveFitter();
+		fitterXPayload->setSplineSize(150);
+		mPayloadBedXVelocity->setCurveFitter(fitterXPayload);//设置曲线插值
+		mPayloadBedXVelocity->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+		mPayloadBedXVelocity->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mPayloadBedXVelocity->setPen(QPen(Qt::darkRed, 1));//设置画笔
+		mPayloadBedXVelocity->attach(this);//把曲线附加到plot上
+
+		mPayloadBedYVelocity = new QwtPlotCurve("Y(Payload)");
+		mPayloadBedYVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
+		QwtSplineCurveFitter *fitterYPayload = new QwtSplineCurveFitter();
+		fitterYPayload->setSplineSize(150);
+		mPayloadBedYVelocity->setCurveFitter(fitterYPayload);//设置曲线插值
+		mPayloadBedYVelocity->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+		mPayloadBedYVelocity->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mPayloadBedYVelocity->setPen(QPen(Qt::darkYellow, 1));//设置画笔
+		mPayloadBedYVelocity->attach(this);//把曲线附加到plot上
+
+		mPayloadBedZVelocity = new QwtPlotCurve("Z(Payload)");
+		mPayloadBedZVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
+		QwtSplineCurveFitter *fitterZPayload = new QwtSplineCurveFitter();
+		fitterZPayload->setSplineSize(150);
+		mPayloadBedZVelocity->setCurveFitter(fitterZPayload);//设置曲线插值
+		mPayloadBedZVelocity->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+		mPayloadBedZVelocity->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mPayloadBedZVelocity->setPen(QPen(Qt::darkGreen, 1));//设置画笔
+		mPayloadBedZVelocity->attach(this);//把曲线附加到plot上
+
 		showCurve(mBedXVelocity, true);
 		showCurve(mBedYVelocity, false);
 		showCurve(mBedZVelocity, false);
+		showCurve(mPayloadBedXVelocity, false);
+		showCurve(mPayloadBedYVelocity, false);
+		showCurve(mPayloadBedZVelocity, false);
 	}
 
 	void updateSample(int index, const QVector<double>&xData, const QVector<double>&yData)
@@ -232,6 +324,18 @@ public:
 			if (NULL != mBedZVelocity)
 				mBedZVelocity->setSamples(xData, yData);
 			break;
+		case CURVE_X_PAYLOAD:
+			if (NULL != mPayloadBedXVelocity)
+				mPayloadBedXVelocity->setSamples(xData, yData);
+			break;
+		case CURVE_Y_PAYLOAD:
+			if (NULL != mPayloadBedYVelocity)
+				mPayloadBedYVelocity->setSamples(xData, yData);
+			break;
+		case CURVE_Z_PAYLOAD:
+			if (NULL != mPayloadBedZVelocity)
+				mPayloadBedZVelocity->setSamples(xData, yData);
+			break;
 		default:break;
 		}
 		replot();
@@ -242,6 +346,9 @@ private:
 	QwtPlotCurve* mBedXVelocity;
 	QwtPlotCurve* mBedYVelocity;
 	QwtPlotCurve* mBedZVelocity;
+	QwtPlotCurve* mPayloadBedXVelocity;
+	QwtPlotCurve* mPayloadBedYVelocity;
+	QwtPlotCurve* mPayloadBedZVelocity;
 
 };
 //
@@ -250,14 +357,15 @@ class DegreeDistancePlot : public BasePlot
 	Q_OBJECT
 public:
 	DegreeDistancePlot(QWidget* parent = NULL) :BasePlot(parent),
-		mGantryDistance(NULL), mCollimatorDistance(NULL), mBedDistance(NULL)
+		mGantryDistance(NULL), mCollimatorDistance(NULL), mBedDistance(NULL),
+		mCbctDistance(NULL), mPayloadBedDistance(NULL)
 	{
 		this->setTitle(QString::fromLocal8Bit("角位移"));
 		//set axis name
 		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
 		this->setAxisTitle(QwtPlot::yLeft, "Displacement [degree]");
 		//curve
-		mGantryDistance = new QwtPlotCurve(QString::fromLocal8Bit("机架"));
+		mGantryDistance = new QwtPlotCurve(QObject::tr("Gantry"));
 		mGantryDistance->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterGantry = new QwtSplineCurveFitter();
 		fitterGantry->setSplineSize(50);
@@ -267,7 +375,7 @@ public:
 		mGantryDistance->setPen(QPen(Qt::red, 1));//设置画笔
 		mGantryDistance->attach(this);//把曲线附加到plot上
 
-		mCollimatorDistance = new QwtPlotCurve(QString::fromLocal8Bit("准直器"));
+		mCollimatorDistance = new QwtPlotCurve(QObject::tr("Collimator"));
 		mCollimatorDistance->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterCollimator = new QwtSplineCurveFitter();
 		fitterCollimator->setSplineSize(50);
@@ -277,7 +385,7 @@ public:
 		mCollimatorDistance->setPen(QPen(Qt::yellow, 1));//设置画笔
 		mCollimatorDistance->attach(this);//把曲线附加到plot上
 
-		mBedDistance = new QwtPlotCurve(QString::fromLocal8Bit("治疗床"));
+		mBedDistance = new QwtPlotCurve(QObject::tr("Bed(Empty)"));
 		mCollimatorDistance->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterBed = new QwtSplineCurveFitter();//三次样条插值曲线拟合器
 		fitterBed->setSplineSize(50);
@@ -287,9 +395,31 @@ public:
 		mBedDistance->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedDistance->attach(this);//把曲线附加到plot上
 
+		mCbctDistance = new QwtPlotCurve(QObject::tr("CBCT"));
+		mCbctDistance->setStyle(QwtPlotCurve::Lines);//直线形式
+		QwtSplineCurveFitter *fitterCBCT = new QwtSplineCurveFitter();
+		fitterCBCT->setSplineSize(50);
+		mCbctDistance->setCurveFitter(fitterCBCT);//设置曲线插值
+		mCbctDistance->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+		mCbctDistance->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mCbctDistance->setPen(QPen(Qt::white, 1));//设置画笔
+		mCbctDistance->attach(this);//把曲线附加到plot上
+
+		mPayloadBedDistance = new QwtPlotCurve(QObject::tr("Bed(Payload)"));
+		mPayloadBedDistance->setStyle(QwtPlotCurve::Lines);//直线形式
+		QwtSplineCurveFitter *fitterBedPayload = new QwtSplineCurveFitter();//三次样条插值曲线拟合器
+		fitterBedPayload->setSplineSize(50);
+		mPayloadBedDistance->setCurveFitter(fitterBedPayload);//设置曲线插值
+		mPayloadBedDistance->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+		mPayloadBedDistance->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mPayloadBedDistance->setPen(QPen(Qt::cyan, 1));//设置画笔
+		mPayloadBedDistance->attach(this);//把曲线附加到plot上
+
 		showCurve(mGantryDistance, true);
 		showCurve(mCollimatorDistance, false);
 		showCurve(mBedDistance, false);
+		showCurve(mCbctDistance, false);
+		showCurve(mPayloadBedDistance, false);
 	}
 
 	void updateSample(int index, const QVector<double>&xData, const QVector<double>&yData)
@@ -307,6 +437,14 @@ public:
 			if (NULL != mBedDistance)
 				mBedDistance->setSamples(xData, yData);
 			break;
+		case CURVE_CBCT:
+			if (NULL != mCbctDistance)
+				mCbctDistance->setSamples(xData, yData);
+			break;
+		case CURVE_BED_PAYLOAD:
+			if (NULL != mPayloadBedDistance)
+				mPayloadBedDistance->setSamples(xData, yData);
+			break;
 		default:break;
 		}
 		replot();
@@ -317,6 +455,8 @@ private:
 	QwtPlotCurve*  mGantryDistance;
 	QwtPlotCurve*  mCollimatorDistance;
 	QwtPlotCurve*  mBedDistance;
+	QwtPlotCurve*  mCbctDistance;
+	QwtPlotCurve*  mPayloadBedDistance;
 };
 //
 class DegreeVelocityPlot : public BasePlot
@@ -324,14 +464,15 @@ class DegreeVelocityPlot : public BasePlot
 	Q_OBJECT
 public:
 	DegreeVelocityPlot(QWidget* parent = NULL) :BasePlot(parent),
-		mGantryVelocity(NULL), mCollimatorVelocity(NULL)
+		mGantryVelocity(NULL), mCollimatorVelocity(NULL), mBedVelocity(NULL),
+		mCbctVelocity(NULL), mPayloadBedVelocity(NULL)
 	{
 		this->setTitle(QString::fromLocal8Bit("角速度"));
 		//set axis name
 		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
 		this->setAxisTitle(QwtPlot::yLeft, "DegreeVelocity [degree/s]");
 		//curve
-		mGantryVelocity = new QwtPlotCurve(QString::fromLocal8Bit("机架"));
+		mGantryVelocity = new QwtPlotCurve(QObject::tr("Gantry"));
 		mGantryVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterGantry = new QwtSplineCurveFitter();
 		fitterGantry->setSplineSize(50);
@@ -341,7 +482,7 @@ public:
 		mGantryVelocity->setPen(QPen(Qt::red, 1));//设置画笔
 		mGantryVelocity->attach(this);//把曲线附加到plot上
 
-		mCollimatorVelocity = new QwtPlotCurve(QString::fromLocal8Bit("准直器"));
+		mCollimatorVelocity = new QwtPlotCurve(QObject::tr("Collimator"));
 		mCollimatorVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterCollimator = new QwtSplineCurveFitter();
 		fitterCollimator->setSplineSize(50);
@@ -351,7 +492,7 @@ public:
 		mCollimatorVelocity->setPen(QPen(Qt::yellow, 1));//设置画笔
 		mCollimatorVelocity->attach(this);//把曲线附加到plot上
 
-		mBedVelocity = new QwtPlotCurve(QString::fromLocal8Bit("治疗床"));
+		mBedVelocity = new QwtPlotCurve(QObject::tr("Bed(Empty)"));
 		mBedVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterBed = new QwtSplineCurveFitter();
 		fitterBed->setSplineSize(50);
@@ -361,9 +502,31 @@ public:
 		mBedVelocity->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedVelocity->attach(this);//把曲线附加到plot上
 
+		mCbctVelocity = new QwtPlotCurve(QObject::tr("CBCT"));
+		mCbctVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
+		QwtSplineCurveFitter *fitterCBCT = new QwtSplineCurveFitter();
+		fitterCBCT->setSplineSize(50);
+		mCbctVelocity->setCurveFitter(fitterCBCT);//设置曲线插值
+		mCbctVelocity->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+		mCbctVelocity->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mCbctVelocity->setPen(QPen(Qt::white, 1));//设置画笔
+		mCbctVelocity->attach(this);//把曲线附加到plot上
+
+		mPayloadBedVelocity = new QwtPlotCurve(QObject::tr("Bed(Payload)"));
+		mPayloadBedVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
+		QwtSplineCurveFitter *fitterBedPayload = new QwtSplineCurveFitter();//三次样条插值曲线拟合器
+		fitterBedPayload->setSplineSize(50);
+		mPayloadBedVelocity->setCurveFitter(fitterBedPayload);//设置曲线插值
+		mPayloadBedVelocity->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+		mPayloadBedVelocity->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
+		mPayloadBedVelocity->setPen(QPen(Qt::cyan, 1));//设置画笔
+		mPayloadBedVelocity->attach(this);//把曲线附加到plot上
+
 		showCurve(mGantryVelocity, true);
 		showCurve(mCollimatorVelocity, false);
 		showCurve(mBedVelocity, false);
+		showCurve(mCbctVelocity, false);
+		showCurve(mPayloadBedVelocity, false);
 	}
 
 	void updateSample(int index, const QVector<double>&xData, const QVector<double>&yData)
@@ -381,6 +544,14 @@ public:
 			if (NULL != mBedVelocity)
 				mBedVelocity->setSamples(xData, yData);
 			break;
+		case CURVE_CBCT:
+			if (NULL != mCbctVelocity)
+				mCbctVelocity->setSamples(xData, yData);
+			break;
+		case CURVE_BED_PAYLOAD:
+			if (NULL != mPayloadBedVelocity)
+				mPayloadBedVelocity->setSamples(xData, yData);
+			break;
 		default:break;
 		}
 		replot();
@@ -391,6 +562,8 @@ private:
 	QwtPlotCurve*  mGantryVelocity;
 	QwtPlotCurve*  mCollimatorVelocity;
 	QwtPlotCurve*  mBedVelocity;
+	QwtPlotCurve*  mCbctVelocity;
+	QwtPlotCurve*  mPayloadBedVelocity;
 };
 
 class PlotView : public QWidget
@@ -406,18 +579,26 @@ public:
 	void setGantryUpdateFlag();
 	//设置更新曲线为准直器旋转曲线
 	void setCollimatorUpdateFlag();
-	//设置更新曲线为治疗床旋转曲线
-	void setBedDegreeUpdateFlag();
-	//设置更新曲线为治疗床移动曲线
-	void setBedDistanceUpdateFlag();
+	//设置更新曲线为cbct旋转曲线
+	void setCBCTUpdateFlag();
+	//设置更新曲线为治疗床(空载)旋转曲线
+	void setEmptyBedDegreeUpdateFlag();
+	//设置更新曲线为治疗床(空载)移动曲线
+	void setEmptyBedDistanceUpdateFlag();
+	//设置更新曲线为治疗床(负载)旋转曲线
+	void setPayloadBedDegreeUpdateFlag();
+	//设置更新曲线为治疗床(负载)移动曲线
+	void setPayloadBedDistanceUpdateFlag();
 	//获取当前更新标志是否是机架旋转
 	bool getGantryUpdateFlag();
 	//获取当前更新标志是否为准直器旋转标志
 	bool getCollimatorUpdateFlag();
+	//获取当前更新标志是否为CBCT旋转标志
+	bool getCBCTUpdateFlag();
 	//获取当前更新标志是否是治疗床旋转标志
-	bool getBedDegreeUpdateFlag();
+	int getBedDegreeUpdateFlag();
 	//获取当前更新标志是否是治疗床移动标志
-	bool getBedDistanceUpdatFlag();
+	int getBedDistanceUpdatFlag();
 signals:
 
 public slots :
@@ -427,6 +608,9 @@ public slots :
 	void updateCollimatorDegree(const float y);
 	void updateCollimatorDegreeVelocity();
 	double getCollimatorAvrDegreeVelocity();
+	void updateCBCTDegree(const float y);
+	void updateCBCTDegreeVelocity();
+	double getCBCTAvrDegreeVelocity();
 	void updateBedDegree(const float y);
 	void updateBedDegreeVelocity();
 	double getBedAvrDegreeVelocity();
@@ -453,17 +637,28 @@ private:
 	QVector<double>  mDegreeTimeData;
 	QVector<double>  mDistanceTimeData;
 	QVector<double>* mBedXDistance;
+	QVector<double>* mPayloadBedXDistance;
 	QVector<double>* mBedYDistance;
+	QVector<double>* mPayloadBedYDistance;
 	QVector<double>* mBedZDistance;
+	QVector<double>* mPayloadBedZDistance;
 	QVector<double>* mBedXVelocity;
+	QVector<double>* mPayloadBedXVelocity;
 	QVector<double>* mBedYVelocity;
+	QVector<double>* mPayloadBedYVelocity;
 	QVector<double>* mBedZVelocity;
+	QVector<double>* mPayloadBedZVelocity;
 	QVector<double>* mGantryDegree;
 	QVector<double>* mGantryDegreeVelocity;
 	QVector<double>* mCollimatorDegree;
 	QVector<double>* mCollimatorDegreeVelocity;
+	QVector<double>* mCbctDegree;
+	QVector<double>* mCbctDegreeVelocity;
 	QVector<double>* mBedDegree;
 	QVector<double>* mBedDegreeVelocity;
+	QVector<double>* mPayloadBedDegree;
+	QVector<double>* mPayloadBedDegreeVelocity;
+
 };
 
 #endif // PLOTVIEW_H

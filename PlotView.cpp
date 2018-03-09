@@ -57,17 +57,27 @@ void PlotView::initTimer()
 void PlotView::initCurveDataVector()
 {
 	mBedXDistance = new QVector<double>();
+	mPayloadBedXDistance = new QVector<double>();
 	mBedYDistance = new QVector<double>();
+	mPayloadBedYDistance = new QVector<double>();
 	mBedZDistance = new QVector<double>();
+	mPayloadBedZDistance = new QVector<double>();
 	mBedXVelocity = new QVector<double>();
+	mPayloadBedXVelocity = new QVector<double>();
 	mBedYVelocity = new QVector<double>();
+	mPayloadBedYVelocity = new QVector<double>();
 	mBedZVelocity = new QVector<double>();
+	mPayloadBedZVelocity = new QVector<double>();
 	mGantryDegree = new QVector<double>();
 	mGantryDegreeVelocity = new QVector<double>();
 	mCollimatorDegree = new QVector<double>();
 	mCollimatorDegreeVelocity = new QVector<double>();
+	mCbctDegree = new QVector<double>();
+	mCbctDegreeVelocity = new QVector<double>();
 	mBedDegree = new QVector<double>();
 	mBedDegreeVelocity = new QVector<double>();
+	mPayloadBedDegree = new QVector<double>();
+	mPayloadBedDegreeVelocity = new QVector<double>();
 }
 
 void PlotView::resetPlot()
@@ -85,13 +95,25 @@ void PlotView::setCollimatorUpdateFlag()
 {
 	mUpdateFlag = UPDATE_COLLIMATOR_DEGREE;
 }
-void PlotView::setBedDegreeUpdateFlag()
+void PlotView::setCBCTUpdateFlag()
 {
-	mUpdateFlag = UPDATE_BED_DEGREE;
+	mUpdateFlag = UPDATE_CBCT_DEGREE;
 }
-void PlotView::setBedDistanceUpdateFlag()
+void PlotView::setEmptyBedDegreeUpdateFlag()
 {
-	mUpdateFlag = UPDATE_BED_DISTANCE;
+	mUpdateFlag = UPDATE_BED_EMPTY_DEGREE;
+}
+void PlotView::setEmptyBedDistanceUpdateFlag()
+{
+	mUpdateFlag = UPDATE_BED_EMPTY_DISTANCE;
+}
+void PlotView::setPayloadBedDegreeUpdateFlag()
+{
+	mUpdateFlag = UPDATE_BED_PAYLOAD_DEGREE;
+}
+void PlotView::setPayloadBedDistanceUpdateFlag()
+{
+	mUpdateFlag = UPDATE_BED_PAYLOAD_DISTANCE;
 }
 bool PlotView::getGantryUpdateFlag()
 {
@@ -101,23 +123,28 @@ bool PlotView::getCollimatorUpdateFlag()
 {
 	return mUpdateFlag == UPDATE_COLLIMATOR_DEGREE;
 }
-bool PlotView::getBedDegreeUpdateFlag()
+bool PlotView::getCBCTUpdateFlag()
 {
-	return mUpdateFlag == UPDATE_BED_DEGREE;
+	return mUpdateFlag == UPDATE_CBCT_DEGREE;
 }
-bool PlotView::getBedDistanceUpdatFlag()
+int PlotView::getBedDegreeUpdateFlag()
 {
-	return mUpdateFlag == UPDATE_BED_DISTANCE;
+	return mUpdateFlag;
+}
+int PlotView::getBedDistanceUpdatFlag()
+{
+	return mUpdateFlag;
 }
 void PlotView::updateGantryDegree(const float y)
 {
-	setGantryUpdateFlag();
+	if (getGantryUpdateFlag()) {
 
-	mGantryDegree->append(y);
-	updateGantryDegreeVelocity();
+		mGantryDegree->append(y);
+		updateGantryDegreeVelocity();
 
-	if (!mTimer->isActive())
-		mTimer->start();
+		if (!mTimer->isActive())
+			mTimer->start();
+	}
 }
 void PlotView::updateGantryDegreeVelocity()
 {
@@ -155,13 +182,14 @@ double PlotView::getGantryAvrDegreeVelocity()
 }
 void PlotView::updateCollimatorDegree(const float y)
 {
-	setCollimatorUpdateFlag();
+	if (getCollimatorUpdateFlag()) {
 
-	mCollimatorDegree->append(y);
-	updateCollimatorDegreeVelocity();
+		mCollimatorDegree->append(y);
+		updateCollimatorDegreeVelocity();
 
-	if (!mTimer->isActive())
-		mTimer->start();
+		if (!mTimer->isActive())
+			mTimer->start();
+	}
 }
 void PlotView::updateCollimatorDegreeVelocity()
 {
@@ -198,23 +226,24 @@ double PlotView::getCollimatorAvrDegreeVelocity()
 		return 0;
 	}
 }
-void PlotView::updateBedDegree(const float y)
+void PlotView::updateCBCTDegree(const float y)
 {
-	setBedDegreeUpdateFlag();
+	if (getCBCTUpdateFlag()) {
 
-	mBedDegree->append(y);
-	updateBedDegreeVelocity();
+		mCbctDegree->append(y);
+		updateCBCTDegreeVelocity();
 
-	if (!mTimer->isActive())
-		mTimer->start();
+		if (!mTimer->isActive())
+			mTimer->start();
+	}
 }
-void PlotView::updateBedDegreeVelocity()
+void PlotView::updateCBCTDegreeVelocity()
 {
-	int size = mBedDegree->size();
+	int size = mCbctDegree->size();
 
-	if (size > 1){
-		const int cur_val = (int)(mBedDegree->at(size - 1));//截断小数点后的角度变动
-		const int last_val = (int)(mBedDegree->at(size - 2));
+	if (size > 1) {
+		const int cur_val = (int)(mCbctDegree->at(size - 1));//截断小数点后的角度变动
+		const int last_val = (int)(mCbctDegree->at(size - 2));
 		static int last_time = 0;
 		int current_time = QTime::currentTime().msec();
 		int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
@@ -222,10 +251,92 @@ void PlotView::updateBedDegreeVelocity()
 
 		last_time = current_time;
 		v *= 1000;//degree/s
-		mBedDegreeVelocity->append(v);
+		mCbctDegreeVelocity->append(v);
 
-	}else{
+	}
+	else {
 		return;
+	}
+}
+double PlotView::getCBCTAvrDegreeVelocity()
+{
+	QMutexLocker lock(&mCurveDataMutex);//此时所有曲线都不能读写直到该函数退出
+	int size = mCbctDegree->size();
+	if (size > 0) {
+		double sum = 0;
+		for (int i = 0; i < size; i++) {
+			sum += mCbctDegree->at(i);
+		}
+		return sum / size;
+	}
+	else {
+		return 0;
+	}
+}
+//治疗床运动曲线分为 空载旋转、空载移动、负载旋转、负载移动
+void PlotView::updateBedDegree(const float y)
+{
+	int flag = getBedDegreeUpdateFlag();
+	if (flag == UPDATE_BED_EMPTY_DEGREE) {
+		mBedDegree->append(y);
+	}else{
+		if (flag == UPDATE_BED_PAYLOAD_DEGREE)
+			mPayloadBedDegree->append(y);
+		else
+			return;
+	}
+	updateBedDegreeVelocity();
+
+	if (!mTimer->isActive())
+		mTimer->start();
+}
+void PlotView::updateBedDegreeVelocity()
+{
+	int updateFlag = getBedDegreeUpdateFlag();
+	if (updateFlag == UPDATE_BED_EMPTY_DEGREE) {
+		int size = mBedDegree->size();
+
+		if (size > 1) {
+			const int cur_val = (int)(mBedDegree->at(size - 1));//截断小数点后的角度变动
+			const int last_val = (int)(mBedDegree->at(size - 2));
+			static int last_time = 0;
+			int current_time = QTime::currentTime().msec();
+			int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
+			float v = (float)(cur_val - last_val) / delt_time;
+
+			last_time = current_time;
+			v *= 1000;//degree/s
+			mBedDegreeVelocity->append(v);
+
+		}
+		else {
+			return;
+		}
+	}
+	else {
+		if (updateFlag == UPDATE_BED_PAYLOAD_DEGREE) {
+			int size = mPayloadBedDegree->size();
+
+			if (size > 1) {
+				const int cur_val = (int)(mPayloadBedDegree->at(size - 1));//截断小数点后的角度变动
+				const int last_val = (int)(mPayloadBedDegree->at(size - 2));
+				static int last_time = 0;
+				int current_time = QTime::currentTime().msec();
+				int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
+				float v = (float)(cur_val - last_val) / delt_time;
+
+				last_time = current_time;
+				v *= 1000;//degree/s
+				mPayloadBedDegreeVelocity->append(v);
+
+			}
+			else {
+				return;
+			}
+		}
+		else {
+			return;
+		}
 	}
 }
 double PlotView::getBedAvrDegreeVelocity()
@@ -244,11 +355,25 @@ double PlotView::getBedAvrDegreeVelocity()
 }
 void PlotView::updateBedDistance(const float x, const float y, const float z)
 {
-	setBedDistanceUpdateFlag();
+	int flag = getBedDistanceUpdatFlag();
+	if (flag == UPDATE_BED_EMPTY_DISTANCE) {
+		mBedXDistance->append(x);
+		mBedYDistance->append(y);
+		mBedZDistance->append(z);
+	}
+	else {
+		if (flag == UPDATE_BED_PAYLOAD_DISTANCE)
+		{
+			mPayloadBedXDistance->append(x);
+			mPayloadBedYDistance->append(y);
+			mPayloadBedZDistance->append(z);
+		}
+		else
+		{
+			return;
+		}
+	}
 
-	mBedXDistance->append(x);
-	mBedYDistance->append(y);
-	mBedZDistance->append(z);
 	updateBedDistanceVelocity();
 
 	if (!mTimer->isActive())
@@ -256,36 +381,81 @@ void PlotView::updateBedDistance(const float x, const float y, const float z)
 }
 void PlotView::updateBedDistanceVelocity()
 {
-	int size_x = mBedXDistance->size();
-	int size_y = mBedYDistance->size();
-	int size_z = mBedZDistance->size();
+	int flag = getBedDistanceUpdatFlag();
+	if (flag == UPDATE_BED_EMPTY_DISTANCE) {
+		int size_x = mBedXDistance->size();
+		int size_y = mBedYDistance->size();
+		int size_z = mBedZDistance->size();
 
-	if (size_x > 1 && size_y > 1 && size_z > 1){
-		const int current_x = (int)(mBedXDistance->at(size_x - 1));
-		const int current_y = (int)(mBedYDistance->at(size_y - 1));
-		const int current_z = (int)(mBedZDistance->at(size_z - 1));
-		const int last_x = (int)(mBedXDistance->at(size_x - 2));
-		const int last_y = (int)(mBedYDistance->at(size_y - 2));
-		const int last_z = (int)(mBedZDistance->at(size_z - 2));
+		if (size_x > 1 && size_y > 1 && size_z > 1) {
+			const int current_x = (int)(mBedXDistance->at(size_x - 1));
+			const int current_y = (int)(mBedYDistance->at(size_y - 1));
+			const int current_z = (int)(mBedZDistance->at(size_z - 1));
+			const int last_x = (int)(mBedXDistance->at(size_x - 2));
+			const int last_y = (int)(mBedYDistance->at(size_y - 2));
+			const int last_z = (int)(mBedZDistance->at(size_z - 2));
 
-		static int last_time = 0;
-		int current_time = QTime::currentTime().msec();
-		int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
+			static int last_time = 0;
+			int current_time = QTime::currentTime().msec();
+			int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
 
-		float v_x = (float)(current_x - last_x) / delt_time;
-		float v_y = (float)(current_y - last_y) / delt_time;
-		float v_z = (float)(current_z - last_z) / delt_time;
+			float v_x = (float)(current_x - last_x) / delt_time;
+			float v_y = (float)(current_y - last_y) / delt_time;
+			float v_z = (float)(current_z - last_z) / delt_time;
 
-		last_time = current_time;
+			last_time = current_time;
 
-		v_x *= 1000;//mm/s
-		v_y *= 1000;
-		v_z *= 1000;
-		mBedXVelocity->append(v_x);
-		mBedYVelocity->append(v_y);
-		mBedZVelocity->append(v_z);
-	}else{
-		return;
+			v_x *= 1000;//mm/s
+			v_y *= 1000;
+			v_z *= 1000;
+			mBedXVelocity->append(v_x);
+			mBedYVelocity->append(v_y);
+			mBedZVelocity->append(v_z);
+		}
+		else {
+			return;
+		}
+	}
+	else {
+		if (flag == UPDATE_BED_PAYLOAD_DISTANCE)
+		{
+			int size_x = mPayloadBedXDistance->size();
+			int size_y = mPayloadBedYDistance->size();
+			int size_z = mPayloadBedZDistance->size();
+
+			if (size_x > 1 && size_y > 1 && size_z > 1) {
+				const int current_x = (int)(mPayloadBedXDistance->at(size_x - 1));
+				const int current_y = (int)(mPayloadBedYDistance->at(size_y - 1));
+				const int current_z = (int)(mPayloadBedZDistance->at(size_z - 1));
+				const int last_x = (int)(mPayloadBedXDistance->at(size_x - 2));
+				const int last_y = (int)(mPayloadBedYDistance->at(size_y - 2));
+				const int last_z = (int)(mPayloadBedZDistance->at(size_z - 2));
+
+				static int last_time = 0;
+				int current_time = QTime::currentTime().msec();
+				int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
+
+				float v_x = (float)(current_x - last_x) / delt_time;
+				float v_y = (float)(current_y - last_y) / delt_time;
+				float v_z = (float)(current_z - last_z) / delt_time;
+
+				last_time = current_time;
+
+				v_x *= 1000;//mm/s
+				v_y *= 1000;
+				v_z *= 1000;
+				mPayloadBedXVelocity->append(v_x);
+				mPayloadBedYVelocity->append(v_y);
+				mPayloadBedZVelocity->append(v_z);
+			}
+			else {
+				return;
+			}
+		}
+		else
+		{
+			return;
+		}
 	}
 }
 void PlotView::update()
@@ -294,7 +464,7 @@ void PlotView::update()
 	static double distance_time = 0;
 
 	{
-		if (getBedDistanceUpdatFlag()){
+		if (getBedDistanceUpdatFlag() == UPDATE_BED_EMPTY_DISTANCE){
 			distance_time += 0.05;
 			mDistanceTimeData.append(distance_time);
 
@@ -340,10 +510,59 @@ void PlotView::update()
 				mBedZVelocity->append(end);
 				velocityPlot->updateSample(CURVE_Z, mDistanceTimeData, *mBedZVelocity);
 			}
+
+			if (getBedDistanceUpdatFlag() == UPDATE_BED_PAYLOAD_DISTANCE){
+				distance_time += 0.05;
+				mDistanceTimeData.append(distance_time);
+
+				distancePlot->updateSample(CURVE_X_PAYLOAD, mDistanceTimeData, *mPayloadBedXDistance);
+				distancePlot->updateSample(CURVE_Y_PAYLOAD, mDistanceTimeData, *mPayloadBedYDistance);
+				distancePlot->updateSample(CURVE_Z_PAYLOAD, mDistanceTimeData, *mPayloadBedZDistance);
+
+				velocityPlot->updateSample(CURVE_X_PAYLOAD, mDistanceTimeData, *mPayloadBedXVelocity);
+				velocityPlot->updateSample(CURVE_Y_PAYLOAD, mDistanceTimeData, *mPayloadBedYVelocity);
+				velocityPlot->updateSample(CURVE_Z_PAYLOAD, mDistanceTimeData, *mPayloadBedZVelocity);
+			}
+			else {
+				if (!mPayloadBedXDistance->isEmpty() || !mPayloadBedYDistance->isEmpty() || !mPayloadBedZDistance->isEmpty()) {
+					distance_time += 0.05;
+					mDistanceTimeData.append(distance_time);
+				}
+				if (!mPayloadBedXDistance->isEmpty()) {
+					double end = mPayloadBedXDistance->last();
+					mPayloadBedXDistance->append(end);
+					distancePlot->updateSample(CURVE_X_PAYLOAD, mDistanceTimeData, *mPayloadBedXDistance);
+				}
+				if (!mPayloadBedYDistance->isEmpty()) {
+					double end = mPayloadBedYDistance->last();
+					mPayloadBedYDistance->append(end);
+					distancePlot->updateSample(CURVE_Y_PAYLOAD, mDistanceTimeData, *mPayloadBedYDistance);
+				}
+				if (!mPayloadBedZDistance->isEmpty()) {
+					double end = mPayloadBedZDistance->last();
+					mPayloadBedZDistance->append(end);
+					distancePlot->updateSample(CURVE_Z_PAYLOAD, mDistanceTimeData, *mPayloadBedZDistance);
+				}
+				if (!mPayloadBedXVelocity->isEmpty()) {
+					double end = mPayloadBedXVelocity->last();
+					mPayloadBedXVelocity->append(end);
+					velocityPlot->updateSample(CURVE_X_PAYLOAD, mDistanceTimeData, *mPayloadBedXVelocity);
+				}
+				if (!mPayloadBedYVelocity->isEmpty()) {
+					double end = mPayloadBedYVelocity->last();
+					mPayloadBedYVelocity->append(end);
+					velocityPlot->updateSample(CURVE_Y_PAYLOAD, mDistanceTimeData, *mPayloadBedYVelocity);
+				}
+				if (!mPayloadBedZVelocity->isEmpty()) {
+					double end = mPayloadBedZVelocity->last();
+					mPayloadBedZVelocity->append(end);
+					velocityPlot->updateSample(CURVE_Z_PAYLOAD, mDistanceTimeData, *mPayloadBedZVelocity);
+				}
+			}
 		}
 	}
 
-	if (getGantryUpdateFlag() || getCollimatorUpdateFlag() || getBedDegreeUpdateFlag()){
+	if (getGantryUpdateFlag() || getCollimatorUpdateFlag() || getCBCTUpdateFlag() || getBedDegreeUpdateFlag()){
 
 		degree_time += 0.05;
 		mDegreeTimeData.append(degree_time);
@@ -377,7 +596,23 @@ void PlotView::update()
 				degreeVelocityPlot->updateSample(CURVE_COLLIMATOR, mDegreeTimeData, *mCollimatorDegreeVelocity);
 			}
 		}
-		if (getBedDegreeUpdateFlag()){
+		if (getCBCTUpdateFlag()) {
+			degreeDistancePlot->updateSample(CURVE_CBCT, mDegreeTimeData, *mCbctDegree);
+			degreeVelocityPlot->updateSample(CURVE_CBCT, mDegreeTimeData, *mCbctDegreeVelocity);
+		}
+		else {
+			if (!mCbctDegree->isEmpty()) {
+				double end = mCbctDegree->last();
+				mCbctDegree->append(end);
+				degreeDistancePlot->updateSample(CURVE_CBCT, mDegreeTimeData, *mCbctDegree);
+			}
+			if (!mCbctDegreeVelocity->isEmpty()) {
+				double end = mCbctDegreeVelocity->last();
+				mCbctDegreeVelocity->append(end);
+				degreeVelocityPlot->updateSample(CURVE_CBCT, mDegreeTimeData, *mCbctDegreeVelocity);
+			}
+		}
+		if (getBedDegreeUpdateFlag() == UPDATE_BED_EMPTY_DEGREE){
 			degreeDistancePlot->updateSample(CURVE_BED, mDegreeTimeData, *mBedDegree);
 			degreeVelocityPlot->updateSample(CURVE_BED, mDegreeTimeData, *mBedDegreeVelocity);
 		}else{
@@ -390,6 +625,23 @@ void PlotView::update()
 				double end = mBedDegreeVelocity->last();
 				mBedDegreeVelocity->append(end);
 				degreeVelocityPlot->updateSample(CURVE_BED, mDegreeTimeData, *mBedDegreeVelocity);
+			}
+		}
+
+		if (getBedDegreeUpdateFlag() == UPDATE_BED_PAYLOAD_DEGREE) {
+			degreeDistancePlot->updateSample(CURVE_BED_PAYLOAD, mDegreeTimeData, *mPayloadBedDegree);
+			degreeVelocityPlot->updateSample(CURVE_BED_PAYLOAD, mDegreeTimeData, *mPayloadBedDegreeVelocity);
+		}
+		else {
+			if (!mBedDegree->isEmpty()) {
+				double end = mBedDegree->last();
+				mBedDegree->append(end);
+				degreeDistancePlot->updateSample(CURVE_BED_PAYLOAD, mDegreeTimeData, *mPayloadBedDegree);
+			}
+			if (!mBedDegreeVelocity->isEmpty()) {
+				double end = mBedDegreeVelocity->last();
+				mBedDegreeVelocity->append(end);
+				degreeVelocityPlot->updateSample(CURVE_BED_PAYLOAD, mDegreeTimeData, *mPayloadBedDegreeVelocity);
 			}
 		}
 	}
@@ -409,33 +661,56 @@ void PlotView::clearCurveDataVector()
 	mDegreeTimeData.clear();
 	mDistanceTimeData.clear();
 	mBedXDistance->clear();
+	mPayloadBedXDistance->clear();
 	mBedYDistance->clear();
+	mPayloadBedYDistance->clear();
 	mBedZDistance->clear();
+	mPayloadBedZDistance->clear();
 	mBedXVelocity->clear();
+	mPayloadBedXVelocity->clear();
 	mBedYVelocity->clear();
+	mPayloadBedYVelocity->clear();
 	mBedZVelocity->clear();
+	mPayloadBedZVelocity->clear();
 	mGantryDegree->clear();
 	mGantryDegreeVelocity->clear();
 	mCollimatorDegree->clear();
 	mCollimatorDegreeVelocity->clear();
+	mCbctDegree->clear();
+	mCbctDegreeVelocity->clear();
 	mBedDegree->clear();
 	mBedDegreeVelocity->clear();
+	mPayloadBedDegree->clear();
+	mPayloadBedDegreeVelocity->clear();
 
 	distancePlot->updateSample(CURVE_X, mDistanceTimeData, *mBedXDistance);
 	distancePlot->updateSample(CURVE_Y, mDistanceTimeData, *mBedYDistance);
 	distancePlot->updateSample(CURVE_Z, mDistanceTimeData, *mBedZDistance);
+	distancePlot->updateSample(CURVE_X_PAYLOAD, mDistanceTimeData, *mPayloadBedXDistance);
+	distancePlot->updateSample(CURVE_Y_PAYLOAD, mDistanceTimeData, *mPayloadBedYDistance);
+	distancePlot->updateSample(CURVE_Z_PAYLOAD, mDistanceTimeData, *mPayloadBedZDistance);
 
 	velocityPlot->updateSample(CURVE_X, mDistanceTimeData, *mBedXVelocity);
 	velocityPlot->updateSample(CURVE_Y, mDistanceTimeData, *mBedYVelocity);
 	velocityPlot->updateSample(CURVE_Z, mDistanceTimeData, *mBedZVelocity);
+	velocityPlot->updateSample(CURVE_X_PAYLOAD, mDistanceTimeData, *mPayloadBedXVelocity);
+	velocityPlot->updateSample(CURVE_Y_PAYLOAD, mDistanceTimeData, *mPayloadBedYVelocity);
+	velocityPlot->updateSample(CURVE_Z_PAYLOAD, mDistanceTimeData, *mPayloadBedZVelocity);
 
 	degreeDistancePlot->updateSample(CURVE_GANTRY, mDegreeTimeData, *mGantryDegree);
 	degreeDistancePlot->updateSample(CURVE_BED,    mDegreeTimeData, *mBedDegree);
 	degreeDistancePlot->updateSample(CURVE_COLLIMATOR, mDegreeTimeData, *mCollimatorDegree);
+	degreeDistancePlot->updateSample(CURVE_CBCT, mDegreeTimeData, *mCbctDegree);
+	degreeDistancePlot->updateSample(CURVE_BED_PAYLOAD, mDegreeTimeData, *mPayloadBedDegree);
+
 
 	degreeVelocityPlot->updateSample(CURVE_GANTRY, mDegreeTimeData, *mGantryDegreeVelocity);
 	degreeVelocityPlot->updateSample(CURVE_COLLIMATOR, mDegreeTimeData, *mCollimatorDegreeVelocity);
 	degreeVelocityPlot->updateSample(CURVE_BED, mDegreeTimeData, *mBedDegreeVelocity);
+	degreeDistancePlot->updateSample(CURVE_CBCT, mDegreeTimeData, *mCbctDegreeVelocity);
+	degreeDistancePlot->updateSample(CURVE_BED_PAYLOAD, mDegreeTimeData, *mPayloadBedDegreeVelocity);
+
+
 }
 
 void PlotView::stopTimer()

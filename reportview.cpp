@@ -203,9 +203,12 @@ void ReportView::setHtmlReport(QString& softCenter,
 	QString item9 = QString::fromLocal8Bit("机架旋转误差--方差:");
 	QString item10 = QString::fromLocal8Bit("机架旋转误差--平均值:");
 	QString item11 = QString::fromLocal8Bit("机架旋转平均速度:");
-	QString item12 = QString::fromLocal8Bit("治疗床旋转误差--方差:");
-	QString item13 = QString::fromLocal8Bit("治疗床旋转误差--平均值:");
-	QString item14 = QString::fromLocal8Bit("治疗床旋转平均速度:");
+	QString item12 = QString::fromLocal8Bit("机架旋转平面与注册水平面夹角:");
+	QString item13 = QString::fromLocal8Bit("治疗床旋转误差--方差:");
+	QString item14 = QString::fromLocal8Bit("治疗床旋转误差--平均值:");
+	QString item15 = QString::fromLocal8Bit("治疗床旋转平均速度:");
+	QString item16 = QString::fromLocal8Bit("治疗床旋转平面与水平面夹角:");
+
 
 	item1 += softCenter;
 	item2 += laserCenter;
@@ -218,9 +221,9 @@ void ReportView::setHtmlReport(QString& softCenter,
 	item9 += gv;
 	item10 += gm;
 	item11 += gVel;
-	item12 += bv;
-	item13 += bm;
-	item14 += bVel;
+	item13 += bv;
+	item14 += bm;
+	item15 += bVel;
 
 	html += "<h1 align=\"center\">";
 	html += "<strong><span bgcolor=\"red\">"+ title +"< / span>< / strong>";
@@ -248,10 +251,10 @@ void ReportView::setHtmlReport(QString& softCenter,
 	html += "< img src = \"" + image2path + "\" width = \"320\" height = \"220\" align = \"left\" alt = \"\" / > ";
 	html += "</p>";
 	html += "<p align=\"left\"><br/>< / p>";
-	html += "<p align=\"left\"><br/>< / p>";
 	html += "<p align=\"left\">&nbsp;&nbsp; 9." + item9 + "</p>";
 	html += "<p align=\"left\">&nbsp;&nbsp; 10." + item10 + "</p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;	11." + item11 + "</p>";
+	html += "<p align=\"left\">&nbsp;&nbsp;	12." + item12 + "</p>";
 	html += "<p align=\"left\"><br/>< / p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + pictrue2 + "< / p>";
 
@@ -259,10 +262,11 @@ void ReportView::setHtmlReport(QString& softCenter,
 	html += "< img src = \"" + image3path + "\" width = \"320\" height = \"220\" align = \"left\" alt = \"\" / >";
 	html += "</p>";
 	html += "<p align=\"left\"><br/></p>";
-	html += "<p align=\"left\"><br/></p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;	12." + item12 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp; 13." + item13 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp; 13." + item14 + "</p>";
+	html += "<p align=\"left\">&nbsp;&nbsp;	13." + item13 + "</p>";
+	html += "<p align=\"left\">&nbsp;&nbsp; 14." + item14 + "</p>";
+	html += "<p align=\"left\">&nbsp;&nbsp; 15." + item15 + "</p>";
+	html += "<p align=\"left\">&nbsp;&nbsp; 16." + item16 + "</p>";
+
 	html += "<p align=\"left\"><br/></p>";
 	html += "<p align=\"left\"><br/></p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + pictrue3 + "< / p>";
