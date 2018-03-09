@@ -34,7 +34,7 @@ HorizontalRegisterHandler::~HorizontalRegisterHandler()
 
 void HorizontalRegisterHandler::loadHorizontalRegister()
 {
-	if (QFile::exists("./Resources/data/HorizontalRegister.dat")){
+	if (QFile::exists("./Resources/data/HorizontalRegister.dat")) {
 		QFile file("./Resources/data/HorizontalRegister.dat");
 		QDataStream out(&file);
 
@@ -46,11 +46,11 @@ void HorizontalRegisterHandler::loadHorizontalRegister()
 				m_SourcePoints->SetPoint(i, point);
 
 				//qInfo() << "HorizonRegister: Point" << i << ": (" << point[0] << "," << point[1] << "," << point[2] << ")";
-			}		
+			}
 		}
-		file.close();	
+		file.close();
 	}
-	else{
+	else {
 		QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("未找到水平面注册数据"));
 	}
 }
@@ -59,17 +59,17 @@ void HorizontalRegisterHandler::loadHorizontalRegister(MarkerPointContainerType 
 {
 	QFile file("HorizontalRegister.dat");
 	QDataStream in(&file);
-	
-	if (!QFile::exists("HorizontalRegister.dat")){
-		if (file.open(QIODevice::WriteOnly)){
+
+	if (!QFile::exists("HorizontalRegister.dat")) {
+		if (file.open(QIODevice::WriteOnly)) {
 			double p[3] = { positions.at(0)[0], positions.at(0)[1], positions.at(0)[2] };
 			in << p[0] << p[1] << p[2];
 			m_SourcePoints->InsertNextPoint(p);
 			file.close();
 		}
 	}
-	else{
-		if (file.open(QIODevice::Append)){
+	else {
+		if (file.open(QIODevice::Append)) {
 			double p[3] = { positions.at(0)[0], positions.at(0)[1], positions.at(0)[2] };
 			in << p[0] << p[1] << p[2];
 			m_SourcePoints->InsertNextPoint(p);
@@ -107,6 +107,7 @@ AbstractMonitorHandler *HorizontalRegisterHandler::handle(MarkerPointContainerTy
 	sourceDis[0] = sqrt(vtkMath::Distance2BetweenPoints(point1, point2));
 	sourceDis[1] = sqrt(vtkMath::Distance2BetweenPoints(point1, point3));
 	sourceDis[2] = sqrt(vtkMath::Distance2BetweenPoints(point2, point3));
+
 	double pt1[3], pt2[3];
 	for (int i = 0; i < targetSize; ++i)
 	{
