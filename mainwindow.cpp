@@ -13,6 +13,10 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent)
 	, mThreeDAction(Q_NULLPTR)
 	, mPlotAction(Q_NULLPTR)
 	, mExportAction(Q_NULLPTR)
+	, mExportDegreePlotAction(Q_NULLPTR)
+	, mExportDegreeVelPlotAction(Q_NULLPTR)
+	, mExportDistancePlotAction(Q_NULLPTR)
+	, mExportDistanceVelPlotAction(Q_NULLPTR)
 	, mSaveAction(Q_NULLPTR)
 	, mSaveAsAction(Q_NULLPTR)
 	, mPrintAction(Q_NULLPTR)
@@ -50,7 +54,7 @@ void MainWindow::initUi()
 
 	//set window style
 	setObjectName("mainWindow");
-	setStyleSheet("#mainWindow{background-color:rgb(205, 205, 205);}");
+	setStyleSheet("#mainWindow{background-color:rgb(200, 200, 200);}");
 	//set toolbar icon size
 	ui->mainToolBar->setIconSize(QSize(32, 32));
 }
@@ -60,6 +64,10 @@ void MainWindow::buildConnections()
 	connect(mThreeDAction, &QAction::triggered, m_CentralWidget, &CentralWidget::show3DPage);
 	connect(mPlotAction,   &QAction::triggered, m_CentralWidget, &CentralWidget::showPlotPage);
 	connect(mExportAction, &QAction::triggered, m_CentralWidget, &CentralWidget::exportReport );
+	connect(mExportDegreePlotAction, &QAction::triggered, m_CentralWidget, &CentralWidget::exportDegreePlot);
+	connect(mExportDegreeVelPlotAction, &QAction::triggered, m_CentralWidget, &CentralWidget::exportDegreeVelocityPlot);
+	connect(mExportDistancePlotAction, &QAction::triggered, m_CentralWidget, &CentralWidget::exportDistancePlot);
+	connect(mExportDistanceVelPlotAction, &QAction::triggered, m_CentralWidget, &CentralWidget::exportDistanceVelocityPlot);
 	connect(mSaveAction,   &QAction::triggered, m_CentralWidget, &CentralWidget::saveReport);
 	connect(mSaveAsAction, &QAction::triggered, m_CentralWidget, &CentralWidget::saveAsReport);
 	connect(mPrintAction,  &QAction::triggered, m_CentralWidget, &CentralWidget::printReport);
@@ -134,10 +142,23 @@ void MainWindow::initFileActions()
 	const QIcon filePrintIcon = QIcon::fromTheme("fileprint", QIcon(":/Resources/image/print_preview.png"));
 	mPreviewAction = ui->mainToolBar->addAction(filePrintIcon, tr("Print Preview..."));
 
-	const QIcon exportPdfIcon = QIcon::fromTheme("exportpdf", QIcon(":/Resources/image/export_pdf.png"));
-	mExportAction = ui->mainToolBar->addAction(exportPdfIcon, tr("&Export PDF..."));
+	const QIcon exportReportIcon = QIcon::fromTheme("exportreport", QIcon(":/Resources/image/export_pdf.png"));
+	mExportAction = ui->mainToolBar->addAction(exportReportIcon, tr("&Export Report PDF..."));
 	mExportAction->setPriority(QAction::LowPriority);
 	mExportAction->setShortcut(Qt::CTRL + Qt::Key_D);
+
+	const QIcon exportPdfIcon = QIcon::fromTheme("exportplot", QIcon(":/Resources/image/export_pdf.png"));
+	mExportDegreePlotAction = ui->mainToolBar->addAction(exportPdfIcon, tr("&Export Degree Plot PDF..."));
+	mExportDegreePlotAction->setPriority(QAction::LowPriority);
+
+	mExportDegreeVelPlotAction = ui->mainToolBar->addAction(exportPdfIcon, tr("&Export Degree Velocity Plot PDF..."));
+	mExportDegreeVelPlotAction->setPriority(QAction::LowPriority);
+
+	mExportDistancePlotAction = ui->mainToolBar->addAction(exportPdfIcon, tr("&Export Distance Plot PDF..."));
+	mExportDistancePlotAction->setPriority(QAction::LowPriority);
+
+	mExportDistanceVelPlotAction = ui->mainToolBar->addAction(exportPdfIcon, tr("&Export Distance velocity Plot PDF..."));
+	mExportDistanceVelPlotAction->setPriority(QAction::LowPriority);
 #endif
 
 }

@@ -43,6 +43,10 @@ public slots:
 	void showPlotPage();
 	void showReportPage();
 	void exportReport();
+	void exportDegreePlot();
+	void exportDegreeVelocityPlot();
+	void exportDistancePlot();
+	void exportDistanceVelocityPlot();
 	void printReport();
 	void printPreviewReport();
 	void saveReport();

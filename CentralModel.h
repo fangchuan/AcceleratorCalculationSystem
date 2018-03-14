@@ -33,10 +33,13 @@ typedef struct ReportData{
 	double distanceLaser2Soft;
 	double gantryVar;
 	double gantryMean;
-	double gantryVelocity;
+	double gantryAngle;//gantry circle angle between horizontal plane
 	double bedVar;
 	double bedMean;
-	double bedVelocity;
+	double bedAngle;//bed circle angle between horizontal plane
+	double cbctVar;
+	double cbctMean;
+	double cbctAngle;//cbct circle angle between horizontal plane
 }ReportData;
 class CentralModel : public QObject
 {

@@ -26,6 +26,7 @@ public:
 	void doSwitchToGantry();
 	//显示面板切换到准直器旋转
 	void doSwitchToCollimator();
+	void doSwitchToCbct();
 	//显示面板切换到治疗床
 	void doSwitchToBed(int mode);
 	//显示面板切换到激光等中心

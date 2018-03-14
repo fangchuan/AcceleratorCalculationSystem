@@ -50,6 +50,10 @@ private:
 	QAction*  mThreeDAction;
 	QAction*  mPlotAction;
 	QAction*  mExportAction;
+	QAction*  mExportDegreePlotAction;
+	QAction*  mExportDegreeVelPlotAction;
+	QAction*  mExportDistancePlotAction;
+	QAction*  mExportDistanceVelPlotAction;
 	QAction*  mSaveAction;
 	QAction*  mSaveAsAction;
 	QAction*  mPrintAction;

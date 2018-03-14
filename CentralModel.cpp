@@ -295,23 +295,30 @@ void CentralModel::calSoftISOCenterAndFoots(Circle* gantry, Circle* bed)
 void CentralModel::handleReport()
 {
 	double distance = 0;
-	double gantryVariance =0, gantryMean =0;
-	double bedVariance=0, bedMean=0;
+	double gantryVariance =0, gantryMean = 0, gantryAngle =0;
+	double bedVariance=0, bedMean=0, bedAngle = 0;
+	double cbctVariance=0, cbctMean=0, cbctAngle=0;
 
-	if (m_softCenterIsCal && m_LaserISODetected && m_LightCenterDetected){
+	if (m_softCenterIsCal && m_LaserISODetected ){  // use light center or not ?
 		//calculate distance between softcenter and laserCenter
 		distance = sqrt(vtkMath::Distance2BetweenPoints(reportData.softCenter, reportData.laserCenter));
 		reportData.distanceLaser2Soft = distance;
 	}
 
-	bool retg = m_GantryHandler->getRotateStatistical(gantryVariance, gantryMean);
-	bool retb = m_BedHandler->getRotateStatistical(bedVariance, bedMean);
+	bool retg = m_GantryHandler->getRotateStatistical(gantryVariance, gantryMean,gantryAngle);
+	bool retb = m_BedHandler->getRotateStatistical(bedVariance, bedMean, bedAngle);
+	bool retc = m_CbctHandler->getRotateStatistical(cbctVariance, cbctMean,cbctAngle);
 
-	if (retg && retb){
+	if (retg && retb ){  // use cbct circle result or not ?
 		reportData.gantryVar = gantryVariance;
 		reportData.gantryMean = gantryMean;
+		reportData.gantryAngle = gantryAngle;
 		reportData.bedVar = bedVariance;
 		reportData.bedMean = bedMean;
+		reportData.bedAngle = bedAngle;
+		reportData.cbctVar = cbctVariance;
+		reportData.cbctMean = cbctMean;
+		reportData.cbctAngle = cbctAngle;
 
 		m_ReadyToReport = true;
 	}else{

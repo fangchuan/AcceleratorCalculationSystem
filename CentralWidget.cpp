@@ -141,6 +141,26 @@ void CentralWidget::exportReport()
 	reportWidget->filePrintPdf();
 }
 
+void CentralWidget::exportDegreePlot()
+{
+	plotWidget->exportDegreePlot();
+}
+
+void CentralWidget::exportDegreeVelocityPlot()
+{
+	plotWidget->exportDegreeVelPlot();
+}
+
+void CentralWidget::exportDistancePlot()
+{
+	plotWidget->exportDistancePlot();
+}
+
+void CentralWidget::exportDistanceVelocityPlot()
+{
+	plotWidget->exportDistanceVelPlot();
+}
+
 void CentralWidget::saveReport()
 {
 	reportWidget->fileSave();
@@ -189,7 +209,7 @@ void CentralWidget::monitoring()
 void CentralWidget::switchToHorizontalRegister() 
 {
 	if (m_Tracker->getState() < TrackingDevice::Ready) {
-		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QObject::tr("Camera is not connected or not ready!"));
 		return;
 	}
 
@@ -205,7 +225,7 @@ void CentralWidget::switchToHorizontalRegister()
 void CentralWidget::switchToGantry() 
 {
 	if (m_Tracker->getState() < TrackingDevice::Ready) {
-		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QObject::tr("Camera is not connected or not ready!"));
 		return;
 	}
 
@@ -221,7 +241,7 @@ void CentralWidget::switchToGantry()
 void CentralWidget::switchToCollimator()
 {
 	if (m_Tracker->getState() < TrackingDevice::Ready) {
-		QMessageBox::warning(this,QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		QMessageBox::warning(this,QCoreApplication::applicationName(), QObject::tr("Camera is not connected or not ready!"));
 		return;
 	}
 
@@ -237,7 +257,7 @@ void CentralWidget::switchToCollimator()
 void CentralWidget::switchToBed(int mode)
 {
 	if (m_Tracker->getState() < TrackingDevice::Ready) {
-		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QObject::tr("Camera is not connected or not ready!"));
 		return;
 	}
 
@@ -254,7 +274,7 @@ void CentralWidget::switchToBed(int mode)
 void CentralWidget::switchToLaserISO()
 {
 	if (m_Tracker->getState() < TrackingDevice::Ready) {
-		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QObject::tr("Camera is not connected or not ready!"));
 		return;
 	}
 
@@ -270,7 +290,7 @@ void CentralWidget::switchToLaserISO()
 void CentralWidget::switchToLightCenter()
 {
 	if (m_Tracker->getState() < TrackingDevice::Ready) {
-		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QObject::tr("Camera is not connected or not ready!"));
 		return;
 	}
 
@@ -286,7 +306,7 @@ void CentralWidget::switchToLightCenter()
 void CentralWidget::switchToCbct()
 {
 	if (m_Tracker->getState() < TrackingDevice::Ready) {
-		QMessageBox::warning(this, QCoreApplication::applicationName(), QString::fromLocal8Bit("摄像机未连接或已连接未就绪！"));
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QObject::tr("Camera is not connected or not ready!"));
 		return;
 	}
 
@@ -326,7 +346,7 @@ void CentralWidget::recordingCollimator()
 void CentralWidget::recordingCbct()
 {
 	m_Model->setHandlerToCbct();
-	//plotWidget->setCbctUpdateFlag();
+	plotWidget->setCBCTUpdateFlag();
 #ifdef USE_LOG
 	logger->write(QString::fromLocal8Bit("Recording CBCT Rotate"));
 #endif
@@ -535,8 +555,8 @@ void CentralWidget::circleResult(Circle *circle)
 	}
 	//更新CBCT运动
 	if (handler == CBCT_HANDLER) {
-		plotWidget->updateCollimatorDegree(angle);
-		renderWidget->rotateCollimator(angle);
+		plotWidget->updateCBCTDegree(angle);
+		renderWidget->rotateCbct(angle);
 
 #ifdef USE_LOG
 		QString str = QStringLiteral("CBCT rotate result:\n");
@@ -603,7 +623,9 @@ void CentralWidget::registerLaserISOPosition(Point3D &point)
 {
 	double position[3] = { point[0], point[1], point[3] };
 	m_DisplayWidget->setRegisteredPosition(position);
-	renderWidget->drawLaserISOCenter(position[2]*0.01, position[1]*0.01, -position[0]*0.01);
+	//transform point position in NDI coordinate to rendering scence
+	// x'= -z0, y'=y0, z'=x0
+	renderWidget->drawLaserISOCenter(-position[2] * 0.01, position[1] * 0.01, position[0] * 0.01);
 
 #ifdef USE_LOG
 	QString str = QStringLiteral("Laser ISOCenter Position: ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
@@ -619,7 +641,9 @@ void CentralWidget::registerLightCenterPosition(Point3D &point)
 {
 	double position[3] = { point[0], point[1], point[3] };
 	m_DisplayWidget->setRegisteredPosition(position);
-	renderWidget->drawLightCenter(position[2] * 0.01, position[1] * 0.01, -position[0] * 0.01);
+	//transform point position in NDI coordinate to rendering scence
+	// x'= -z0, y'=y0, z'=x0
+	renderWidget->drawLightCenter(-position[2] * 0.01, position[1] * 0.01, position[0] * 0.01);
 
 #ifdef USE_LOG
 	QString str = QStringLiteral("Light Center Position: ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
@@ -654,11 +678,11 @@ void CentralWidget::reportResult(const ReportData& report)
 												.arg(report.lightCenter[1], 0, 'f', 2)
 												.arg(report.lightCenter[2], 0, 'f', 2);
 
-	QString foot_A = QString("( %1, %2, %3)").arg(report.footA[0], 0, 'f', 2)
+	QString foot_A = QString("( %1, %2, %3 )").arg(report.footA[0], 0, 'f', 2)
 											.arg(report.footA[1], 0, 'f', 2)
 											.arg(report.footA[2], 0, 'f', 2);
 
-	QString foot_B = QString("( %1, %2, %3)").arg(report.footB[0], 0, 'f', 2)
+	QString foot_B = QString("( %1, %2, %3 )").arg(report.footB[0], 0, 'f', 2)
 											.arg(report.footB[1], 0, 'f', 2)
 											.arg(report.footB[2], 0, 'f', 2);
 
@@ -670,17 +694,25 @@ void CentralWidget::reportResult(const ReportData& report)
 	QString distanceB2Laser = QString(" %1 mm").arg(distanceB, 0, 'f', 2);
 	QString gantryVar = QString(" %1").arg(report.gantryVar, 0,'f', 2);
 	QString gantryMean = QString(" %1 mm").arg(report.gantryMean, 0, 'f', 2);
+	QString gantryAngle = QString(" %1 degree").arg(report.gantryAngle, 0, 'f', 2);
 	QString bedVar = QString(" %1").arg(report.bedVar, 0, 'f', 2);
 	QString bedMean = QString(" %1 mm").arg(report.bedMean, 0, 'f', 2);
+	QString bedAngle = QString(" %1 degree").arg(report.bedAngle, 0, 'f', 2);
+	QString cbctVar = QString(" %1").arg(report.cbctVar, 0, 'f', 2);
+	QString cbctMean = QString(" %1 mm").arg(report.cbctMean, 0, 'f', 2);
+	QString cbctAngle = QString(" %1 degree").arg(report.cbctAngle, 0, 'f', 2);
 
 	double gantryVelocity = plotWidget->getGantryAvrDegreeVelocity();
 	double bedVelocity = plotWidget->getBedAvrDegreeVelocity();
+	double cbctVelocity = plotWidget->getCBCTAvrDegreeVelocity();
 	QString gantryVel = QString(" %1  degree/s").arg(gantryVelocity, 0, 'f', 2);
 	QString bedVel = QString(" %1  degree/s").arg(bedVelocity, 0, 'f', 2);
-
+	QString cbctVel = QString(" %1  degree/s").arg(cbctVelocity, 0, 'f', 2);
 
 	reportWidget->setHtmlReport(softCenter, laserCenter, lightCenter, foot_A, foot_B, distanceSoft2Laser, distanceA2Laser, distanceB2Laser, 
-															gantryVar, gantryMean, gantryVel, bedVar, bedMean, bedVel);
-	renderWidget->drawSoftISOCenter(report.softCenter[2]*0.01, report.softCenter[1]*0.01, -report.softCenter[0]*0.01);
+							gantryVar, gantryMean, gantryVel, gantryAngle, bedVar, bedMean, bedVel, bedAngle, cbctVar, cbctMean, cbctVel, cbctAngle);
+	//transform point position in NDI coordinate to rendering scence
+	// x'= -z0, y'=y0, z'=x0
+	renderWidget->drawSoftISOCenter(-report.softCenter[2]*0.01, report.softCenter[1]*0.01, report.softCenter[0]*0.01);
 	renderWidget->drawVerticalLine(report.footA, report.footB);
 }
