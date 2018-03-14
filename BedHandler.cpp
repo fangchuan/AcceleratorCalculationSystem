@@ -64,6 +64,7 @@ AbstractMonitorHandler *BedHandler::handle(Point3D &point)
 void BedHandler::reset()
 {
 	m_FitCircle->clearPoints();
+	m_angleC2HContainer.clear();
 	m_HasBasePoint = false;
 }
 //测量旋转:圆、角度(绝对)、半径、法向量
@@ -85,12 +86,15 @@ void BedHandler::handleRotation(MarkerPointContainerType &positions)
 	double center[3], normal[3], horizontalPlaneNormal[3], radius;
 	if (m_FitCircle->getCircle(center, normal, radius)) {
 
-		double rad = (out[2] - center[2]) / radius;
-		rad = rad > 1 ? 1 : rad;
-		rad = rad < -1 ? -1 : rad;
-		double angle = acos(rad) * RAD2DEGREE;
+		//double rad = (out[2] - center[2]) / radius;
+		//rad = rad > 1 ? 1 : rad;
+		//rad = rad < -1 ? -1 : rad;
+		//double angle = acos(rad) * RAD2DEGREE;
 
-		angle *= out[0] < center[0] ? -1 : 1;//逆时针旋转为+
+		//angle *= out[0] < center[0] ? -1 : 1;//逆时针旋转为+
+		double deltZ = out[2] - center[2];
+		double deltX = out[0] - center[0];
+		double angle = atan2(deltX, deltZ) *RAD2DEGREE;
 
 		Circle circle;
 		memcpy(circle.Center, center, sizeof(center));
@@ -128,7 +132,7 @@ void BedHandler::handleTranslation(MarkerPointContainerType &positions)
 	emit translateResult(bias);
 }
 
-bool BedHandler::getRotateStatistical(double& variance, double& mean)
+bool BedHandler::getRotateStatistical(double& variance, double& mean, double& angleMean)
 {
 	if (m_FitCircle->calRotateError(variance, mean))
 	{
@@ -140,11 +144,11 @@ bool BedHandler::getRotateStatistical(double& variance, double& mean)
 			{
 				sum += m_angleC2HContainer.at(i);
 			}
-			//angleMean = sum / size;
+			angleMean = sum / size;
 		}
 		else
 		{
-			//angleMean = 0;
+			angleMean = 0;
 		}
 		return true;
 	}

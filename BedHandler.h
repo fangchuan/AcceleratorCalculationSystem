@@ -16,7 +16,7 @@ public:
 	virtual AbstractMonitorHandler* handle(Point3D &point);
 	virtual void reset();
 	void setMode(int mode);
-	bool getRotateStatistical(double& variance, double& mean);
+	bool getRotateStatistical(double& variance, double& mean, double& angleMean);
 signals:
 	void pseudoMarkerSize(int size);
 	void markerPosition(MarkerPointType &point);
