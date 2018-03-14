@@ -599,9 +599,13 @@ public:
 	int getBedDegreeUpdateFlag();
 	//获取当前更新标志是否是治疗床移动标志
 	int getBedDistanceUpdatFlag();
-signals:
+
 
 public slots :
+	void exportDistancePlot();
+	void exportDistanceVelPlot();
+	void exportDegreePlot();
+	void exportDegreeVelPlot();
 	void updateGantryDegree(const float y);
 	void updateGantryDegreeVelocity();
 	double getGantryAvrDegreeVelocity();

@@ -1,4 +1,5 @@
 #include "plotview.h"
+#include <qwt_plot_renderer.h>
 #include "QTextCodec"
 #include <QTime>
 #include <QTimerEvent>
@@ -135,6 +136,32 @@ int PlotView::getBedDistanceUpdatFlag()
 {
 	return mUpdateFlag;
 }
+
+
+void PlotView::exportDistancePlot()
+{
+	QwtPlotRenderer render;
+	render.exportTo(distancePlot, QObject::tr("bed displacement plot"));
+}
+
+void PlotView::exportDistanceVelPlot()
+{
+	QwtPlotRenderer render;
+	render.exportTo(velocityPlot, QObject::tr("bed displacement velocity plot"));
+}
+
+void PlotView::exportDegreePlot()
+{
+	QwtPlotRenderer render;
+	render.exportTo(degreeDistancePlot, QObject::tr("degree displacement plot"));
+}
+
+void PlotView::exportDegreeVelPlot()
+{
+	QwtPlotRenderer render;
+	render.exportTo(degreeVelocityPlot, QObject::tr("degree velocity plot"));
+}
+
 void PlotView::updateGantryDegree(const float y)
 {
 	if (getGantryUpdateFlag()) {
