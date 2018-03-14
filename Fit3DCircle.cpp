@@ -56,7 +56,7 @@ void Fit3DCircle::addPoint(MarkerPointType &point)
 {
 	m_Positions.push_back(point);
 	if (!m_IsCalculated) {
-		if (m_Positions.size() > 3 && (fabs(point[0] - m_Positions.at(0)[0]) > 10 )) {   // threshold 10
+		if (m_Positions.size() > 3 && (fabs(point[0] - m_Positions.at(0)[0]) > 50 )) {   // threshold 50
 			calculate();
 		}
 	}
