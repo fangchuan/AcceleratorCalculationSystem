@@ -27,9 +27,15 @@ public:
 						QString& gv,
 						QString& gm,
 						QString& gVel,
+						QString& gAngle,
 						QString& bv,
 						QString& bm,
-						QString& bVel);
+						QString& bVel,
+						QString& bAngle,
+						QString& cv,
+						QString& cm,
+						QString& cVel,
+						QString& cAngle);
 public slots:
 	bool fileSave();
 	bool fileSaveAs();

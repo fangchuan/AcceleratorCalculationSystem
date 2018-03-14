@@ -36,6 +36,9 @@ ReportView::ReportView(QWidget *parent)
 		QString("N/A"), QString("N/A"), 
 		QString("N/A"), QString("N/A"), 
 		QString("N/A"), QString("N/A"), 
+		QString("N/A"), QString("N/A"),
+		QString("N/A"), QString("N/A"),
+		QString("N/A"), QString("N/A"),
 		QString("N/A"), QString("N/A"));
 }
 
@@ -179,9 +182,15 @@ void ReportView::setHtmlReport(QString& softCenter,
 									QString& gv,
 									QString& gm,
 									QString& gVel,
+									QString& gAngle,
 									QString& bv,
 									QString& bm,
-									QString& bVel)
+									QString& bVel,
+									QString& bAngle,
+									QString& cv,
+									QString& cm,
+									QString& cVel,
+									QString& cAngle)
 {
 	QString html;
 	QString title = QString::fromLocal8Bit("加速器校验报告--南京大学医学物理与医学影像研究中心");
@@ -221,9 +230,11 @@ void ReportView::setHtmlReport(QString& softCenter,
 	item9 += gv;
 	item10 += gm;
 	item11 += gVel;
+	item12 += gAngle;
 	item13 += bv;
 	item14 += bm;
 	item15 += bVel;
+	item16 += bAngle;
 
 	html += "<h1 align=\"center\">";
 	html += "<strong><span bgcolor=\"red\">"+ title +"< / span>< / strong>";
@@ -255,6 +266,7 @@ void ReportView::setHtmlReport(QString& softCenter,
 	html += "<p align=\"left\">&nbsp;&nbsp; 10." + item10 + "</p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;	11." + item11 + "</p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;	12." + item12 + "</p>";
+	html += "<p align=\"left\"><br/>< / p>";
 	html += "<p align=\"left\"><br/>< / p>";
 	html += "<p align=\"left\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + pictrue2 + "< / p>";
 
