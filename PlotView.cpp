@@ -141,25 +141,37 @@ int PlotView::getBedDistanceUpdatFlag()
 void PlotView::exportDistancePlot()
 {
 	QwtPlotRenderer render;
-	render.exportTo(distancePlot, QObject::tr("bed displacement plot"));
+	QString str = QString("bed_displacement_plot_");
+	QString current_date = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+	str += current_date;
+	render.exportTo(distancePlot, str);
 }
 
 void PlotView::exportDistanceVelPlot()
 {
 	QwtPlotRenderer render;
-	render.exportTo(velocityPlot, QObject::tr("bed displacement velocity plot"));
+	QString str = QString("bed_displacement_velocity_plot_");
+	QString current_date = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+	str += current_date;
+	render.exportTo(velocityPlot, str);
 }
 
 void PlotView::exportDegreePlot()
 {
 	QwtPlotRenderer render;
-	render.exportTo(degreeDistancePlot, QObject::tr("degree displacement plot"));
+	QString str = QString("degree_displacement_plot_");
+	QString current_date = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+	str += current_date;
+	render.exportTo(degreeDistancePlot, str);
 }
 
 void PlotView::exportDegreeVelPlot()
 {
 	QwtPlotRenderer render;
-	render.exportTo(degreeVelocityPlot, QObject::tr("degree velocity plot"));
+	QString str = QString("degree_velocity_plot_");
+	QString current_date = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+	str += current_date;
+	render.exportTo(degreeVelocityPlot, str);
 }
 
 void PlotView::updateGantryDegree(const float y)

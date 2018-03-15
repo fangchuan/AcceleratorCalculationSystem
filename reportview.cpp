@@ -193,30 +193,31 @@ void ReportView::setHtmlReport(QString& softCenter,
 									QString& cAngle)
 {
 	QString html;
-	QString title = QString::fromLocal8Bit("加速器校验报告--南京大学医学物理与医学影像研究中心");
+	QString title = tr("Accelerator Calibration Report--Nanjing University Medical Physics and Medical Imaging Research Center");
 	QString current_date = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss ddd");
 	QString image1path = QStringLiteral(":/Resources/image/report_1.png");
 	QString image2path = QStringLiteral(":/Resources/image/report_2.png");
 	QString image3path = QStringLiteral(":/Resources/image/report_3.png");
-	QString pictrue1 = QString::fromLocal8Bit("图1、加速器等中心");
-	QString pictrue2 = QString::fromLocal8Bit("图2、机架运动");
-	QString pictrue3 = QString::fromLocal8Bit("图3、治疗床运动");
-	QString item1 = QString::fromLocal8Bit("机械等中心:");
-	QString item2 = QString::fromLocal8Bit("激光等中心:");
-	QString item3 = QString::fromLocal8Bit("模拟光野中心:");
-	QString item4 = QString::fromLocal8Bit("机械等中心到激光等中心距离:");
-	QString item5 = QString::fromLocal8Bit("垂足A:");
-	QString item6 = QString::fromLocal8Bit("垂足B:");
-	QString item7 = QString::fromLocal8Bit("激光等中心到垂足A距离:");
-	QString item8 = QString::fromLocal8Bit("激光等中心到垂足B距离:");
-	QString item9 = QString::fromLocal8Bit("机架旋转误差--方差:");
-	QString item10 = QString::fromLocal8Bit("机架旋转误差--平均值:");
-	QString item11 = QString::fromLocal8Bit("机架旋转平均速度:");
-	QString item12 = QString::fromLocal8Bit("机架旋转平面与注册水平面夹角:");
-	QString item13 = QString::fromLocal8Bit("治疗床旋转误差--方差:");
-	QString item14 = QString::fromLocal8Bit("治疗床旋转误差--平均值:");
-	QString item15 = QString::fromLocal8Bit("治疗床旋转平均速度:");
-	QString item16 = QString::fromLocal8Bit("治疗床旋转平面与水平面夹角:");
+	QString pictrue1 = tr("Figure 1, ISOcenter ");//
+	QString pictrue2 = tr("Figure 2, Gantry Movement");//);
+	QString pictrue3 = tr("Figure 3, Bed Movement");//
+	QString item1 = tr("Mechainc ISOcenter:");//
+	QString item2 = tr("Laser ISOcenter:");//
+	QString item3 = tr("Light Center:");//
+	QString item4 = tr("Distance between Machanic ISOcenter to Laser ISOcenter:");//
+	QString item5 = tr("Footpoint A:");//
+	QString item6 = tr("Footpoint B:");//
+	QString item7 = tr("Distance between Laser ISOcenter to Footpoint A:");
+	QString item8 = tr("Distance between Laser ISOcenter to Footpoint B:");
+	QString item9 = tr("Mechanic rotation error - variance:");
+	QString item10 = tr("Mechanic rotation error - mean:");
+	QString item11 = tr("Gantry rotation average velocity:");
+	QString item12 = tr("Angle between gantry rotation plane and horizontal plane:");
+	QString item13 = tr("Bed rotation error - variance:");
+	QString item14 = tr("Bed rotation error - mean:");
+	QString item15 = tr("Bed rotation average velocity:");
+	QString item16 = tr("Bed rotation plane and horizontal plane angle:");
+	
 
 
 	item1 += softCenter;

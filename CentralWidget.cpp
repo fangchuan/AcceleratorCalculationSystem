@@ -66,8 +66,8 @@ void CentralWidget::initLogger()
 {
 #ifdef  USE_LOG
 	logger = Logger::getInstance();
-	logger->write(QString::fromLocal8Bit("江苏富科思科技有限公司"));
-	logger->write(QString::fromLocal8Bit("LNAC setup"));
+	logger->write(QObject::tr("JSFOCUS"));
+	logger->write(QObject::tr("LNAC setup"));
 #endif
 }
 
@@ -323,7 +323,7 @@ void CentralWidget::recordingHorizontalRegister()
 {
 	m_Model->setHandlerToHorizontalRegister();
 
-	logger->write(QString::fromLocal8Bit("Recording horizontal plane register"));
+	logger->write(QObject::tr("Recording horizontal plane register"));
 }
 
 void CentralWidget::recordingGantry()
@@ -331,7 +331,7 @@ void CentralWidget::recordingGantry()
 	m_Model->setHandlerToGantry();
 	plotWidget->setGantryUpdateFlag();
 
-	logger->write(QString::fromLocal8Bit("Recording Gantry Rotate"));
+	logger->write(QObject::tr("Recording Gantry Rotate"));
 }
 
 void CentralWidget::recordingCollimator()
@@ -339,7 +339,7 @@ void CentralWidget::recordingCollimator()
 	m_Model->setHandlerToCollimator();
 	plotWidget->setCollimatorUpdateFlag();
 #ifdef USE_LOG
-	logger->write(QString::fromLocal8Bit("Recording Collimator Rotate"));
+	logger->write(QObject::tr("Recording Collimator Rotate"));
 #endif
 }
 
@@ -348,7 +348,7 @@ void CentralWidget::recordingCbct()
 	m_Model->setHandlerToCbct();
 	plotWidget->setCBCTUpdateFlag();
 #ifdef USE_LOG
-	logger->write(QString::fromLocal8Bit("Recording CBCT Rotate"));
+	logger->write(QObject::tr("Recording CBCT Rotate"));
 #endif
 
 }
@@ -362,25 +362,25 @@ void CentralWidget::recordingBed(int mode)
 	case 0:
 		plotWidget->setEmptyBedDegreeUpdateFlag();
 #ifdef USE_LOG
-		logger->write(QString::fromLocal8Bit("Recording Bed Rotate on no payload condition: "));
+		logger->write(QObject::tr("Recording Bed Rotate on no payload condition: "));
 #endif
 		break;
 	case 1:
 		plotWidget->setEmptyBedDistanceUpdateFlag();
 #ifdef USE_LOG
-		logger->write(QString::fromLocal8Bit("Recording Bed Translate on no payload condition: "));
+		logger->write(QObject::tr("Recording Bed Translate on no payload condition: "));
 #endif
 		break;
 	case 2:
 		plotWidget->setPayloadBedDegreeUpdateFlag();
 #ifdef USE_LOG
-		logger->write(QString::fromLocal8Bit("Recording Bed Rotate on payload condition: "));
+		logger->write(QObject::tr("Recording Bed Rotate on payload condition: "));
 #endif
 		break;
 	case 3:
 		plotWidget->setPayloadBedDistanceUpdateFlag();
 #ifdef USE_LOG
-		logger->write(QString::fromLocal8Bit("Recording Bed Translate on payload condition: "));
+		logger->write(QObject::tr("Recording Bed Translate on payload condition: "));
 #endif
 		break;
 	default:
@@ -392,7 +392,7 @@ void CentralWidget::recordingLaserISO()
 {
 	m_Model->setHandlerToISOCenter();
 #ifdef USE_LOG
-	logger->write(QString::fromLocal8Bit("Recording Laser ISO Center"));
+	logger->write(QObject::tr("Recording Laser ISO Center"));
 #endif
 }
 
@@ -400,7 +400,7 @@ void CentralWidget::recordingLightCenter()
 {
 	m_Model->setHandlerToLightCenter();
 #ifdef USE_LOG
-	logger->write(QString::fromLocal8Bit("Recording Light Center"));
+	logger->write(QObject::tr("Recording Light Center"));
 #endif
 }
 
@@ -443,7 +443,7 @@ void CentralWidget::pseudoMarkerSize(int size)
 #ifdef USE_LOG
 	logger->write(str);
 #endif
-    QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromStdString(str.toStdString()));
+    QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), str);
 }
 
 //
@@ -470,7 +470,7 @@ void CentralWidget::horizontalRegisterRecorded()
 	QString str = QStringLiteral("Horizontal plane has registered!");
 	logger->write(str);
 #endif
-	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("水平面注册成功!"));
+	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Register horizontal plane successfully!"));
 }
 
 void CentralWidget::horizontalRegisterFailed()
@@ -479,7 +479,8 @@ void CentralWidget::horizontalRegisterFailed()
 	QString str = QStringLiteral("Horizontal plane registered Failed, check for horizontalRegister or record register data again!");
 	logger->write(str);
 #endif
-	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("水平面注册失败，请检查水平仪或重新记录注册数据!\n如需记录注册数据请再次点击记录水平面按钮"));
+	//
+	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Horizontal plane registered Failed, check for horizontalRegister or record register data again!"));
 }
 void CentralWidget::loadHorizontalRegisterData(int index)
 {
@@ -488,21 +489,24 @@ void CentralWidget::loadHorizontalRegisterData(int index)
 		QString str = QStringLiteral("Horizontal plane register data 1 recorded, please hit the button again to record data 2!");
 		logger->write(str);
 #endif
-		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("1号水平面数据点记录成功！\n请点击记录水平面按钮记录2号数据点。"));
+		//
+		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Horizontal plane register data 1 recorded, please hit the button again to record data 2!"));
 	}
 	if (index == 2) {
 #ifdef USE_LOG
 		QString str = QStringLiteral("Horizontal plane register data 2 recorded, please hit the button again to record data 3!");
 		logger->write(str);
 #endif
-		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("2号水平面数据点记录成功！\n请点击记录水平面按钮记录3号数据点。"));
+		//
+		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Horizontal plane register data 2 recorded, please hit the button again to record data 3!"));
 	}
 	if (index == 3) {
 #ifdef USE_LOG
 		QString str = QStringLiteral("Horizontal plane register data 3 recorded, complete horizontal plane register data record!");
 		logger->write(str);
 #endif
-		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("3号水平面数据点记录成功！\n完成水平面数据点记录，请拿掉小球遮挡套。"));
+		//
+		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Horizontal plane register data 3 recorded, complete horizontal plane register data record!"));
 	}
 
 }

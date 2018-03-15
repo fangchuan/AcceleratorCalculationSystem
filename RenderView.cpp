@@ -165,6 +165,7 @@ void QtRenderView::RenderView::createScene()
 {
 
 	mOgreSceneMgr->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
+	
 	//set accelerator material
 	Ogre::MaterialPtr accelMaterial = Ogre::MaterialManager::getSingleton().create("AccelMaterial",
 		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, true);
@@ -205,6 +206,7 @@ void QtRenderView::RenderView::createScene()
 	ogreEntity4->setMaterialName("BedMaterial");
 	ogreNode4->attachObject(ogreEntity4);
 	ogreNode4->setScale(Ogre::Vector3(4.0f, 4.0f, 4.0f)); // Radius, in theory.
+
 
 	Ogre::Entity* ogreEntity5 = mOgreSceneMgr->createEntity("acceleratorbedStrech.mesh");
 	Ogre::SceneNode* ogreNode5 = ogreNode4->createChildSceneNode(ACCEL_BED_STRECH_NAME, ACCEL_BED_STRECH_BIAS);
@@ -528,6 +530,12 @@ void QtRenderView::RenderView::rotateCollimator(float degree)
 
 }
 /*
+*  Ðý×ªcbct
+*/
+void QtRenderView::RenderView::rotateCbct(float degree)
+{
+}
+/*
 * Ðý×ª»ú´²
 */
 void QtRenderView::RenderView::rotateBed(float degree)
@@ -675,12 +683,12 @@ void QtRenderView::RenderView::drawGantryAxis(const QVector3D &start, const QVec
 
 void QtRenderView::RenderView::drawBedAxis(const QVector3D &start, const QVector3D &end, const QColor &color)
 {
-	float x_s = start.z();
+	float x_s = -start.z();
 	float y_s = start.y();
-	float z_s = -start.x();
-	float x_e = end.z();
+	float z_s = start.x();
+	float x_e = -end.z();
 	float y_e = end.y();
-	float z_e = -end.x();
+	float z_e = end.x();
 
 	float x_center = (x_s + x_e)*0.5;
 	float y_center = (y_s + y_e)*0.5;

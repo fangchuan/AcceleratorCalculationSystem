@@ -46,7 +46,7 @@ void MainWindow::initUi()
     m_CentralWidget = new CentralWidget(this);
     setCentralWidget(m_CentralWidget);
 	setWindowTitle(QCoreApplication::applicationName());
-	//setWindowIcon(QIcon(":/Resources/image/splash_screen.png"));
+	setWindowIcon(QIcon(":/Resources/image/acs.ico"));
 
 	initFileActions();
 	initViewActions();

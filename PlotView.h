@@ -111,7 +111,7 @@ public:
 		mBedXDistance(NULL), mBedYDistance(NULL), mBedZDistance(NULL),
 		mPayloadBedXDistance(NULL), mPayloadBedYDistance(NULL),mPayloadBedZDistance(NULL)
 	{
-		this->setTitle(QString::fromLocal8Bit("治疗床位移"));
+		this->setTitle(QObject::tr("BED DISPLACEMENT"));
 		//set axis name
 		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
 		this->setAxisTitle(QwtPlot::yLeft, "Distance [mm]");
@@ -236,7 +236,7 @@ public:
 		mBedXVelocity(NULL), mBedYVelocity(NULL), mBedZVelocity(NULL),
 		mPayloadBedXVelocity(NULL), mPayloadBedYVelocity(NULL),mPayloadBedZVelocity(NULL)
 	{
-		this->setTitle(QString::fromLocal8Bit("治疗床速度"));
+		this->setTitle(QObject::tr("BED VELOCITY"));
 		//set axis name
 		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
 		this->setAxisTitle(QwtPlot::yLeft, "Velocity [mm/s]");
@@ -360,7 +360,7 @@ public:
 		mGantryDistance(NULL), mCollimatorDistance(NULL), mBedDistance(NULL),
 		mCbctDistance(NULL), mPayloadBedDistance(NULL)
 	{
-		this->setTitle(QString::fromLocal8Bit("角位移"));
+		this->setTitle(QObject::tr("DEGREE"));
 		//set axis name
 		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
 		this->setAxisTitle(QwtPlot::yLeft, "Displacement [degree]");
@@ -467,7 +467,7 @@ public:
 		mGantryVelocity(NULL), mCollimatorVelocity(NULL), mBedVelocity(NULL),
 		mCbctVelocity(NULL), mPayloadBedVelocity(NULL)
 	{
-		this->setTitle(QString::fromLocal8Bit("角速度"));
+		this->setTitle(QObject::tr("DEGREE VELOCITY"));
 		//set axis name
 		this->setAxisTitle(QwtPlot::xBottom, "Time [s]");
 		this->setAxisTitle(QwtPlot::yLeft, "DegreeVelocity [degree/s]");

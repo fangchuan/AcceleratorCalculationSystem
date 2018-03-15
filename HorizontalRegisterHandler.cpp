@@ -51,7 +51,7 @@ void HorizontalRegisterHandler::loadHorizontalRegister()
 		file.close();
 	}
 	else {
-		QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), QString::fromLocal8Bit("未找到水平面注册数据"));
+		QMessageBox::warning(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("No registration data found!"));//
 	}
 }
 //当配套水平注册仪的三点距离发生变化时，直接以当前水平注册仪的三点坐标作为水平注册文件

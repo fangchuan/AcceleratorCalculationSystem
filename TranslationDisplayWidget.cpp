@@ -21,19 +21,19 @@ void TranslationDisplayWidget::initUi()
 {
 	QVBoxLayout *mainLayout = new QVBoxLayout(this);
 	QHBoxLayout *layout_1 = new QHBoxLayout;
-	layout_1->addWidget(new QLabel(QString::fromLocal8Bit("Æ½ÒÆÇòÊý/×ø±ê:")));
+	layout_1->addWidget(new QLabel(QObject::tr("Sizes/Coordinate:")));//
 	layout_1->addWidget(m_MarkerSizeOrPosition);
 	mainLayout->addLayout(layout_1);
 	QHBoxLayout *layout_2 = new QHBoxLayout;
-	layout_2->addWidget(new QLabel(QString::fromLocal8Bit("XÖáÆ½ÒÆ¾àÀë:")));
+	layout_2->addWidget(new QLabel(QObject::tr("X axis translation distance:")));//
 	layout_2->addWidget(m_XLabel);
 	mainLayout->addLayout(layout_2);
 	QHBoxLayout *layout_3 = new QHBoxLayout;
-	layout_3->addWidget(new QLabel(QString::fromLocal8Bit("YÖáÆ½ÒÆ¾àÀë:")));
+	layout_3->addWidget(new QLabel(QObject::tr("Y axis translation distance:")));//
 	layout_3->addWidget(m_YLabel);
 	mainLayout->addLayout(layout_3);
 	QHBoxLayout *layout_4 = new QHBoxLayout;
-	layout_4->addWidget(new QLabel(QString::fromLocal8Bit("ZÖáÆ½ÒÆ¾àÀë:")));
+	layout_4->addWidget(new QLabel(QObject::tr("Z axis translation distance:")));//
 	layout_4->addWidget(m_ZLabel);
 	mainLayout->addLayout(layout_4);
 }

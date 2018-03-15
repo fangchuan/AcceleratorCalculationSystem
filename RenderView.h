@@ -60,22 +60,15 @@ namespace  QtRenderView{
 	//3D SCENE COORIDNATE
 	//
 	//****************************
-	//          /|\  Y
-	//           |
-	//           |
-	//           |
-	//           |
-	//           |
-	//           | O
-	//           |_ _ _ _ _ _ _ _ _ _ _\ X
-	//          /                      /
-	//         /
-	//        /
-	//       /
-	//      /
-	//     /
-	//  | /
-	//  |/__ Z
+	//          /|\  Y  _ X
+	//           |      /|
+	//           |     /
+	//           |    /
+	//           |   /
+	//           |  /
+	//           | /
+	//           |/_ _ _ _ _ _ _ _ _ _ _\ Z
+	//          O                      /
 	//
 	*/
 	enum LineStyle{
@@ -113,6 +106,8 @@ namespace  QtRenderView{
 		void rotateGantry(float degree);
 		//旋转辐射头，degree是绝对角度，不是相对上一次的角度差
 		void rotateCollimator(float degree);
+		//旋转CBCT，degree是绝对角度，不是相对上一次的角度差
+		void rotateCbct(float degree);
 		//旋转机床,degree是绝对角度，不是相对上一次的角度差
 		void rotateBed(float degree);
 		//延Z轴移动机床

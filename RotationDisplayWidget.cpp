@@ -21,15 +21,15 @@ void RotationDisplayWidget::initUi()
 {
 	QVBoxLayout *mainLayout = new QVBoxLayout(this);
 	QHBoxLayout *layout_1 = new QHBoxLayout;
-	layout_1->addWidget(new QLabel(QString::fromLocal8Bit("旋转球数/坐标:")));
+	layout_1->addWidget(new QLabel(QObject::tr("Numbers/Coordinate:")));//
 	layout_1->addWidget(m_MarkerSizeOrPosition);
 	mainLayout->addLayout(layout_1);
 	QHBoxLayout *layout_2 = new QHBoxLayout;
-	layout_2->addWidget(new QLabel(QString::fromLocal8Bit("旋转角度:")));
+	layout_2->addWidget(new QLabel(QObject::tr("Rotation angle:")));//
 	layout_2->addWidget(m_CurrentAngle);
 	mainLayout->addLayout(layout_2);
 	QHBoxLayout *layout_3 = new QHBoxLayout;
-	layout_3->addWidget(new QLabel(QString::fromLocal8Bit("旋转平面与注册水平面夹角:")));
+	layout_3->addWidget(new QLabel(QObject::tr("Angle between the plane of rotation and registration plane:")));//
 	layout_3->addWidget(m_AngleBettwenHorizontal);
 	mainLayout->addLayout(layout_3);
 }
