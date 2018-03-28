@@ -89,6 +89,10 @@ private slots:
 	void translateResult(double bias[3]);
 	void registerLaserISOPosition(Point3D& point);
 	void registerLightCenterPosition(Point3D &point);
+	void softISONotCalibratedReport();
+	void laserISONotCalibratedReport();
+	void editReportFail();
+	void editReportSuccess();
 	void reportResult( const ReportData & report);
 	void handleReset();
 

@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 	//singleApplication
 	QtSingleApplication::setOrganizationName(QStringLiteral("Focus"));
 	QtSingleApplication::setOrganizationDomain(QStringLiteral("jsfocus.cn"));
-	QtSingleApplication::setApplicationName(QStringLiteral("Accelerator Calibration System"));
+	QtSingleApplication::setApplicationName(QObject::tr("Accelerator Calibration System"));
 	QtSingleApplication::setApplicationVersion(ACS_VERSION);
 	QtSingleApplication::setDesktopSettingsAware(false);
 	QtSingleApplication app(argc, argv);

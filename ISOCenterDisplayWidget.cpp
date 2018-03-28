@@ -20,15 +20,48 @@ void ISOCenterDisplayWidget::initUi()
 {
 	QVBoxLayout *mainLayout = new QVBoxLayout(this);
 	QHBoxLayout *layout_1 = new QHBoxLayout;
-	layout_1->addWidget(new QLabel("X:"));
+	QLabel* labelX = new QLabel("X:");
+	labelX->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+							"font-size:16px;"
+							"border:1px solid white;"
+							"border-radius:8px;"
+							"border-style: inset;}");
+	layout_1->addWidget(labelX);
+	m_XLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+							"font-size:16px;"
+							"border:1px solid white;"
+							"border-radius:8px;"
+							"border-style: inset;}");
 	layout_1->addWidget(m_XLabel);
 	mainLayout->addLayout(layout_1);
 	QHBoxLayout *layout_2 = new QHBoxLayout;
-	layout_2->addWidget(new QLabel("Y:"));
+	QLabel* labelY = new QLabel("Y:");
+	labelY->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+							"font-size:16px;"
+							"border:1px solid white;"
+							"border-radius:8px;"
+							"border-style: inset;}");
+	layout_2->addWidget(labelY);
+	m_YLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+							"font-size:16px;"
+							"border:1px solid white;"
+							"border-radius:8px;"
+							"border-style: inset;}");
 	layout_2->addWidget(m_YLabel);
 	mainLayout->addLayout(layout_2);
 	QHBoxLayout *layout_3 = new QHBoxLayout;
-	layout_3->addWidget(new QLabel("Z:"));
+	QLabel* labelZ = new QLabel("Z:");
+	labelZ->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+							"font-size:16px;"
+							"border:1px solid white;"
+							"border-radius:8px;"
+							"border-style: inset;}");
+	layout_3->addWidget(labelZ);
+	m_ZLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+							"font-size:16px;"
+							"border:1px solid white;"
+							"border-radius:8px;"
+							"border-style: inset;}");
 	layout_3->addWidget(m_ZLabel);
 	mainLayout->addLayout(layout_3);
 }

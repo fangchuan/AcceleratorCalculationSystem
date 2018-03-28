@@ -304,6 +304,18 @@ void CentralModel::handleReport()
 		distance = sqrt(vtkMath::Distance2BetweenPoints(reportData.softCenter, reportData.laserCenter));
 		reportData.distanceLaser2Soft = distance;
 	}
+	else {
+		if (!m_softCenterIsCal)
+		{
+			emit softISONotCalibrated();
+			return ;
+		}
+		else
+		{
+			emit laserISONotCalibrated();
+			return ;
+		}
+	}
 
 	bool retg = m_GantryHandler->getRotateStatistical(gantryVariance, gantryMean,gantryAngle);
 	bool retb = m_BedHandler->getRotateStatistical(bedVariance, bedMean, bedAngle);
@@ -321,8 +333,10 @@ void CentralModel::handleReport()
 		reportData.cbctAngle = cbctAngle;
 
 		m_ReadyToReport = true;
+		emit editReportSuccessfully();
 	}else{
 		m_ReadyToReport = false;
+		emit editReportFailed();
 		return;
 	}
 }

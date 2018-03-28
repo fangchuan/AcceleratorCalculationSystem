@@ -117,6 +117,11 @@ void CentralWidget::buildConnections()
 	connect(m_Model, &CentralModel::registerLaserISO, this, &CentralWidget::registerLaserISOPosition);
 	connect(m_Model, &CentralModel::registerLightCenter, this, &CentralWidget::registerLightCenterPosition);
 	connect(m_Model, &CentralModel::sendReport, this, &CentralWidget::reportResult);
+	connect(m_Model, &CentralModel::softISONotCalibrated, this, &CentralWidget::softISONotCalibratedReport);
+	connect(m_Model, &CentralModel::laserISONotCalibrated, this, &CentralWidget::laserISONotCalibratedReport);
+	connect(m_Model, &CentralModel::editReportFailed, this, &CentralWidget::editReportFail);
+	connect(m_Model, &CentralModel::editReportSuccessfully, this, &CentralWidget::editReportSuccess);
+
 
 }
 
@@ -664,6 +669,42 @@ void CentralWidget::handleReset()
 	m_DisplayWidget->reset();
 	renderWidget->resetScene();
 	plotWidget->resetPlot();
+}
+
+void CentralWidget::softISONotCalibratedReport()
+{
+#ifdef USE_LOG
+	QString str = QStringLiteral("Cannot edit report,soft ISO not calibrated!");
+	logger->write(str);
+#endif
+	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Cannot edit report,soft ISO not calibrated!"));
+}
+
+void CentralWidget::laserISONotCalibratedReport()
+{
+#ifdef USE_LOG
+	QString str = QStringLiteral("Cannot edit report,laser ISO not calibrated!");
+	logger->write(str);
+#endif
+	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Cannot edit report,laser ISO not calibrated!"));
+}
+
+void CentralWidget::editReportFail()
+{
+#ifdef USE_LOG
+	QString str = QStringLiteral("Cannot edit report,Gantry or Bed or CBCT not calibrated!");
+	logger->write(str);
+#endif
+	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Cannot edit report,Gantry or Bed or CBCT not calibrated!"));
+}
+
+void CentralWidget::editReportSuccess()
+{
+#ifdef USE_LOG
+	QString str = QStringLiteral("Edit report successufully!");
+	logger->write(str);
+#endif
+	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Edit report successufully!"));
 }
 //
 //根据计算得到的等中心、垂足A/B坐标和公垂线长度更新报告和三维场景

@@ -167,30 +167,30 @@ void QtRenderView::RenderView::createScene()
 	mOgreSceneMgr->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
 	
 	//set accelerator material
-	Ogre::MaterialPtr accelMaterial = Ogre::MaterialManager::getSingleton().create("AccelMaterial",
-		Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, true);
-	accelMaterial->getTechnique(0)->getPass(0)->setAmbient(0.2f, 0.2f, 0.2f);
-	accelMaterial->getTechnique(0)->getPass(0)->setDiffuse(0.9f, 0.9f, 0.9f, 1.0f);
-	accelMaterial->getTechnique(0)->getPass(0)->setSpecular(0.9f, 0.9f, 0.9f, 1.0f);
-	//accelMaterial->getTechnique(0)->getPass(0)->setDepthBias(10.0f, 1.0f);
-	accelMaterial->setManuallyLoaded(true);
+	//Ogre::MaterialPtr accelMaterial = Ogre::MaterialManager::getSingleton().create("AccelMaterial",
+	//	Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, true);
+	//accelMaterial->getTechnique(0)->getPass(0)->setAmbient(0.2f, 0.2f, 0.2f);
+	//accelMaterial->getTechnique(0)->getPass(0)->setDiffuse(0.9f, 0.9f, 0.9f, 1.0f);
+	//accelMaterial->getTechnique(0)->getPass(0)->setSpecular(0.9f, 0.9f, 0.9f, 1.0f);
+	////accelMaterial->getTechnique(0)->getPass(0)->setDepthBias(10.0f, 1.0f);
+	//accelMaterial->setManuallyLoaded(true);
 
 	//load LNAC entiity: Box + Connect + Head + bedBoard + bedConnect1 + bedConnect2 + bedStrech + bedBottom
 	Ogre::Entity* ogreEntity1 = mOgreSceneMgr->createEntity("acceleratorBox.mesh");
 	Ogre::SceneNode* ogreNode1 = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(ACCEL_BOX_NAME, ACCEL_BOX_BIAS);
 	ogreNode1->attachObject(ogreEntity1);
 	ogreNode1->setScale(Ogre::Vector3(4.0f, 4.0f, 4.0f));
-	ogreEntity1->setMaterialName("AccelMaterial");
+	ogreEntity1->setMaterialName("Example/gantry");
 
 	Ogre::Entity* ogreEntity2 = mOgreSceneMgr->createEntity("acceleratorConnect.mesh");
 	Ogre::SceneNode* ogreNode2 = ogreNode1->createChildSceneNode(ACCEL_CONNECT_NAME, ACCEL_CONNECT_BIAS);
 	ogreNode2->attachObject(ogreEntity2);
-	ogreEntity2->setMaterialName("AccelMaterial");
+	ogreEntity2->setMaterialName("Example/gantry");
 
 	Ogre::Entity* ogreEntity3 = mOgreSceneMgr->createEntity("acceleratorHead.mesh");
 	Ogre::SceneNode* ogreNode3 = ogreNode2->createChildSceneNode(ACCEL_CHASSIS_NAME, ACCEL_CHASSIS_BIAS);
 	ogreNode3->attachObject(ogreEntity3);
-	ogreEntity3->setMaterialName("AccelMaterial");
+	ogreEntity3->setMaterialName("Example/gantry");
 
 	//set bed material
 	Ogre::MaterialPtr bedMaterial = Ogre::MaterialManager::getSingleton().create("BedMaterial",
@@ -210,7 +210,7 @@ void QtRenderView::RenderView::createScene()
 
 	Ogre::Entity* ogreEntity5 = mOgreSceneMgr->createEntity("acceleratorbedStrech.mesh");
 	Ogre::SceneNode* ogreNode5 = ogreNode4->createChildSceneNode(ACCEL_BED_STRECH_NAME, ACCEL_BED_STRECH_BIAS);
-	ogreEntity5->setMaterialName("AccelMaterial");
+	ogreEntity5->setMaterialName("Example/gantry");
 	ogreNode5->attachObject(ogreEntity5);
 
 	Ogre::Entity* ogreEntity6 = mOgreSceneMgr->createEntity("acceleratorbedConnect2.mesh");

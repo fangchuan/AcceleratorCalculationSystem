@@ -21,15 +21,48 @@ void RotationDisplayWidget::initUi()
 {
 	QVBoxLayout *mainLayout = new QVBoxLayout(this);
 	QHBoxLayout *layout_1 = new QHBoxLayout;
-	layout_1->addWidget(new QLabel(QObject::tr("Numbers/Coordinate:")));//
+	QLabel* numberLabel = new QLabel(QObject::tr("Numbers/Coordinate:"));
+	numberLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
+	layout_1->addWidget(numberLabel);//
+	m_MarkerSizeOrPosition->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
 	layout_1->addWidget(m_MarkerSizeOrPosition);
 	mainLayout->addLayout(layout_1);
 	QHBoxLayout *layout_2 = new QHBoxLayout;
-	layout_2->addWidget(new QLabel(QObject::tr("Rotation angle:")));//
+	QLabel* rotateLabel = new QLabel(QObject::tr("Rotation angle:"));
+	rotateLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
+	layout_2->addWidget(rotateLabel);//
+	m_CurrentAngle->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
 	layout_2->addWidget(m_CurrentAngle);
 	mainLayout->addLayout(layout_2);
 	QHBoxLayout *layout_3 = new QHBoxLayout;
-	layout_3->addWidget(new QLabel(QObject::tr("Angle between the plane of rotation and registration plane:")));//
+	QLabel* angleLabel = new QLabel(QObject::tr("Angle between the plane of rotation and registration plane:"));
+	angleLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
+	layout_3->addWidget(angleLabel);//
+	m_AngleBettwenHorizontal->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
 	layout_3->addWidget(m_AngleBettwenHorizontal);
 	mainLayout->addLayout(layout_3);
 }

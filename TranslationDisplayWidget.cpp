@@ -21,19 +21,58 @@ void TranslationDisplayWidget::initUi()
 {
 	QVBoxLayout *mainLayout = new QVBoxLayout(this);
 	QHBoxLayout *layout_1 = new QHBoxLayout;
-	layout_1->addWidget(new QLabel(QObject::tr("Sizes/Coordinate:")));//
+	QLabel* sizeLabel = new QLabel(QObject::tr("Sizes/Coordinate:"));
+	sizeLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
+	layout_1->addWidget(sizeLabel);//
+	m_MarkerSizeOrPosition->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
 	layout_1->addWidget(m_MarkerSizeOrPosition);
 	mainLayout->addLayout(layout_1);
 	QHBoxLayout *layout_2 = new QHBoxLayout;
-	layout_2->addWidget(new QLabel(QObject::tr("X axis translation distance:")));//
+	QLabel* xLabel = new QLabel(QObject::tr("X axis translation distance:"));
+	xLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
+	layout_2->addWidget(xLabel);//
+	m_XLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
 	layout_2->addWidget(m_XLabel);
 	mainLayout->addLayout(layout_2);
 	QHBoxLayout *layout_3 = new QHBoxLayout;
-	layout_3->addWidget(new QLabel(QObject::tr("Y axis translation distance:")));//
+	QLabel* yLabel = new QLabel(QObject::tr("Y axis translation distance:"));
+	yLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
+	layout_3->addWidget(yLabel);//
+	m_YLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
 	layout_3->addWidget(m_YLabel);
 	mainLayout->addLayout(layout_3);
 	QHBoxLayout *layout_4 = new QHBoxLayout;
-	layout_4->addWidget(new QLabel(QObject::tr("Z axis translation distance:")));//
+	QLabel* zLabel = new QLabel(QObject::tr("Z axis translation distance:"));
+	layout_4->addWidget(zLabel);//
+	m_ZLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
 	layout_4->addWidget(m_ZLabel);
 	mainLayout->addLayout(layout_4);
 }

@@ -73,6 +73,10 @@ signals:
 	void markerPosition(MarkerPointType &point);
 	void circleResult(Circle *circle);
 	void translateResult(double bias[3]);
+	void laserISONotCalibrated();
+	void softISONotCalibrated();
+	void editReportFailed();
+	void editReportSuccessfully();
 	void sendReport(const ReportData &reportData);
 private:
 	bool initTimer();
