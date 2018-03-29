@@ -45,7 +45,6 @@ void HorizontalRegisterHandler::loadHorizontalRegister()
 				out >> point[0] >> point[1] >> point[2];
 				m_SourcePoints->SetPoint(i, point);
 
-				//qInfo() << "HorizonRegister: Point" << i << ": (" << point[0] << "," << point[1] << "," << point[2] << ")";
 			}
 		}
 		file.close();
@@ -170,9 +169,10 @@ label:
 	}
 	m_Register->setPoints(points);
 	points->Delete();
+
 	emit markerSize(3);
 	emit horizontalRegisterRecorded();
-	//qInfo() << "HorizonReggister: Horizontal regitered!";
+
 	return nullptr;
 }
 
