@@ -8,6 +8,7 @@
 #include "isocenterhandler.h"
 #include "lightcenterhandler.h"
 #include "cbcthandler.h"
+#include "cbctpositionhandler.h"
 #include <QDebug>
 #include "vtkLine.h"
 #include "vtkMath.h"
@@ -22,6 +23,7 @@ CentralModel::CentralModel(QObject *parent)
 	m_ISOCenterHanlder(new ISOCenterHandler(this)),
 	m_LightCenterHanlder(new LightCenterHandler(this)),
 	m_CbctHandler(new CbctHandler(this)),
+	m_CbctPositionHandler(new CbctPositionHandler(this)),
 	gantryCircle(new Circle),
 	bedCircle(new Circle)
 {
@@ -84,6 +86,8 @@ void CentralModel::buildConnections()
 	connect(m_CbctHandler, &CbctHandler::pseudoMarkerSize, this, &CentralModel::pseudoMarkerSize);
 	connect(m_CbctHandler, &CbctHandler::markerPosition, this, &CentralModel::markerPosition);
 	connect(m_CbctHandler, &CbctHandler::circleResult, this, &CentralModel::circleResult);
+	connect(m_CbctPositionHandler, &CbctPositionHandler::cbctPlanePointPosition, this, &CentralModel::cbctPointPosition);
+	connect(m_CbctPositionHandler, &CbctPositionHandler::planeResult, this, &CentralModel::cbctPlaneResult);
 	
 	connect(m_ISOCenterHanlder, &ISOCenterHandler::registerLaserISO, this, &CentralModel::laserISOCenterPosition);
 	connect(m_LightCenterHanlder, &LightCenterHandler::registerLightCenter, this, &CentralModel::lightCenterPosition);
@@ -157,6 +161,12 @@ void CentralModel::setHandlerToCbct()
 	m_Handler->reset();
 }
 
+void CentralModel::setHandlerToCbctPosition()
+{
+	m_Handler = m_CbctPositionHandler;
+	m_Handler->reset();
+}
+
 int CentralModel::getHandler()
 {
 	if (m_Handler == m_HorizontalRegisterHandler){
@@ -181,7 +191,14 @@ int CentralModel::getHandler()
 						if (m_Handler == m_CbctHandler)
 							return CBCT_HANDLER;
 						else
-							return LIGHTCENTER_HANDLER;
+							if (m_Handler == m_CbctPositionHandler) {
+								return CBCT_POSITION_HANDLER;
+							}
+							else
+							{
+								return LIGHTCENTER_HANDLER;
+							}
+							
 					}
 				}
 			}

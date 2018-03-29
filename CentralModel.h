@@ -5,6 +5,7 @@
 #include "trackingtypes.h"
 #include "vpsvector.h"
 #include "circle.h"
+#include "cbctpositionhandler.h"
 
 class AbstractMonitorHandler;
 class HorizontalRegisterHandler;
@@ -14,6 +15,8 @@ class BedHandler;
 class ISOCenterHandler;
 class LightCenterHandler;
 class CbctHandler;
+class CbctPositionHandler;
+
 
 
 #define  HORIZONTALREGISTER_HANDLER  1
@@ -23,6 +26,7 @@ class CbctHandler;
 #define  ISOCENTER_HANDLER			 5
 #define  LIGHTCENTER_HANDLER         6
 #define  CBCT_HANDLER				 7
+#define  CBCT_POSITION_HANDLER       8
 
 typedef struct ReportData{
 	double softCenter[3];
@@ -57,6 +61,7 @@ public:
 	void setHandlerToISOCenter();
 	void setHandlerToLightCenter();
 	void setHandlerToCbct();
+	void setHandlerToCbctPosition();
 	int  getHandler();
 	void handle(MarkerPointContainerType &positions);
 	void handle(Point3D &point);
@@ -71,6 +76,8 @@ signals:
 	void horizontalRegisterFailed();
 	void loadHorizontalRegisterData(int index);
 	void markerPosition(MarkerPointType &point);
+	void cbctPointPosition(Point3D &point);
+	void cbctPlaneResult(Plane_T& plane);
 	void circleResult(Circle *circle);
 	void translateResult(double bias[3]);
 	void laserISONotCalibrated();
@@ -99,6 +106,7 @@ private:
 	ISOCenterHandler* m_ISOCenterHanlder;
 	LightCenterHandler* m_LightCenterHanlder;
 	CbctHandler*   m_CbctHandler;
+	CbctPositionHandler* m_CbctPositionHandler;
 
 	bool m_GantryFitted;
 	bool m_BedFitted;
