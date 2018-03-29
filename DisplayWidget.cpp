@@ -4,6 +4,7 @@
 #include "rotationdisplaywidget.h"
 #include "translationdisplaywidget.h"
 #include "isocenterdisplaywidget.h"
+#include "cbctpositiondisplaywidget.h"
 
 #include <QStackedWidget>
 #include <QVBoxLayout>
@@ -14,7 +15,8 @@ DisplayWidget::DisplayWidget(QWidget *parent)
 	m_HorizontalWidget(new HorizontalRegisterDisplayWidget),
 	m_RotationWidget(new RotationDisplayWidget),
 	m_TranslationWidget(new TranslationDisplayWidget),
-	m_ISOCenterDisplayWidget(new ISOCenterDisplayWidget)
+	m_ISOCenterDisplayWidget(new ISOCenterDisplayWidget),
+	m_CbctPositionDisplayWidget(new CbctPositionDisplayWidget)
 {
 	initUi();
 }
@@ -31,25 +33,30 @@ void DisplayWidget::initUi()
 	m_StackedWidget->addWidget(m_RotationWidget);
 	m_StackedWidget->addWidget(m_TranslationWidget);
 	m_StackedWidget->addWidget(m_ISOCenterDisplayWidget);
+	m_StackedWidget->addWidget(m_CbctPositionDisplayWidget);
 }
 
 void DisplayWidget::reset()
 {
 	int index = m_StackedWidget->currentIndex();
 	
-	if (index == 0){
+	switch (index)
+	{
+	case 0:
 		m_HorizontalWidget->reset();
-	}else{
-		if (index == 1){
-			m_RotationWidget->reset();
-		}else{
-			if (index == 2){
-				m_TranslationWidget->reset();
-			}
-			else{
-				m_ISOCenterDisplayWidget->reset();
-			}
-		}
+		break;
+	case 1:
+		m_RotationWidget->reset();
+		break;
+	case 2:
+		m_TranslationWidget->reset();
+		break;
+	case 3:
+		m_ISOCenterDisplayWidget->reset();
+		break;
+	case 4:
+		m_CbctPositionDisplayWidget->reset();
+		break;
 	}
 }
 
@@ -106,6 +113,33 @@ void DisplayWidget::setRegisteredPosition(double point[3])
 	}
 }
 
+void DisplayWidget::setCbctPointPosition(int index, double point[3])
+{
+	if (m_StackedWidget->currentIndex() == 4)
+	{
+		switch (index)
+		{
+		case 0:
+			m_CbctPositionDisplayWidget->setPoint1Position(point);
+			break;
+		case 1:
+			m_CbctPositionDisplayWidget->setPoint2Position(point);
+			break;
+		case 2:
+			m_CbctPositionDisplayWidget->setPoint3Position(point);
+			break;
+		}
+	}
+}
+
+void DisplayWidget::setCbctPlaneResult(Plane_T & plane)
+{
+	if (m_StackedWidget->currentIndex() == 4)
+	{
+		m_CbctPositionDisplayWidget->setPlaneResult(plane);
+	}
+}
+
 void DisplayWidget::doSwitchToHorizontalRegister()
 {
 	m_StackedWidget->setCurrentIndex(0);
@@ -128,6 +162,12 @@ void DisplayWidget::doSwitchToCbct()
 {
 	m_StackedWidget->setCurrentIndex(1);
 	m_RotationWidget->reset();
+}
+
+void DisplayWidget::doSwitchToCbctPosition()
+{
+	m_StackedWidget->setCurrentIndex(4);
+	m_CbctPositionDisplayWidget->reset();
 }
 
 void DisplayWidget::doSwitchToBed(int mode)

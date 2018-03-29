@@ -24,6 +24,7 @@ class Circle;
 class RenderView;
 class PlotView;
 class ReportView;
+struct Plane_T;
 
 
 #define  STACKED_THREED_VIEW_INDEX   0
@@ -75,6 +76,8 @@ private slots:
 	void recordingCollimator();
 	void switchToCbct();
 	void recordingCbct();
+	void switchToCbctPosition();
+	void recordingCbctPosition();
 	void switchToBed(int mode);
 	void recordingBed(int mode);
 	void switchToLaserISO();
@@ -89,6 +92,8 @@ private slots:
 	void translateResult(double bias[3]);
 	void registerLaserISOPosition(Point3D& point);
 	void registerLightCenterPosition(Point3D &point);
+	void cbctPointPosition(Point3D &point);
+	void cbctPlaneResult(Plane_T& plane);
 	void softISONotCalibratedReport();
 	void laserISONotCalibratedReport();
 	void editReportFail();

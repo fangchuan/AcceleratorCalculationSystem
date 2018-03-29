@@ -1,5 +1,6 @@
 #include "centralwidget.h"
 #include "reportview.h"
+#include "cbctpositionhandler.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -97,6 +98,8 @@ void CentralWidget::buildConnections()
 	connect(m_ControlWidget, &ControlWidget::switchToCollimator, this, &CentralWidget::switchToCollimator);
 	connect(m_ControlWidget, &ControlWidget::switchToCbct, this, &CentralWidget::switchToCbct);
 	connect(m_ControlWidget, &ControlWidget::recordingCbct, this, &CentralWidget::recordingCbct);
+	connect(m_ControlWidget, &ControlWidget::switchToCbctPosition, this, &CentralWidget::switchToCbctPosition);
+	connect(m_ControlWidget, &ControlWidget::recordingCbctPosition, this, &CentralWidget::recordingCbctPosition);
 	connect(m_ControlWidget, &ControlWidget::recordingBed, this, &CentralWidget::recordingBed);
 	connect(m_ControlWidget, &ControlWidget::switchToBed, this, &CentralWidget::switchToBed);
 	connect(m_ControlWidget, &ControlWidget::recordingLaserISO, this, &CentralWidget::recordingLaserISO);
@@ -116,6 +119,9 @@ void CentralWidget::buildConnections()
 	connect(m_Model, &CentralModel::translateResult, this, &CentralWidget::translateResult);
 	connect(m_Model, &CentralModel::registerLaserISO, this, &CentralWidget::registerLaserISOPosition);
 	connect(m_Model, &CentralModel::registerLightCenter, this, &CentralWidget::registerLightCenterPosition);
+	connect(m_Model, &CentralModel::cbctPointPosition, this, &CentralWidget::cbctPointPosition);
+	connect(m_Model, &CentralModel::cbctPlaneResult, this, &CentralWidget::cbctPlaneResult);
+
 	connect(m_Model, &CentralModel::sendReport, this, &CentralWidget::reportResult);
 	connect(m_Model, &CentralModel::softISONotCalibrated, this, &CentralWidget::softISONotCalibratedReport);
 	connect(m_Model, &CentralModel::laserISONotCalibrated, this, &CentralWidget::laserISONotCalibratedReport);
@@ -259,6 +265,32 @@ void CentralWidget::switchToCollimator()
 	m_Model->setHandlerToNone();
 }
 
+void CentralWidget::switchToCbctPosition()
+{
+	if (m_Tracker->getState() < TrackingDevice::Ready) {
+		QMessageBox::warning(this, QCoreApplication::applicationName(), QObject::tr("Camera is not connected or not ready!"));
+		return;
+	}
+
+	m_Tracker->startTrackingInMode(ToolTracking6D);
+	if (!m_Timer->isActive()) {
+		m_Timer->start();
+	}
+	m_ControlWidget->doSwitchToCbctPosition();
+	m_DisplayWidget->doSwitchToCbctPosition();
+	m_Model->setHandlerToNone();
+}
+
+void CentralWidget::recordingCbctPosition()
+{
+	m_Model->setHandlerToCbctPosition();
+
+#ifdef USE_LOG
+	logger->write(QObject::tr("Recording CBCT Position : "));
+#endif
+
+}
+
 void CentralWidget::switchToBed(int mode)
 {
 	if (m_Tracker->getState() < TrackingDevice::Ready) {
@@ -357,6 +389,8 @@ void CentralWidget::recordingCbct()
 #endif
 
 }
+
+
 
 void CentralWidget::recordingBed(int mode)
 {
@@ -659,6 +693,57 @@ void CentralWidget::registerLightCenterPosition(Point3D &point)
 									.arg(point[1], 0, 'f', 2)
 									.arg(point[2], 0, 'f', 2);
 	logger->write(str);
+#endif
+}
+
+void CentralWidget::cbctPointPosition(Point3D & point)
+{
+	static int pointCount = 0;
+	double position[3] = { point[0], point[1], point[3] };
+	m_DisplayWidget->setCbctPointPosition(pointCount, position);
+	
+	switch (pointCount)
+	{
+	case 0:
+		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(),
+			QObject::tr("CBCT plane register data 1 recorded, please hit the button again to record data 2!"));
+		break;
+	case 1:
+		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(),
+			QObject::tr("CBCT plane register data 2 recorded, please hit the button again to record data 3!"));
+		break;
+	case 2:
+		//QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(),
+		//	QObject::tr("CBCT plane register data 3 recorded, please hit the button again to record data 2!"));
+		break;
+	default:
+		break;
+	}
+	
+	pointCount ++;
+	if (pointCount > 2)
+		pointCount = 0;
+
+#ifdef USE_LOG
+	QString str = QStringLiteral("CBCT Plane Point Position: ( x = %1, y = %2, z = %3 )").arg(position[0], 0, 'f', 2)
+		.arg(position[1], 0, 'f', 2)
+		.arg(position[2], 0, 'f', 2);
+	logger->write(str);
+#endif
+}
+
+void CentralWidget::cbctPlaneResult(Plane_T & plane)
+{
+	m_DisplayWidget->setCbctPlaneResult(plane);
+
+#ifdef USE_LOG
+	QString str = QStringLiteral("CBCT Plane Normal : ( x = %1, y = %2, z = %3 )").arg(plane.normal[0], 0, 'f', 2)
+		.arg(plane.normal[1], 0, 'f', 2)
+		.arg(plane.normal[2], 0, 'f', 2);
+	logger->write(str);
+
+	QString strAngle = QStringLiteral("CBCT Plane Angle Between Horizontal Plane :   %1 ").arg(plane.angleBetweenP2H, 0, 'f', 2);
+	logger->write(strAngle);
 #endif
 }
 
