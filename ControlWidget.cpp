@@ -54,8 +54,8 @@ void ControlWidget::initUi()
 	m_CbctButton = new QPushButton(QObject::tr("Calibrate CBCT"));//
 	gridLayout->addWidget(m_CbctButton, 4, 0);
 
-	m_PayloadBedButton = new QPushButton(QObject::tr("Calibrate payload treatment bed"));//
-	gridLayout->addWidget(m_PayloadBedButton, 4, 1);
+	m_CbctPositionButton = new QPushButton(QObject::tr("Calibrate CBCT position"));//
+	gridLayout->addWidget(m_CbctPositionButton, 4, 1);
 
 	m_LaserButton = new QPushButton(QObject::tr("Detecte Laser ISOcenter"));//
 	gridLayout->addWidget(m_LaserButton, 5, 0);
@@ -82,7 +82,7 @@ void ControlWidget::buildConnections()
 	connect(m_LightButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
 	connect(m_BedGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ControlWidget::handleButtonGroupClick);
 	connect(m_CbctButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
-	connect(m_PayloadBedButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
+	connect(m_CbctPositionButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
 	connect(m_ResetButton, &QPushButton::clicked, this, &ControlWidget::resetRequest);
 	connect(m_ReportButton, &QPushButton::clicked, this, &ControlWidget::reportRequest);
 }
@@ -127,12 +127,12 @@ void ControlWidget::handleButtonClick()
 			emit recordingCbct();
 		}
 	}
-	else if (button == m_PayloadBedButton) {
-		if (buttonText == QObject::tr("Calibrate payload treatment bed")) {
-				emit switchToBed(m_BedGroup->checkedId());
+	else if (button == m_CbctPositionButton) {
+		if (buttonText == QObject::tr("Calibrate CBCT position")) {
+			emit switchToCbctPosition();
 			}
 			else {
-				emit recordingBed(m_BedGroup->checkedId());
+				emit recordingCbctPosition();
 			}
 	}
 	else if (button == m_LaserButton) {
@@ -165,6 +165,7 @@ void ControlWidget::doSwitchToHorizontalRegister()
 	resetGantry();
 	resetCollimator();
 	resetCbct();
+	resetCbctPosition();
 	resetBed();
 	resetLaserISO();
 	resetLightCenter();
@@ -176,6 +177,7 @@ void ControlWidget::doSwitchToGantry()
 	m_GantryButton->setText(QObject::tr("Rotate Gantry"));//
 	resetCollimator();
 	resetCbct();
+	resetCbctPosition();
 	resetBed();
 	resetLaserISO();
 	resetLightCenter();
@@ -187,6 +189,7 @@ void ControlWidget::doSwitchToCollimator()
 	resetGantry();
 	m_CollimatorButton->setText(QObject::tr("Rotate Collimator"));//
 	resetCbct();
+	resetCbctPosition();
 	resetBed();
 	resetLaserISO();
 	resetLightCenter();
@@ -198,9 +201,21 @@ void ControlWidget::doSwitchToCbct()
 	resetGantry();
 	resetCollimator();
 	m_CbctButton->setText(QObject::tr("Rotate CBCT"));//
+	resetCbctPosition();
 	resetBed();
 	resetLaserISO();
 	resetLightCenter();
+}
+
+void ControlWidget::doSwitchToCbctPosition()
+{
+	resetBed();
+	resetCbct();
+	resetCollimator();
+	resetHorizontalRegister();
+	resetLaserISO();
+	resetLightCenter();
+	m_CbctPositionButton->setText(QObject::tr("Record CBCT Position"));
 }
 
 void ControlWidget::doSwitchToBed()
@@ -209,6 +224,7 @@ void ControlWidget::doSwitchToBed()
 	resetGantry();
 	resetCollimator();
 	resetCbct();
+	resetCbctPosition();
 	m_BedButton->setText(QObject::tr("Move treatment bed"));//
 	resetLaserISO();
 	resetLightCenter();
@@ -220,6 +236,7 @@ void ControlWidget::doSwitchToLaserISO()
 	resetGantry();
 	resetCollimator();
 	resetCbct();
+	resetCbctPosition();
 	resetBed();
 	resetLightCenter();
 	m_LaserButton->setText(QObject::tr("Record Laser ISOcenter"));//
@@ -231,6 +248,7 @@ void ControlWidget::doSwitchToLightCenter()
 	resetGantry();
 	resetCollimator();
 	resetCbct();
+	resetCbctPosition();
 	resetBed();
 	resetLaserISO();
 	m_LightButton->setText(QObject::tr("Record Light ISOcenter"));//
@@ -261,6 +279,11 @@ void ControlWidget::resetBed()
 void ControlWidget::resetCbct()
 {
 	m_CbctButton->setText(QObject::tr("Calibrate CBCT"));
+}
+
+void ControlWidget::resetCbctPosition()
+{
+	m_CbctPositionButton->setText(QObject::tr("Calibrate CBCT position"));
 }
 
 void ControlWidget::resetLaserISO()
@@ -331,7 +354,7 @@ void ControlWidget::setButtonStyle()
 										"QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
 
-	m_PayloadBedButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
+	m_CbctPositionButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
 										"font-size:18px;"
 										"background-color:rgb(0,71,157);"
 										"min-height:80; "
