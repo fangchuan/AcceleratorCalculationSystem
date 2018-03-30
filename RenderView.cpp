@@ -83,12 +83,12 @@ void QtRenderView::RenderView::initialize()
 	}
 
 	//setup the search order for used render system.
-	Ogre::RenderSystem *rs = mOgreRoot->getRenderSystemByName("OpenGL Rendering Subsystem");
-	//Ogre::RenderSystem *rs = mOgreRoot->getRenderSystemByName("Direct3D11 Rendering Subsystem");
+	//Ogre::RenderSystem *rs = mOgreRoot->getRenderSystemByName("OpenGL Rendering Subsystem");
+	Ogre::RenderSystem *rs = mOgreRoot->getRenderSystemByName("Direct3D9 Rendering Subsystem");
 	QString dimensions = QString("%1x%2").arg(this->width()).arg(this->height());
 	rs->setConfigOption("Full Screen", "No");
 	rs->setConfigOption("Video Mode", dimensions.toStdString());
-	rs->setConfigOption("VSync", "Yes");
+	rs->setConfigOption("VSync", "No");
 	mOgreRoot->setRenderSystem(rs);
 	mOgreRoot->initialise(false);
 
@@ -160,7 +160,163 @@ void QtRenderView::RenderView::initialize()
 	//rehister frame listener
 	mOgreRoot->addFrameListener(this);
 }
+//画屏幕左下方的参考坐标系
+void QtRenderView::RenderView::drawCoordinate()
+{
+	Ogre::Viewport *vp = 0;
+	Ogre::Camera* cam = mCorSceneMgr->getCamera(COORDINATE_CAMERA_NAME);
+	cam->setProjectionType(Ogre::PT_ORTHOGRAPHIC);
+	mCorSceneMgr->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
+	vp = mOgreWindow->addViewport(cam, 1, 0.0f, 0.8f, 0.2f, 0.2f);
+	vp->setBackgroundColour(mOgreBackground);
+	//    cam->setAspectRatio(Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));
+	cam->setOrthoWindow(9, 9);
+	cam->setPosition(0, 0, 7);
+	cam->lookAt(0, 0, -300);
+	cam->setNearClipDistance(0.1f);
+	cam->setFarClipDistance(200000);
 
+
+	Ogre::SceneNode* ogreNodeCoordinate = mCorSceneMgr->getRootSceneNode()->createChildSceneNode("Coordinate", Ogre::Vector3(-0.8f, -1.0f, 0.0f));
+
+	Ogre::Entity* ogreEntity9 = mOgreSceneMgr->createEntity("coordinateBox002.mesh");
+	Ogre::SceneNode* ogreNode9 = ogreNodeCoordinate->createChildSceneNode("X002", Ogre::Vector3(0, 0, 0));
+	ogreEntity9->setMaterialName("Examples/blue");
+	ogreNode9->attachObject(ogreEntity9);
+	ogreNode9->setScale(Ogre::Vector3(5.0f, 5.0f, 10.0f));
+	ogreNode9->yaw(Ogre::Degree(180));
+
+	Ogre::Entity* ogreEntity10 = mOgreSceneMgr->createEntity("coordinateBox001.mesh");
+	Ogre::SceneNode* ogreNode10 = ogreNode9->createChildSceneNode("X001", Ogre::Vector3(0.0f, 0.0f, 0.2f));
+	ogreEntity10->setMaterialName("Examples/blue");
+	ogreNode10->attachObject(ogreEntity10);
+
+	Ogre::Entity* ogreEntity11 = mOgreSceneMgr->createEntity("coordinateBox002.mesh");
+	Ogre::SceneNode* ogreNode11 = ogreNodeCoordinate->createChildSceneNode("Z002", Ogre::Vector3(0, 0, 0));
+	ogreEntity11->setMaterialName("Examples/green");
+	ogreNode11->attachObject(ogreEntity11);
+	ogreNode11->setScale(Ogre::Vector3(5.0f, 5.0f, 10.0f));
+	ogreNode11->yaw(Ogre::Degree(90));
+
+	Ogre::Entity* ogreEntity12 = mOgreSceneMgr->createEntity("coordinateBox001.mesh");
+	Ogre::SceneNode* ogreNode12 = ogreNode11->createChildSceneNode("Z001", Ogre::Vector3(0.0f, 0.0f, 0.2f));
+	ogreEntity12->setMaterialName("Examples/green");
+	ogreNode12->attachObject(ogreEntity12);
+
+	Ogre::Entity* ogreEntity13 = mOgreSceneMgr->createEntity("coordinateBox002.mesh");
+	Ogre::SceneNode* ogreNode13 = ogreNodeCoordinate->createChildSceneNode("Y002", Ogre::Vector3(0.0f, 0.0f, 0.0f));
+	ogreEntity13->setMaterialName("Examples/red");
+	ogreNode13->attachObject(ogreEntity13);
+	ogreNode13->setScale(Ogre::Vector3(5.0f, 5.0f, 10.0f));
+	ogreNode13->pitch(Ogre::Degree(-90));
+
+	Ogre::Entity* ogreEntity14 = mOgreSceneMgr->createEntity("coordinateBox001.mesh");
+	Ogre::SceneNode* ogreNode14 = ogreNode13->createChildSceneNode("Y001", Ogre::Vector3(0.0f, 0.0f, 0.2f));
+	ogreEntity14->setMaterialName("Examples/red");
+	ogreNode14->attachObject(ogreEntity14);
+
+	Ogre::Entity* ogreEntity15 = mOgreSceneMgr->createEntity("coordinatetextZ.mesh");
+	Ogre::SceneNode* ogreNode15 = ogreNode11->createChildSceneNode("Z", Ogre::Vector3(0.0f, 0.0f, 0.28f));
+	ogreEntity15->setMaterialName("Examples/green");
+	ogreNode15->attachObject(ogreEntity15);
+
+	Ogre::Entity* ogreEntity16 = mOgreSceneMgr->createEntity("coordinatetextY.mesh");
+	Ogre::SceneNode* ogreNode16 = ogreNode13->createChildSceneNode("Y", Ogre::Vector3(0.0f, 0.0f, 0.28f));
+	ogreEntity16->setMaterialName("Examples/red");
+	ogreNode16->attachObject(ogreEntity16);
+	ogreNode16->pitch(Ogre::Degree(90));
+
+	Ogre::Entity* ogreEntity17 = mOgreSceneMgr->createEntity("coordinatetextX.mesh");
+	Ogre::SceneNode* ogreNode17 = ogreNode9->createChildSceneNode("X", Ogre::Vector3(0.0f, 0.0f, 0.28f));
+	ogreEntity17->setMaterialName("Examples/blue");
+	ogreNode17->attachObject(ogreEntity17);
+	/*
+	//Ogre::ManualObject* manCoordinate = mCorSceneMgr->createManualObject("CoordinateManualObject");
+	//if (NULL == manCoordinate)
+	//	return;
+	////begin manual draw coordinate axis
+	//manCoordinate->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+	//{
+	//	//x
+	//	manCoordinate->position(0, 0, 0);
+	//	manCoordinate->colour(Ogre::ColourValue::Blue);
+	//	manCoordinate->position(5, 0, 0);
+	//	manCoordinate->colour(Ogre::ColourValue::Red);
+	//	manCoordinate->position(5, 0, 0);
+	//	manCoordinate->position(3.5, 0.8, 0);
+	//	manCoordinate->position(5, 0, 0);
+	//	manCoordinate->position(3.5, -0.8, 0);
+	//	//y
+	//	manCoordinate->position(0, 0, 0);
+	//	manCoordinate->colour(Ogre::ColourValue::Red);
+	//	manCoordinate->position(0, 5, 0);
+	//	manCoordinate->colour(Ogre::ColourValue::Green);
+	//	manCoordinate->position(0, 5, 0);
+	//	manCoordinate->position(0.8, 3.5, 0);
+	//	manCoordinate->position(0, 5, 0);
+	//	manCoordinate->position(-0.8, 3.5, 0);
+	//	//z
+	//	manCoordinate->position(0, 0, 0);
+	//	manCoordinate->colour(Ogre::ColourValue::Blue);
+	//	manCoordinate->position(0, 0, 5);
+	//	manCoordinate->colour(Ogre::ColourValue::Red);
+	//	manCoordinate->position(0, 0, 5);
+	//	manCoordinate->colour(Ogre::ColourValue::Blue);
+	//	manCoordinate->position(0, 0.8, 3.5);
+	//	manCoordinate->position(0, 0, 5);
+	//	manCoordinate->position(0, -0.8, 3.5);
+	//}
+	//manCoordinate->end();
+	//Ogre::SceneNode* pNode = mCorSceneMgr->getRootSceneNode()->createChildSceneNode("CoordinateNode");
+	//if (NULL == pNode)
+	//	return;
+	//pNode->attachObject(manCoordinate);
+
+	//{
+	//	Ogre::ManualObject* manXLetter = mCorSceneMgr->createManualObject("LetterXManualObject");
+	//	//begin draw axis letter:'X'
+	//	manXLetter->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+	//	manXLetter->position(5.2, 0, 0);
+	//	manXLetter->colour(Ogre::ColourValue::Red);
+	//	manXLetter->position(6, -1, 1);
+	//	manXLetter->end();
+
+	//	manXLetter->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+	//	manXLetter->position(6, 0, 0);
+	//	manXLetter->colour(Ogre::ColourValue::Red);
+	//	manXLetter->position(5.2, -1, 1);
+	//	manXLetter->end();
+	//	pNode->attachObject(manXLetter);
+
+	//	Ogre::ManualObject* manYLetter = mCorSceneMgr->createManualObject("LetterYManualObject");
+	//	//begin draw axis letter:'Y'
+	//	manYLetter->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+	//	manYLetter->position(0.8, 5.5, 0);
+	//	manYLetter->colour(Ogre::ColourValue::Green);
+	//	manYLetter->position(1.2, 5.0, 0);
+	//	manYLetter->position(1.2, 5.0, 0);
+	//	manYLetter->position(1.2, 4.0, 0);
+	//	manYLetter->position(1.2, 5.0, 0);
+	//	manYLetter->position(1.6, 5.5, 0);
+	//	manYLetter->end();
+	//	pNode->attachObject(manYLetter);
+
+	//	Ogre::ManualObject* manZLetter = mCorSceneMgr->createManualObject("LetterZManualObject");
+	//	//begin draw axis letter:'Z'
+	//	manZLetter->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
+	//	manZLetter->position(0, 0.5, 6.0);
+	//	manZLetter->colour(Ogre::ColourValue::Blue);
+	//	manZLetter->position(0, 0.5, 5.0);
+	//	manZLetter->position(0, 0.5, 5.0);
+	//	manZLetter->position(0, -0.5, 6.0);
+	//	manZLetter->position(0, -0.5, 6.0);
+	//	manZLetter->position(0, -0.5, 5.0);
+	//	manZLetter->end();
+	//	pNode->attachObject(manZLetter);
+	//}
+	*/
+
+}
 void QtRenderView::RenderView::createScene()
 {
 
@@ -198,7 +354,7 @@ void QtRenderView::RenderView::createScene()
 	bedMaterial->getTechnique(0)->getPass(0)->setAmbient(0.1f, 0.1f, 0.1f);
 	bedMaterial->getTechnique(0)->getPass(0)->setDiffuse(0.5f, 0.5f, 0.5f, 1.0f);
 	bedMaterial->getTechnique(0)->getPass(0)->setSpecular(0.9f, 0.9f, 0.9f, 1.0f);
-	bedMaterial->setManuallyLoaded(true);
+	//bedMaterial->setManualCullingMode( Ogre::MANUAL_CULL_NONE);
 	//accelMaterial->setSelfIllumination(0.2f, 0.2f, 0.1f);
 
 	Ogre::Entity* ogreEntity4 = mOgreSceneMgr->createEntity("acceleratorbedBottom.mesh");
@@ -267,7 +423,7 @@ void QtRenderView::RenderView::render()
 	to call this method as we don't want to render the Ogre3D scene unless everything is set up first.
 	That is what renderNow() does.
 	*/
-	Ogre::WindowEventUtilities::messagePump();
+	//Ogre::WindowEventUtilities::messagePump();
 	mOgreRoot->renderOneFrame();
 
 	Ogre::Light* light = mOgreSceneMgr->getLight(LIGHT_NAME);
@@ -792,163 +948,7 @@ void QtRenderView::RenderView::drawMarkerPoint(const double x, const double y, c
 		mOgreMarkerNode->setPosition(x, y, z);
 	}
 }
-//画屏幕左下方的参考坐标系
-void QtRenderView::RenderView::drawCoordinate()
-{
-	Ogre::Viewport *vp = 0;
-	Ogre::Camera* cam = mCorSceneMgr->getCamera(COORDINATE_CAMERA_NAME);
-	cam->setProjectionType(Ogre::PT_ORTHOGRAPHIC);
-	mCorSceneMgr->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
-	vp = mOgreWindow->addViewport(cam, 1, 0.0f, 0.8f, 0.2f, 0.2f);
-	vp->setBackgroundColour(mOgreBackground);
-	//    cam->setAspectRatio(Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));
-	cam->setOrthoWindow(9,9);
-	cam->setPosition(0, 0, 7);
-	cam->lookAt(0, 0, -300);
-	cam->setNearClipDistance(0.1f);
-	cam->setFarClipDistance(200000);
 
-
-	Ogre::SceneNode* ogreNodeCoordinate = mCorSceneMgr->getRootSceneNode()->createChildSceneNode("Coordinate", Ogre::Vector3(-0.8f, -1.0f, 0.0f));
-
-	Ogre::Entity* ogreEntity9 = mOgreSceneMgr->createEntity("coordinateBox002.mesh");
-	Ogre::SceneNode* ogreNode9 = ogreNodeCoordinate->createChildSceneNode("X002", Ogre::Vector3(0, 0, 0));
-	ogreEntity9->setMaterialName("Examples/blue");
-	ogreNode9->attachObject(ogreEntity9);
-	ogreNode9->setScale(Ogre::Vector3(5.0f, 5.0f, 10.0f));
-	ogreNode9->yaw(Ogre::Degree(180));
-
-	Ogre::Entity* ogreEntity10 = mOgreSceneMgr->createEntity("coordinateBox001.mesh");
-	Ogre::SceneNode* ogreNode10 = ogreNode9->createChildSceneNode("X001", Ogre::Vector3(0.0f, 0.0f, 0.2f));
-	ogreEntity10->setMaterialName("Examples/blue");
-	ogreNode10->attachObject(ogreEntity10);
-
-	Ogre::Entity* ogreEntity11 = mOgreSceneMgr->createEntity("coordinateBox002.mesh");
-	Ogre::SceneNode* ogreNode11 = ogreNodeCoordinate->createChildSceneNode("Z002", Ogre::Vector3(0, 0, 0));
-	ogreEntity11->setMaterialName("Examples/green");
-	ogreNode11->attachObject(ogreEntity11);
-	ogreNode11->setScale(Ogre::Vector3(5.0f, 5.0f, 10.0f));
-	ogreNode11->yaw(Ogre::Degree(90));
-
-	Ogre::Entity* ogreEntity12 = mOgreSceneMgr->createEntity("coordinateBox001.mesh");
-	Ogre::SceneNode* ogreNode12 = ogreNode11->createChildSceneNode("Z001", Ogre::Vector3(0.0f, 0.0f, 0.2f));
-	ogreEntity12->setMaterialName("Examples/green");
-	ogreNode12->attachObject(ogreEntity12);
-
-	Ogre::Entity* ogreEntity13 = mOgreSceneMgr->createEntity("coordinateBox002.mesh");
-	Ogre::SceneNode* ogreNode13 = ogreNodeCoordinate->createChildSceneNode("Y002", Ogre::Vector3(0.0f, 0.0f, 0.0f));
-	ogreEntity13->setMaterialName("Examples/red");
-	ogreNode13->attachObject(ogreEntity13);
-	ogreNode13->setScale(Ogre::Vector3(5.0f, 5.0f, 10.0f));
-	ogreNode13->pitch(Ogre::Degree(-90));
-
-	Ogre::Entity* ogreEntity14 = mOgreSceneMgr->createEntity("coordinateBox001.mesh");
-	Ogre::SceneNode* ogreNode14 = ogreNode13->createChildSceneNode("Y001", Ogre::Vector3(0.0f, 0.0f, 0.2f));
-	ogreEntity14->setMaterialName("Examples/red");
-	ogreNode14->attachObject(ogreEntity14);
-
-	Ogre::Entity* ogreEntity15 = mOgreSceneMgr->createEntity("coordinatetextZ.mesh");
-	Ogre::SceneNode* ogreNode15 = ogreNode11->createChildSceneNode("Z", Ogre::Vector3(0.0f, 0.0f, 0.28f));
-	ogreEntity15->setMaterialName("Examples/green");
-	ogreNode15->attachObject(ogreEntity15);
-
-	Ogre::Entity* ogreEntity16 = mOgreSceneMgr->createEntity("coordinatetextY.mesh");
-	Ogre::SceneNode* ogreNode16 = ogreNode13->createChildSceneNode("Y", Ogre::Vector3(0.0f, 0.0f, 0.28f));
-	ogreEntity16->setMaterialName("Examples/red");
-	ogreNode16->attachObject(ogreEntity16);
-	ogreNode16->pitch(Ogre::Degree(90));
-
-	Ogre::Entity* ogreEntity17 = mOgreSceneMgr->createEntity("coordinatetextX.mesh");
-	Ogre::SceneNode* ogreNode17 = ogreNode9->createChildSceneNode("X", Ogre::Vector3(0.0f, 0.0f, 0.28f));
-	ogreEntity17->setMaterialName("Examples/blue");
-	ogreNode17->attachObject(ogreEntity17);
-	/*
-	//Ogre::ManualObject* manCoordinate = mCorSceneMgr->createManualObject("CoordinateManualObject");
-	//if (NULL == manCoordinate)
-	//	return;
-	////begin manual draw coordinate axis
-	//manCoordinate->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
-	//{
-	//	//x
-	//	manCoordinate->position(0, 0, 0);
-	//	manCoordinate->colour(Ogre::ColourValue::Blue);
-	//	manCoordinate->position(5, 0, 0);
-	//	manCoordinate->colour(Ogre::ColourValue::Red);
-	//	manCoordinate->position(5, 0, 0);
-	//	manCoordinate->position(3.5, 0.8, 0);
-	//	manCoordinate->position(5, 0, 0);
-	//	manCoordinate->position(3.5, -0.8, 0);
-	//	//y
-	//	manCoordinate->position(0, 0, 0);
-	//	manCoordinate->colour(Ogre::ColourValue::Red);
-	//	manCoordinate->position(0, 5, 0);
-	//	manCoordinate->colour(Ogre::ColourValue::Green);
-	//	manCoordinate->position(0, 5, 0);
-	//	manCoordinate->position(0.8, 3.5, 0);
-	//	manCoordinate->position(0, 5, 0);
-	//	manCoordinate->position(-0.8, 3.5, 0);
-	//	//z
-	//	manCoordinate->position(0, 0, 0);
-	//	manCoordinate->colour(Ogre::ColourValue::Blue);
-	//	manCoordinate->position(0, 0, 5);
-	//	manCoordinate->colour(Ogre::ColourValue::Red);
-	//	manCoordinate->position(0, 0, 5);
-	//	manCoordinate->colour(Ogre::ColourValue::Blue);
-	//	manCoordinate->position(0, 0.8, 3.5);
-	//	manCoordinate->position(0, 0, 5);
-	//	manCoordinate->position(0, -0.8, 3.5);
-	//}
-	//manCoordinate->end();
-	//Ogre::SceneNode* pNode = mCorSceneMgr->getRootSceneNode()->createChildSceneNode("CoordinateNode");
-	//if (NULL == pNode)
-	//	return;
-	//pNode->attachObject(manCoordinate);
-
-	//{
-	//	Ogre::ManualObject* manXLetter = mCorSceneMgr->createManualObject("LetterXManualObject");
-	//	//begin draw axis letter:'X'
-	//	manXLetter->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
-	//	manXLetter->position(5.2, 0, 0);
-	//	manXLetter->colour(Ogre::ColourValue::Red);
-	//	manXLetter->position(6, -1, 1);
-	//	manXLetter->end();
-
-	//	manXLetter->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
-	//	manXLetter->position(6, 0, 0);
-	//	manXLetter->colour(Ogre::ColourValue::Red);
-	//	manXLetter->position(5.2, -1, 1);
-	//	manXLetter->end();
-	//	pNode->attachObject(manXLetter);
-
-	//	Ogre::ManualObject* manYLetter = mCorSceneMgr->createManualObject("LetterYManualObject");
-	//	//begin draw axis letter:'Y'
-	//	manYLetter->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
-	//	manYLetter->position(0.8, 5.5, 0);
-	//	manYLetter->colour(Ogre::ColourValue::Green);
-	//	manYLetter->position(1.2, 5.0, 0);
-	//	manYLetter->position(1.2, 5.0, 0);
-	//	manYLetter->position(1.2, 4.0, 0);
-	//	manYLetter->position(1.2, 5.0, 0);
-	//	manYLetter->position(1.6, 5.5, 0);
-	//	manYLetter->end();
-	//	pNode->attachObject(manYLetter);
-
-	//	Ogre::ManualObject* manZLetter = mCorSceneMgr->createManualObject("LetterZManualObject");
-	//	//begin draw axis letter:'Z'
-	//	manZLetter->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_LIST);
-	//	manZLetter->position(0, 0.5, 6.0);
-	//	manZLetter->colour(Ogre::ColourValue::Blue);
-	//	manZLetter->position(0, 0.5, 5.0);
-	//	manZLetter->position(0, 0.5, 5.0);
-	//	manZLetter->position(0, -0.5, 6.0);
-	//	manZLetter->position(0, -0.5, 6.0);
-	//	manZLetter->position(0, -0.5, 5.0);
-	//	manZLetter->end();
-	//	pNode->attachObject(manZLetter);
-	//}
-	*/
-
-}
 //画两个轴线的公垂线
 void QtRenderView::RenderView::drawVerticalLine(const double footA[3], const double footB[3])
 {
