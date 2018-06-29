@@ -2,11 +2,10 @@
 
 #include <QObject>
 
-#include "trackingtypes.h"
 #include "vpsvector.h"
-#include "circle.h"
-#include "cbctpositionhandler.h"
+#include "trackingtypes.h"
 
+class Circle;
 class AbstractMonitorHandler;
 class HorizontalRegisterHandler;
 class GantryHandler;
@@ -15,8 +14,8 @@ class BedHandler;
 class ISOCenterHandler;
 class LightCenterHandler;
 class CbctHandler;
+struct Plane_T;
 class CbctPositionHandler;
-
 
 
 #define  HORIZONTALREGISTER_HANDLER  1
@@ -45,6 +44,7 @@ typedef struct ReportData{
 	double cbctMean;
 	double cbctAngle;//cbct circle angle between horizontal plane
 }ReportData;
+
 class CentralModel : public QObject
 {
 	Q_OBJECT
@@ -72,7 +72,7 @@ signals:
 	void pseudoMarkerSize(int size);
 	void registerLaserISO(Point3D &point);
 	void registerLightCenter(Point3D &point);
-	void horizontalRegisterRecorded();
+	void horizontalRegisterRecorded(double normal[3]);
 	void horizontalRegisterFailed();
 	void loadHorizontalRegisterData(int index);
 	void markerPosition(MarkerPointType &point);

@@ -26,4 +26,7 @@ signals:
 private:
 	Fit3DCircle *m_FitCircle;
 	std::vector<double>  m_angleC2HContainer;
+	double m_BaseAngle;
+	double m_BasePoint[3];
+	bool m_HasBaseAngle;
 };

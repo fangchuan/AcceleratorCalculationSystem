@@ -1,10 +1,11 @@
 #pragma once
 
 #include <QObject>
-#include <QPlainTextEdit>
-#include <QFile>
-#include <QTextStream>
-#include <QDateTime>
+
+
+class QPlainTextEdit;
+class QTextStream;
+class QFile;
 
 #define USE_LOG
 

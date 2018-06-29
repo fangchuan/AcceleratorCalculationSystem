@@ -20,7 +20,7 @@ public:
 
 signals:
 	void markerSize(int size);
-	void horizontalRegisterRecorded();
+	void horizontalRegisterRecorded(double normal[3]);
 	void horizontalRegisterFailed();
 	void loadHorizontalRegisterData(int index);
 	

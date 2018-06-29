@@ -136,7 +136,7 @@ void QtRenderView::RenderView::initialize()
 
 	mOgreCamera = mOgreSceneMgr->createCamera(SCENE_CAMERA_NAME);
 	mCorSceneMgr->createCamera(COORDINATE_CAMERA_NAME);
-	mOgreCamera->setPosition(Ogre::Vector3(0.0f, 0.0f, 1.0f));
+	mOgreCamera->setPosition(Ogre::Vector3(0.0f, 0.0f, 0.1f));
 	mOgreCamera->lookAt(Ogre::Vector3(0.0f, 0.0f, -300.0f));
 	mOgreCamera->setNearClipDistance(1.0f);
 	mOgreCamera->setFarClipDistance(500.0f);
@@ -335,7 +335,7 @@ void QtRenderView::RenderView::createScene()
 	Ogre::Entity* ogreEntity1 = mOgreSceneMgr->createEntity("acceleratorBox.mesh");
 	Ogre::SceneNode* ogreNode1 = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(ACCEL_BOX_NAME, ACCEL_BOX_BIAS);
 	ogreNode1->attachObject(ogreEntity1);
-	ogreNode1->setScale(Ogre::Vector3(4.0f, 4.0f, 4.0f));
+	ogreNode1->setScale(Ogre::Vector3(6.0f, 6.0f, 6.0f));
 	ogreEntity1->setMaterialName("Example/gantry");
 
 	Ogre::Entity* ogreEntity2 = mOgreSceneMgr->createEntity("acceleratorConnect.mesh");
@@ -361,7 +361,7 @@ void QtRenderView::RenderView::createScene()
 	Ogre::SceneNode* ogreNode4 = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(ACCEL_BEDBOTTOM_NAME, ACCEL_BED_BOTTOM_BIAS);
 	ogreEntity4->setMaterialName("BedMaterial");
 	ogreNode4->attachObject(ogreEntity4);
-	ogreNode4->setScale(Ogre::Vector3(4.0f, 4.0f, 4.0f)); // Radius, in theory.
+	ogreNode4->setScale(Ogre::Vector3(6.0f, 6.0f, 6.0f)); // Radius, in theory.
 
 
 	Ogre::Entity* ogreEntity5 = mOgreSceneMgr->createEntity("acceleratorbedStrech.mesh");
@@ -374,7 +374,7 @@ void QtRenderView::RenderView::createScene()
 	ogreEntity6->setMaterialName("Example/bedconnect");
 	ogreNode6->attachObject(ogreEntity6);
 	ogreNode6->setInheritScale(false);
-	ogreNode6->setScale(Ogre::Vector3(4.0f, 4.0f, 4.0f));
+	ogreNode6->setScale(Ogre::Vector3(6.0f, 6.0f, 6.0f));
 
 	Ogre::Entity* ogreEntity7 = mOgreSceneMgr->createEntity("acceleratorbedConnect1.mesh");
 	Ogre::SceneNode* ogreNode7 = ogreNode6->createChildSceneNode(ACCEL_BED_CONNECT1_NAME, ACCEL_BED_CONNECT1_BIAS);
@@ -733,7 +733,7 @@ void QtRenderView::RenderView::translateBedAlongZ(float z_mm)
 	mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_BEDBOARD_NAME);
 	if (NULL != mOgreNode && 0 != z){
 		//translate resolution:  m
-		mOgreNode->translate(z * 0.01, 0, 0, Ogre::Node::TS_PARENT);
+		mOgreNode->translate(z * BED_TRANSLATE_PROPOTATION, 0, 0, Ogre::Node::TS_PARENT);
 		last_z = z_mm;
 	}
 
@@ -750,7 +750,7 @@ void QtRenderView::RenderView::translateBedAlongX(float x_mm)
 	mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_BED_CONNECT1_NAME);
 	if (NULL != mOgreNode && 0 != x){
 		//translate resolution:  m
-		mOgreNode->translate(0, 0, -x * 0.01, Ogre::Node::TS_PARENT);//0.01 propotation
+		mOgreNode->translate(0, 0, -x * BED_TRANSLATE_PROPOTATION, Ogre::Node::TS_PARENT);//0.01 propotation
 		last_x = x_mm;
 	}
 
@@ -767,7 +767,7 @@ void QtRenderView::RenderView::translateBedAlongY(float y_mm)
 	static float last_y = 0.0f;
 
 	float y_trans = 0.75f;
-	float y_m = (y_mm - last_y)*0.01;//0.01 propotation
+	float y_m = (y_mm - last_y)*BED_TRANSLATE_PROPOTATION;//0.01 propotation
 
 	mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_BED_STRECH_NAME);
 	if (NULL != mOgreNode && 0 != y_m){
@@ -839,12 +839,12 @@ void QtRenderView::RenderView::drawGantryAxis(const QVector3D &start, const QVec
 
 void QtRenderView::RenderView::drawBedAxis(const QVector3D &start, const QVector3D &end, const QColor &color)
 {
-	float x_s = -start.z();
+	float x_s = start.z();
 	float y_s = start.y();
-	float z_s = start.x();
-	float x_e = -end.z();
+	float z_s = -start.x();
+	float x_e = end.z();
 	float y_e = end.y();
-	float z_e = end.x();
+	float z_e = -end.x();
 
 	float x_center = (x_s + x_e)*0.5;
 	float y_center = (y_s + y_e)*0.5;
@@ -891,7 +891,7 @@ void QtRenderView::RenderView::drawBedAxis(const QVector3D &start, const QVector
 	//	emit ISOCenterSelected();
 	//}
 }
-//画软件结算的等中心小球
+//画软件结算的等中心小球 RED
 void QtRenderView::RenderView::drawSoftISOCenter(const double x, const double y, const double z)
 {
 	//set ISO Center:(0,0,0)
@@ -905,7 +905,7 @@ void QtRenderView::RenderView::drawSoftISOCenter(const double x, const double y,
 		mOgreSoftCenterNode->setPosition(x, y, z);
 	}
 }
-//画激光等中心小球
+//画激光等中心小球 LIGHTBLUE
 void QtRenderView::RenderView::drawLaserISOCenter(const double x, const double y, const double z)
 {
 
@@ -949,7 +949,7 @@ void QtRenderView::RenderView::drawMarkerPoint(const double x, const double y, c
 	}
 }
 
-//画两个轴线的公垂线
+//画两个轴线的公垂线 RED
 void QtRenderView::RenderView::drawVerticalLine(const double footA[3], const double footB[3])
 {
 	double x_s = footA[2] * 0.01;

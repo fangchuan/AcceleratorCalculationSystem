@@ -1,4 +1,9 @@
 #include "logger.h"
+
+#include <QPlainTextEdit>
+#include <QFile>
+#include <QTextStream>
+#include <QDateTime>
 #include <QMutexLocker>
 
 static QMutex  mutex;

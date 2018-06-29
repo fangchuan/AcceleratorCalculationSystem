@@ -56,7 +56,7 @@ void Fit3DCircle::addPoint(MarkerPointType &point)
 {
 	m_Positions.push_back(point);
 	if (!m_IsCalculated) {
-		if (m_Positions.size() > 3 && (fabs(point[0] - m_Positions.at(0)[0]) > 50 )) {   // threshold 50
+		if ((fabs(point[0] - m_Positions.at(0)[0]) > 100) && m_Positions.size() > 3 ) {   // threshold 100
 			calculate();
 		}
 	}
@@ -114,7 +114,7 @@ void Fit3DCircle::calculate()
 	m_Normal[2] /= length;
 
 	double Radius, Center[3];
-	if (fabs(C) > 1e-15)
+	if (fabs(C) > 1e-15)		// 如果法向量不平行于Z轴
 	{
 		double P1[3], P2[3], P3[3], P4[3];
 		P1[0] = 1, P1[1] = 1, P1[2] = (1 - A - B) / C;
@@ -157,6 +157,7 @@ void Fit3DCircle::calculate()
 		m_Transform->Update();
 		vtkMatrix4x4 *matrix = m_Transform->GetMatrix();
 		double derminant = matrix->Determinant();
+
 		if (fabs(derminant - 1) < 1e-3){
 			double X1 = 0;
 			double Y1 = 0;

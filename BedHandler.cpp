@@ -12,7 +12,10 @@ BedHandler::BedHandler(QObject *parent)
 	: AbstractMonitorHandler(parent),
 	m_FitCircle(new Fit3DCircle(this)),
 	m_Mode(0),
-	m_HasBasePoint(false)
+	m_HasBasePoint(false),
+	m_BaseAngle(0),
+	m_HasBaseAngle(false),
+	m_angleC2HContainer(0)
 {
 }
 
@@ -30,7 +33,7 @@ AbstractMonitorHandler *BedHandler::handle(MarkerPointContainerType &positions)
 	int size = positions.size();
 	if (size != 1) {
 		emit pseudoMarkerSize(size);
-		return NULL;
+		return this;
 	}
 	//else {
 	//	emit markerPosition(positions.at(0));
@@ -64,8 +67,9 @@ AbstractMonitorHandler *BedHandler::handle(Point3D &point)
 void BedHandler::reset()
 {
 	m_FitCircle->clearPoints();
-	m_angleC2HContainer.clear();
+	m_angleC2HContainer = 0;
 	m_HasBasePoint = false;
+	m_HasBaseAngle = false;
 }
 //测量旋转:圆、角度(绝对)、半径、法向量
 //
@@ -74,38 +78,46 @@ void BedHandler::handleRotation(MarkerPointContainerType &positions)
 {
 	MarkerPointType &p = positions.at(0);
 	double point[3];
+	
 	point[0] = p[0]; point[1] = p[1]; point[2] = p[2];
-
 	double out[3];
 	//transform to Accelerator Coordinate(==Scene Coordinate)
 	m_Register->transform(point, out);
 	MarkerPointType  marker(out);
 	emit markerPosition(marker);
 
+	if (!m_HasBaseAngle)
+	{
+		memcpy(m_BasePoint, out, sizeof(out));
+		m_HasBaseAngle = true;
+	}
 	m_FitCircle->addPoint(marker);
 	double center[3], normal[3], horizontalPlaneNormal[3], radius;
 	if (m_FitCircle->getCircle(center, normal, radius)) {
 
-		//double rad = (out[2] - center[2]) / radius;
-		//rad = rad > 1 ? 1 : rad;
-		//rad = rad < -1 ? -1 : rad;
-		//double angle = acos(rad) * RAD2DEGREE;
-
-		//angle *= out[0] < center[0] ? -1 : 1;//逆时针旋转为+
 		double deltZ = out[2] - center[2];
 		double deltX = out[0] - center[0];
 		double angle = atan2(deltX, deltZ) *RAD2DEGREE;
+		
+		//随着拟合结果越来越精确，初始位置所在的初始角度应该每次循环都进行一次计算
+		double baseDeltZ = m_BasePoint[2] - center[2];
+		double baseDeltX = m_BasePoint[0] - center[0];
+		m_BaseAngle = atan2(baseDeltX, baseDeltZ) *RAD2DEGREE;;
 
 		Circle circle;
 		memcpy(circle.Center, center, sizeof(center));
 		memcpy(circle.Normal, normal, sizeof(normal));
 		circle.Radius = radius;
-		circle.Angle = angle;
+		circle.Angle = angle - m_BaseAngle;
+
 		if (m_Register->getHorizontalPlaneNormal(horizontalPlaneNormal))
 		{
 			circle.angleBettwenC2H = vtkMath::AngleBetweenVectors(normal, horizontalPlaneNormal)*RAD2DEGREE;
-			m_angleC2HContainer.push_back(circle.angleBettwenC2H);
+			//QString str = QString("HorizontalPlaneNormal : ( %1, %2, %3)").arg(horizontalPlaneNormal[0], 0, 'f', 2).arg(horizontalPlaneNormal[1], 0, 'f', 2).arg(horizontalPlaneNormal[2], 0, 'f', 2);
+			//qDebug() << str;
+			m_angleC2HContainer = circle.angleBettwenC2H;
 		}
+
 		emit circleResult(&circle);
 	}
 }
@@ -136,22 +148,13 @@ bool BedHandler::getRotateStatistical(double& variance, double& mean, double& an
 {
 	if (m_FitCircle->calRotateError(variance, mean))
 	{
-		int size = m_angleC2HContainer.size();
-		if (size > 0)
-		{
-			double sum;
-			for (int i = 0; i < size; i++)
-			{
-				sum += m_angleC2HContainer.at(i);
-			}
-			angleMean = sum / size;
-		}
-		else
-		{
-			angleMean = 0;
-		}
+		angleMean = m_angleC2HContainer;
 		return true;
+		
 	}
-	else
+	else {
+	
+		angleMean = 0;
 		return false;
+	}
 }

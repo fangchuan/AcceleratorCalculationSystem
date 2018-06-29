@@ -13,7 +13,7 @@ public:
 	~HorizontalRegisterDisplayWidget();
 
 	void setMarkerSize(int number);
-	void horizontalRegisterRecorded();
+	void horizontalRegisterRecorded(double normal[3]);
 	void reset();
 private:
 	void initUi();
@@ -21,4 +21,5 @@ private:
 private:
 	QLabel *m_MarkerSizeLabel;
 	QLabel *m_StatusLabel;
+	QLabel *m_NormalLabel;
 };

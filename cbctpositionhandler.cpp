@@ -1,6 +1,7 @@
 #include "cbctpositionhandler.h"
 #include "horizontalregister.h"
 
+#include "vtkPlaneSource.h"
 #include "vtkPoints.h"
 #include "vtkMath.h"
 
@@ -47,14 +48,14 @@ AbstractMonitorHandler *CbctPositionHandler::handle(Point3D &point)
 
 		if (m_Register->getHorizontalPlaneNormal(horizontalPlaneNormal))
 		{
-			m_PlaneData.angleBetweenP2H = vtkMath::AngleBetweenVectors(m_PlaneData.normal, horizontalPlaneNormal);
+			m_PlaneData.angleBetweenP2H = vtkMath::AngleBetweenVectors(m_PlaneData.normal, horizontalPlaneNormal) * 57.29564;
 			m_angleP2HContainer.push_back(m_PlaneData.angleBetweenP2H);
 
 			emit planeResult(m_PlaneData);
 		}
 
 		m_PointCount = 0;
-
+		emit cbctPlanePointPosition(Point3D(out));
 		return NULL;
 	}
 	

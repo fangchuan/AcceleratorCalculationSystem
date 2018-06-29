@@ -32,5 +32,8 @@ private:
 	int m_Mode;
 	double m_BasePoint[3];
 	bool m_HasBasePoint;
-	std::vector<double> m_angleC2HContainer;
+	double m_BaseAngle;
+	bool m_HasBaseAngle;
+
+	double m_angleC2HContainer;
 };

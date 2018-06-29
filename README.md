@@ -56,3 +56,11 @@
 2018-03-28：完成所有文字的翻译工作;
 			软件打包，放在笔记本上会出现OPENGL初始化不成功的现象。难道自己编译的ogre都会出现OPENGL在其他机器上不支持的问题？
 			
+2018-04-17：给BedHandler、GantryHandler、CbctHandler、CollimitorHandler添加m_BaseAngle成员，用于记录初始位置时小球所在圆上的初始角度。
+			这样就可以不考虑小球贴在仪器上的位置，但是要求仪器必须从零位开始运动，因为我们解算出的角度实际上是角度差。
+			
+2018-05-11：cbctpositionhandler中计算CBCT面板平面跟注册水平面之间夹角时没有转换为角度，已修改；
+			centralWidget中将添加BCT注册完成的message弹窗;
+			
+2018-05-24： 将GantryHandle、BedHandle的 m_angleC2HContainer直接设置为每一次解算出的旋转轴与水平面的夹角，以前是加权平均的办法算旋转平面夹角，会出现首次拟合出错时影响之后结果的现象。
+			 

@@ -63,8 +63,14 @@ void HorizontalRegister::setPoints(vtkPoints *points)
 	horizontalPlane->SetPoint2(p1);
 	horizontalPlane->Update();
 	horizontalPlane->GetNormal(m_HorizontalPlaneNormal);//update the horizontal plane normal
-	double maguitude = 	vtkMath::Normalize(m_HorizontalPlaneNormal);
-														//make sure the source points and the target points
+	double maguitude = sqrt( m_HorizontalPlaneNormal[0]*m_HorizontalPlaneNormal[0]
+					  + m_HorizontalPlaneNormal[1]*m_HorizontalPlaneNormal[1]
+					  + m_HorizontalPlaneNormal[2]*m_HorizontalPlaneNormal[2]);
+	m_HorizontalPlaneNormal[0] /= maguitude;
+	m_HorizontalPlaneNormal[1] /= maguitude;
+	m_HorizontalPlaneNormal[2] /= maguitude;
+
+	//make sure the source points and the target points
 	vtkPoints *target = vtkPoints::New();
 	target->SetNumberOfPoints(3);
 	target->SetPoint(0, p1);

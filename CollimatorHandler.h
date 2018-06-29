@@ -25,4 +25,7 @@ signals:
 
 private:
 	Fit3DCircle *m_FitCircle;
+	double m_BaseAngle;
+	double m_BasePoint[3];
+	bool m_HasBaseAngle;
 };

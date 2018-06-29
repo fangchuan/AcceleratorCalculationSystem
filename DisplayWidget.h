@@ -38,7 +38,7 @@ public:
 
 	void setMarkerSize(int size);
 	void setMarkerPosition(MarkerPointType &point);
-	void horizontalRegisterRecorded();
+	void horizontalRegisterRecorded(double normal[3]);
 	void setCircleResult(Circle *circle);
 	void setTranslateResult(double bias[3]);
 	void setRegisteredPosition(double point[3]);

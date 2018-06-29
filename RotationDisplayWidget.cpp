@@ -30,6 +30,7 @@ void RotationDisplayWidget::initUi()
 	layout_1->addWidget(numberLabel);//
 	m_MarkerSizeOrPosition->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
 		"font-size:16px;"
+		"color:red;"
 		"border:1px solid white;"
 		"border-radius:8px;"
 		"border-style: inset;}");

@@ -170,8 +170,11 @@ label:
 	m_Register->setPoints(points);
 	points->Delete();
 
+	double horizontalNormal[3];
+	m_Register->getHorizontalPlaneNormal(horizontalNormal);
+
 	emit markerSize(3);
-	emit horizontalRegisterRecorded();
+	emit horizontalRegisterRecorded(horizontalNormal);
 
 	return nullptr;
 }

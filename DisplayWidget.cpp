@@ -85,10 +85,10 @@ void DisplayWidget::setMarkerPosition(MarkerPointType &point)
 	}
 }
 
-void DisplayWidget::horizontalRegisterRecorded()
+void DisplayWidget::horizontalRegisterRecorded(double normal[3])
 {
 	if (m_StackedWidget->currentIndex() == 0) {
-		m_HorizontalWidget->horizontalRegisterRecorded();
+		m_HorizontalWidget->horizontalRegisterRecorded(normal);
 	}
 }
 

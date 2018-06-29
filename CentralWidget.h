@@ -2,17 +2,9 @@
 
 #include <QWidget>
 
+#include "renderview.h"
 #include "trackingtypes.h"
 #include "vpsvector.h"
-#include "displaywidget.h"
-#include "controlwidget.h"
-#include "opstrackingdevice.h"
-#include "centralmodel.h"
-#include "circle.h"
-#include "renderview.h"
-#include "plotview.h"
-#include "reportview.h"
-#include "logger.h"
 
 class QStackedWidget;
 class DisplayWidget;
@@ -20,10 +12,12 @@ class ControlWidget;
 class OpsTrackingDevice;
 class QTimer;
 class CentralModel;
+struct ReportData;
 class Circle;
 class RenderView;
 class PlotView;
 class ReportView;
+class Logger;
 struct Plane_T;
 
 
@@ -87,7 +81,7 @@ private slots:
 	void markerSize(int size);
 	void pseudoMarkerSize(int size);
 	void markerPosition(MarkerPointType &point);
-	void horizontalRegisterRecorded();
+	void horizontalRegisterRecorded(double normal[3]);
 	void circleResult(Circle *circle);
 	void translateResult(double bias[3]);
 	void registerLaserISOPosition(Point3D& point);

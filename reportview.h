@@ -1,8 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QMap>
-#include <QPointer>
+
 
 
 class QTextEdit;

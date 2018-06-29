@@ -109,6 +109,7 @@ void CbctPositionDisplayWidget::initUi()
 	layout_4->addWidget(labelNormal);
 	m_normalLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
 		"font-size:16px;"
+		"color:red;"
 		"border:1px solid white;"
 		"border-radius:8px;"
 		"border-style: inset;}");

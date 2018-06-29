@@ -1,7 +1,3 @@
-#include "centralwidget.h"
-#include "reportview.h"
-#include "cbctpositionhandler.h"
-
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QStackedWidget>
@@ -11,6 +7,17 @@
 #include <QMessageBox>
 
 #include "vtkMath.h"
+
+#include "centralwidget.h"
+#include "reportview.h"
+#include "cbctpositionhandler.h"
+#include "plotview.h"
+#include "logger.h"
+#include "displaywidget.h"
+#include "controlwidget.h"
+#include "opstrackingdevice.h"
+#include "centralmodel.h"
+#include "circle.h"
 
 CentralWidget::CentralWidget(QWidget *parent)
 	: QWidget(parent),
@@ -390,8 +397,6 @@ void CentralWidget::recordingCbct()
 
 }
 
-
-
 void CentralWidget::recordingBed(int mode)
 {
 	m_Model->setHandlerToBed(mode);
@@ -495,15 +500,20 @@ void CentralWidget::markerPosition(MarkerPointType &point)
 	double z = point[2] * 0.01;
 
 	m_DisplayWidget->setMarkerPosition(point);
-
+#ifdef  USE_LOG
+	QString str = QStringLiteral("marker position: ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
+		.arg(point[1], 0, 'f', 2)
+		.arg(point[2], 0, 'f', 2);
+	logger->write(str);
+#endif
 	renderWidget->drawMarkerPoint(z, y, -x);
 }
 //
 //显示面板显示治疗床是否水平
 //
-void CentralWidget::horizontalRegisterRecorded()
+void CentralWidget::horizontalRegisterRecorded(double normal[3])
 {
-	m_DisplayWidget->horizontalRegisterRecorded();
+	m_DisplayWidget->horizontalRegisterRecorded(normal);
 
 #ifdef USE_LOG
 	QString str = QStringLiteral("Horizontal plane has registered!");
@@ -556,13 +566,13 @@ void CentralWidget::circleResult(Circle *circle)
 {
 	double angle = circle->Angle;
 	double normal_vector[3] = { (*circle).Normal[0], (*circle).Normal[1], (*circle).Normal[2]};
-	double circle_center[3] = { (*circle).Center[0]*0.01, (*circle).Center[1]*0.01, (*circle).Center[2]*0.01 };
+	double circle_center[3] = { (*circle).Center[0], (*circle).Center[1], (*circle).Center[2] };
 	double normalx10_vector[3] = { normal_vector[0] * 10, normal_vector[1] * 10, normal_vector[2]*10 };
 
 	m_DisplayWidget->setCircleResult(circle);
 
 	int handler = m_Model->getHandler();
-	//更新机架运动
+	//更新机架运动 blue
 	if (handler == GANTRY_HANDLER){
 		plotWidget->updateGantryDegree(angle);
 		renderWidget->rotateGantry(angle);
@@ -575,9 +585,9 @@ void CentralWidget::circleResult(Circle *circle)
 		QString str = QStringLiteral("Gantry rotate result:\n");
 		str += QString("angle: %1").arg(angle, 0, 'f', 2);
 		str += "\n";
-		str += QString("circle: ( %1, %2, %3 )").arg(circle_center[0], 0, 'f', 2).arg(circle_center[1], 0, 'f', 2).arg(circle_center[2], 0, 'f', 2);
+		str += QString("circle: ( %1, %2, %3 )").arg(circle->Center[0], 0, 'f', 2).arg(circle->Center[1], 0, 'f', 2).arg(circle->Center[2], 0, 'f', 2);
 		str += "\n";
-		str += QString("normal: ( %1, %2, %3 )").arg(normal_vector[0], 0, 'f', 2).arg(normal_vector[1], 0, 'f', 2).arg(normal_vector[2], 0, 'f', 2);
+		str += QString("normal: ( %1, %2, %3 )").arg(circle->Normal[0], 0, 'f', 2).arg(circle->Normal[1], 0, 'f', 2).arg(circle->Normal[2], 0, 'f', 2);
 		logger->write(str);
 #endif
 	}
@@ -590,9 +600,9 @@ void CentralWidget::circleResult(Circle *circle)
 		QString str = QStringLiteral("Collimator rotate result:\n");
 		str += QString("angle: %1").arg(angle, 0, 'f', 2);
 		str += "\n";
-		str += QString("circle: ( %1, %2, %3 )").arg(circle_center[0], 0, 'f', 2).arg(circle_center[1], 0, 'f', 2).arg(circle_center[2], 0, 'f', 2);
+		str += QString("circle: ( %1, %2, %3 )").arg(circle->Center[0], 0, 'f', 2).arg(circle->Center[1], 0, 'f', 2).arg(circle->Center[2], 0, 'f', 2);
 		str += "\n";
-		str += QString("normal: ( %1, %2, %3 )").arg(normal_vector[0], 0, 'f', 2).arg(normal_vector[1], 0, 'f', 2).arg(normal_vector[2], 0, 'f', 2);
+		str += QString("normal: ( %1, %2, %3 )").arg(circle->Normal[0], 0, 'f', 2).arg(circle->Normal[1], 0, 'f', 2).arg(circle->Normal[2], 0, 'f', 2);
 		logger->write(str);
 #endif
 	}
@@ -605,13 +615,13 @@ void CentralWidget::circleResult(Circle *circle)
 		QString str = QStringLiteral("CBCT rotate result:\n");
 		str += QString("angle: %1").arg(angle, 0, 'f', 2);
 		str += "\n";
-		str += QString("circle: ( %1, %2, %3 )").arg(circle_center[0], 0, 'f', 2).arg(circle_center[1], 0, 'f', 2).arg(circle_center[2], 0, 'f', 2);
+		str += QString("circle: ( %1, %2, %3 )").arg(circle->Center[0], 0, 'f', 2).arg(circle->Center[1], 0, 'f', 2).arg(circle->Center[2], 0, 'f', 2);
 		str += "\n";
-		str += QString("normal: ( %1, %2, %3 )").arg(normal_vector[0], 0, 'f', 2).arg(normal_vector[1], 0, 'f', 2).arg(normal_vector[2], 0, 'f', 2);
+		str += QString("normal: ( %1, %2, %3 )").arg(circle->Normal[0], 0, 'f', 2).arg(circle->Normal[1], 0, 'f', 2).arg(circle->Normal[2], 0, 'f', 2);
 		logger->write(str);
 #endif
 	}
-	//更新治疗床运动
+	//更新治疗床运动 red
 	if (handler == BED_HANDLER){
 		plotWidget->updateBedDegree(angle);
 
@@ -625,9 +635,9 @@ void CentralWidget::circleResult(Circle *circle)
 		QString str = QStringLiteral("Bed rotate result:\n");
 		str += QString("angle: %1").arg(angle, 0, 'f', 2);
 		str += "\n";
-		str += QString("circle: ( %1, %2, %3 )").arg(circle_center[0], 0, 'f', 2).arg(circle_center[1], 0, 'f', 2).arg(circle_center[2], 0, 'f', 2);
+		str += QString("circle: ( %1, %2, %3 )").arg(circle->Center[0], 0, 'f', 2).arg(circle->Center[1], 0, 'f', 2).arg(circle->Center[2], 0, 'f', 2);
 		str += "\n";
-		str += QString("normal: ( %1, %2, %3 )").arg(normal_vector[0], 0, 'f', 2).arg(normal_vector[1], 0, 'f', 2).arg(normal_vector[2], 0, 'f', 2);
+		str += QString("normal: ( %1, %2, %3 )").arg(circle->Normal[0], 0, 'f', 2).arg(circle->Normal[1], 0, 'f', 2).arg(circle->Normal[2], 0, 'f', 2);
 		logger->write(str);
 #endif
 	}
@@ -664,11 +674,11 @@ void CentralWidget::translateResult(double bias[3])
 //
 void CentralWidget::registerLaserISOPosition(Point3D &point)
 {
-	double position[3] = { point[0], point[1], point[3] };
+	double position[3] = { point[0], point[1], point[2] };
 	m_DisplayWidget->setRegisteredPosition(position);
 	//transform point position in NDI coordinate to rendering scence
 	// x'= -z0, y'=y0, z'=x0
-	renderWidget->drawLaserISOCenter(-position[2] * 0.01, position[1] * 0.01, position[0] * 0.01);
+	renderWidget->drawLaserISOCenter(position[2] , position[1] , -position[0] );
 
 #ifdef USE_LOG
 	QString str = QStringLiteral("Laser ISOCenter Position: ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
@@ -682,11 +692,11 @@ void CentralWidget::registerLaserISOPosition(Point3D &point)
 //
 void CentralWidget::registerLightCenterPosition(Point3D &point)
 {
-	double position[3] = { point[0], point[1], point[3] };
+	double position[3] = { point[0], point[1], point[2] };
 	m_DisplayWidget->setRegisteredPosition(position);
 	//transform point position in NDI coordinate to rendering scence
 	// x'= -z0, y'=y0, z'=x0
-	renderWidget->drawLightCenter(-position[2] * 0.01, position[1] * 0.01, position[0] * 0.01);
+	renderWidget->drawLightCenter(position[2], position[1], -position[0]);
 
 #ifdef USE_LOG
 	QString str = QStringLiteral("Light Center Position: ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
@@ -713,8 +723,8 @@ void CentralWidget::cbctPointPosition(Point3D & point)
 			QObject::tr("CBCT plane register data 2 recorded, please hit the button again to record data 3!"));
 		break;
 	case 2:
-		//QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(),
-		//	QObject::tr("CBCT plane register data 3 recorded, please hit the button again to record data 2!"));
+		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(),
+			QObject::tr("CBCT plane registered succeessfully!"));
 		break;
 	default:
 		break;
@@ -843,6 +853,6 @@ void CentralWidget::reportResult(const ReportData& report)
 							gantryVar, gantryMean, gantryVel, gantryAngle, bedVar, bedMean, bedVel, bedAngle, cbctVar, cbctMean, cbctVel, cbctAngle);
 	//transform point position in NDI coordinate to rendering scence
 	// x'= -z0, y'=y0, z'=x0
-	renderWidget->drawSoftISOCenter(-report.softCenter[2]*0.01, report.softCenter[1]*0.01, report.softCenter[0]*0.01);
+	renderWidget->drawSoftISOCenter(report.softCenter[2], report.softCenter[1], -report.softCenter[0]);
 	renderWidget->drawVerticalLine(report.footA, report.footB);
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "abstractmonitorhandler.h"
-#include "vtkPlaneSource.h"
+
 #include "vtkSmartPointer.h"
 
 class vtkPlaneSource;

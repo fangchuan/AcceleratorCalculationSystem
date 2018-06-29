@@ -47,15 +47,16 @@ namespace  QtRenderView{
 #define  VERTICAL_LINE_NAME      "VerticalLine"
 
 
-#define  ACCEL_BOX_BIAS          Ogre::Vector3(-24.0f,0.0f,0.0f)
+#define  ACCEL_BOX_BIAS          Ogre::Vector3(-36.0f,0.0f,0.0f)
 #define  ACCEL_CONNECT_BIAS      Ogre::Vector3(4.25f, 0.0f, 0.0f)
 #define  ACCEL_CHASSIS_BIAS      Ogre::Vector3(0.5f, 0.0f, 0.0f)
-#define  ACCEL_BED_BOTTOM_BIAS   Ogre::Vector3(5.25f, -10.0f, 0.0f)
+#define  ACCEL_BED_BOTTOM_BIAS   Ogre::Vector3(9.0f, -16.0f, 0.0f)
 #define  ACCEL_BED_STRECH_BIAS   Ogre::Vector3(1.5f, 0.85f, 0.0f)
 #define  ACCEL_BED_CONNECT2_BIAS Ogre::Vector3(0.0f, 0.7f, 0.0f)
 #define  ACCEL_BED_CONNECT1_BIAS Ogre::Vector3(0.0f, 0.3f, 0.0f)
-#define  ACCEL_BED_BOARD_BIAS    Ogre::Vector3(-1.0f, 0.25f,0.0f)
+#define  ACCEL_BED_BOARD_BIAS    Ogre::Vector3(-1.0f, 0.25f, 0.0f)
 
+#define  BED_TRANSLATE_PROPOTATION  0.01
 	/*
 	//3D SCENE COORIDNATE
 	//

@@ -9,6 +9,9 @@
 #include "lightcenterhandler.h"
 #include "cbcthandler.h"
 #include "cbctpositionhandler.h"
+#include "circle.h"
+
+
 #include <QDebug>
 #include "vtkLine.h"
 #include "vtkMath.h"

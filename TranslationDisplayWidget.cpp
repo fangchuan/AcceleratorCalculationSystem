@@ -67,6 +67,11 @@ void TranslationDisplayWidget::initUi()
 	mainLayout->addLayout(layout_3);
 	QHBoxLayout *layout_4 = new QHBoxLayout;
 	QLabel* zLabel = new QLabel(QObject::tr("Z axis translation distance:"));
+	zLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
+		"font-size:16px;"
+		"border:1px solid white;"
+		"border-radius:8px;"
+		"border-style: inset;}");
 	layout_4->addWidget(zLabel);//
 	m_ZLabel->setStyleSheet("QFrame, QLabel, QToolTip{font-family:'Microsoft YaHei';"
 		"font-size:16px;"
