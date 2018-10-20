@@ -58,7 +58,8 @@ void HorizontalRegister::setPoints(vtkPoints *points)
 	p2[0] = dis; p2[1] = p2[2] = 0;
 
 	//make sure the horizontal plane
-	horizontalPlane->SetOrigin(footPoint);
+	double origin[3] = {0};
+	horizontalPlane->SetOrigin(origin);
 	horizontalPlane->SetPoint1(p3);
 	horizontalPlane->SetPoint2(p1);
 	horizontalPlane->Update();
@@ -101,13 +102,13 @@ bool HorizontalRegister::transform(double in[3], double out[3])
 
 bool HorizontalRegister::getHorizontalPlaneNormal(double normal[3])
 {
-	if (m_HorizontalPlaneNormal[2] != 0 || m_HorizontalPlaneNormal[1] != 0 || m_HorizontalPlaneNormal[0] != 0)
-	{
+	//if (m_HorizontalPlaneNormal[2] != 0 || m_HorizontalPlaneNormal[1] != 0 || m_HorizontalPlaneNormal[0] != 0)
+	//{
 		memcpy(normal, m_HorizontalPlaneNormal, sizeof(m_HorizontalPlaneNormal));
 		return true;
-	}
-	else
-	{
-		return false;
-	}
+	//}
+	//else
+	//{
+	//	return false;
+	//}
 }

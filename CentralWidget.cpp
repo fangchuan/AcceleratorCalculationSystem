@@ -65,8 +65,8 @@ void CentralWidget::initUi()
 	
 	mainLayout->addLayout(leftLayout);
 	mainLayout->addLayout(rightLayout);
-	mainLayout->setStretchFactor(leftLayout, 7);
-	mainLayout->setStretchFactor(rightLayout, 3);
+	mainLayout->setStretchFactor(leftLayout, 6);
+	mainLayout->setStretchFactor(rightLayout, 4);
 
 }
 
@@ -103,8 +103,8 @@ void CentralWidget::buildConnections()
 	connect(m_ControlWidget, &ControlWidget::switchToGantry, this, &CentralWidget::switchToGantry);
 	connect(m_ControlWidget, &ControlWidget::recordingCollimator, this, &CentralWidget::recordingCollimator);
 	connect(m_ControlWidget, &ControlWidget::switchToCollimator, this, &CentralWidget::switchToCollimator);
-	connect(m_ControlWidget, &ControlWidget::switchToCbct, this, &CentralWidget::switchToCbct);
-	connect(m_ControlWidget, &ControlWidget::recordingCbct, this, &CentralWidget::recordingCbct);
+	connect(m_ControlWidget, &ControlWidget::switchToEpidPosition, this, &CentralWidget::switchToEpidPosition);
+	connect(m_ControlWidget, &ControlWidget::recordingEpidPosition, this, &CentralWidget::recordingEpidPosition);
 	connect(m_ControlWidget, &ControlWidget::switchToCbctPosition, this, &CentralWidget::switchToCbctPosition);
 	connect(m_ControlWidget, &ControlWidget::recordingCbctPosition, this, &CentralWidget::recordingCbctPosition);
 	connect(m_ControlWidget, &ControlWidget::recordingBed, this, &CentralWidget::recordingBed);
@@ -114,7 +114,7 @@ void CentralWidget::buildConnections()
 	connect(m_ControlWidget, &ControlWidget::recordingLightCenter, this, &CentralWidget::recordingLightCenter);
 	connect(m_ControlWidget, &ControlWidget::switchToLightCenter, this, &CentralWidget::switchToLightCenter);
 	connect(m_ControlWidget, &ControlWidget::resetRequest, this, &CentralWidget::handleReset);
-	connect(m_ControlWidget, &ControlWidget::reportRequest, m_Model, &CentralModel::handleReport);
+	connect(m_ControlWidget, &ControlWidget::reportRequest, this, &CentralWidget::handleReport);
 	//建立拟合结果与界面更新信号槽(所有的结果都在加速器坐标系/三维场景坐标系下)
 	connect(m_Model, &CentralModel::markerSize, this, &CentralWidget::markerSize);
 	connect(m_Model, &CentralModel::pseudoMarkerSize, this, &CentralWidget::pseudoMarkerSize);
@@ -125,9 +125,13 @@ void CentralWidget::buildConnections()
 	connect(m_Model, &CentralModel::circleResult, this, &CentralWidget::circleResult);
 	connect(m_Model, &CentralModel::translateResult, this, &CentralWidget::translateResult);
 	connect(m_Model, &CentralModel::registerLaserISO, this, &CentralWidget::registerLaserISOPosition);
+	connect(m_Model, &CentralModel::registerLaserISOSuccess, this, &CentralWidget::registerLaserISOSucceesfully);
 	connect(m_Model, &CentralModel::registerLightCenter, this, &CentralWidget::registerLightCenterPosition);
 	connect(m_Model, &CentralModel::cbctPointPosition, this, &CentralWidget::cbctPointPosition);
+	connect(m_Model, &CentralModel::epidPointPosition, this, &CentralWidget::epidPointPosition);
+	connect(m_Model, &CentralModel::registerToolTrackError, this, &CentralWidget::cbctTrackToolError);
 	connect(m_Model, &CentralModel::cbctPlaneResult, this, &CentralWidget::cbctPlaneResult);
+	connect(m_Model, &CentralModel::epidPlaneResult, this, &CentralWidget::epidPlaneResult);
 
 	connect(m_Model, &CentralModel::sendReport, this, &CentralWidget::reportResult);
 	connect(m_Model, &CentralModel::softISONotCalibrated, this, &CentralWidget::softISONotCalibratedReport);
@@ -338,7 +342,7 @@ void CentralWidget::switchToLightCenter()
 		return;
 	}
 
-	m_Tracker->startTrackingInMode(ToolTracking6D);
+	m_Tracker->startTrackingInMode(MarkerTracking3D);
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}
@@ -347,19 +351,19 @@ void CentralWidget::switchToLightCenter()
 	m_Model->setHandlerToNone();
 }
 
-void CentralWidget::switchToCbct()
+void CentralWidget::switchToEpidPosition()
 {
 	if (m_Tracker->getState() < TrackingDevice::Ready) {
 		QMessageBox::warning(this, QCoreApplication::applicationName(), QObject::tr("Camera is not connected or not ready!"));
 		return;
 	}
 
-	m_Tracker->startTrackingInMode(MarkerTracking3D);
+	m_Tracker->startTrackingInMode(ToolTracking6D);
 	if (!m_Timer->isActive()) {
 		m_Timer->start();
 	}
-	m_ControlWidget->doSwitchToCbct();
-	m_DisplayWidget->doSwitchToCbct();
+	m_ControlWidget->doSwitchToEpidPosition();
+	m_DisplayWidget->doSwitchToCbctPosition();
 	m_Model->setHandlerToNone();
 }
 
@@ -387,12 +391,12 @@ void CentralWidget::recordingCollimator()
 #endif
 }
 
-void CentralWidget::recordingCbct()
+void CentralWidget::recordingEpidPosition()
 {
-	m_Model->setHandlerToCbct();
-	plotWidget->setCBCTUpdateFlag();
+	m_Model->setHandlerToEpidPosition();
+
 #ifdef USE_LOG
-	logger->write(QObject::tr("Recording CBCT Rotate"));
+	logger->write(QObject::tr("Recording EPID Position :"));
 #endif
 
 }
@@ -436,7 +440,7 @@ void CentralWidget::recordingLaserISO()
 {
 	m_Model->setHandlerToISOCenter();
 #ifdef USE_LOG
-	logger->write(QObject::tr("Recording Laser ISO Center"));
+	logger->write(QObject::tr("Recording Laser ISO Center(Tracking Tool):"));
 #endif
 }
 
@@ -444,7 +448,7 @@ void CentralWidget::recordingLightCenter()
 {
 	m_Model->setHandlerToLightCenter();
 #ifdef USE_LOG
-	logger->write(QObject::tr("Recording Light Center"));
+	logger->write(QObject::tr("Recording Laser Center(Mark Boll):"));
 #endif
 }
 
@@ -487,7 +491,8 @@ void CentralWidget::pseudoMarkerSize(int size)
 #ifdef USE_LOG
 	logger->write(str);
 #endif
-    QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), str);
+	// 注释则取消消息框提示
+    //QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), str);
 }
 
 //
@@ -516,7 +521,10 @@ void CentralWidget::horizontalRegisterRecorded(double normal[3])
 	m_DisplayWidget->horizontalRegisterRecorded(normal);
 
 #ifdef USE_LOG
-	QString str = QStringLiteral("Horizontal plane has registered!");
+	QString str = QStringLiteral("Horizontal plane has registered! \r\n");
+	str += QStringLiteral("Horizontal plane normal: ( %1,  %2, %3 )").arg(normal[0], 0, 'f', 2)
+		.arg(normal[1], 0, 'f', 2)
+		.arg(normal[2], 0, 'f', 2);
 	logger->write(str);
 #endif
 	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Register horizontal plane successfully!"));
@@ -566,7 +574,7 @@ void CentralWidget::circleResult(Circle *circle)
 {
 	double angle = circle->Angle;
 	double normal_vector[3] = { (*circle).Normal[0], (*circle).Normal[1], (*circle).Normal[2]};
-	double circle_center[3] = { (*circle).Center[0], (*circle).Center[1], (*circle).Center[2] };
+	double circle_center[3] = { (*circle).Center[0]*0.01, (*circle).Center[1]*0.01, (*circle).Center[2]*0.01 };
 	double normalx10_vector[3] = { normal_vector[0] * 10, normal_vector[1] * 10, normal_vector[2]*10 };
 
 	m_DisplayWidget->setCircleResult(circle);
@@ -587,6 +595,8 @@ void CentralWidget::circleResult(Circle *circle)
 		str += "\n";
 		str += QString("circle: ( %1, %2, %3 )").arg(circle->Center[0], 0, 'f', 2).arg(circle->Center[1], 0, 'f', 2).arg(circle->Center[2], 0, 'f', 2);
 		str += "\n";
+		str += QString("radius:  %1").arg(circle->Radius, 0, 'f', 2);
+		str += "\n";
 		str += QString("normal: ( %1, %2, %3 )").arg(circle->Normal[0], 0, 'f', 2).arg(circle->Normal[1], 0, 'f', 2).arg(circle->Normal[2], 0, 'f', 2);
 		logger->write(str);
 #endif
@@ -602,20 +612,7 @@ void CentralWidget::circleResult(Circle *circle)
 		str += "\n";
 		str += QString("circle: ( %1, %2, %3 )").arg(circle->Center[0], 0, 'f', 2).arg(circle->Center[1], 0, 'f', 2).arg(circle->Center[2], 0, 'f', 2);
 		str += "\n";
-		str += QString("normal: ( %1, %2, %3 )").arg(circle->Normal[0], 0, 'f', 2).arg(circle->Normal[1], 0, 'f', 2).arg(circle->Normal[2], 0, 'f', 2);
-		logger->write(str);
-#endif
-	}
-	//更新CBCT运动
-	if (handler == CBCT_HANDLER) {
-		plotWidget->updateCBCTDegree(angle);
-		renderWidget->rotateCbct(angle);
-
-#ifdef USE_LOG
-		QString str = QStringLiteral("CBCT rotate result:\n");
-		str += QString("angle: %1").arg(angle, 0, 'f', 2);
-		str += "\n";
-		str += QString("circle: ( %1, %2, %3 )").arg(circle->Center[0], 0, 'f', 2).arg(circle->Center[1], 0, 'f', 2).arg(circle->Center[2], 0, 'f', 2);
+		str += QString("radius:  %1").arg(circle->Radius, 0, 'f', 2);
 		str += "\n";
 		str += QString("normal: ( %1, %2, %3 )").arg(circle->Normal[0], 0, 'f', 2).arg(circle->Normal[1], 0, 'f', 2).arg(circle->Normal[2], 0, 'f', 2);
 		logger->write(str);
@@ -624,8 +621,8 @@ void CentralWidget::circleResult(Circle *circle)
 	//更新治疗床运动 red
 	if (handler == BED_HANDLER){
 		plotWidget->updateBedDegree(angle);
-
-		renderWidget->rotateBed(angle);
+		// 为适应3D场景将angle取反
+		renderWidget->rotateBed(-angle);
 		renderWidget->drawBedAxis(
 			QVector3D(circle_center[0] + normalx10_vector[0], circle_center[1] + normalx10_vector[1], circle_center[2] + normalx10_vector[2]),
 			QVector3D(circle_center[0] - normalx10_vector[0], circle_center[1] - normalx10_vector[1], circle_center[2] - normalx10_vector[2]),
@@ -636,6 +633,8 @@ void CentralWidget::circleResult(Circle *circle)
 		str += QString("angle: %1").arg(angle, 0, 'f', 2);
 		str += "\n";
 		str += QString("circle: ( %1, %2, %3 )").arg(circle->Center[0], 0, 'f', 2).arg(circle->Center[1], 0, 'f', 2).arg(circle->Center[2], 0, 'f', 2);
+		str += "\n";
+		str += QString("radius:  %1").arg(circle->Radius, 0, 'f', 2);
 		str += "\n";
 		str += QString("normal: ( %1, %2, %3 )").arg(circle->Normal[0], 0, 'f', 2).arg(circle->Normal[1], 0, 'f', 2).arg(circle->Normal[2], 0, 'f', 2);
 		logger->write(str);
@@ -677,16 +676,25 @@ void CentralWidget::registerLaserISOPosition(Point3D &point)
 	double position[3] = { point[0], point[1], point[2] };
 	m_DisplayWidget->setRegisteredPosition(position);
 	//transform point position in NDI coordinate to rendering scence
-	// x'= -z0, y'=y0, z'=x0
-	renderWidget->drawLaserISOCenter(position[2] , position[1] , -position[0] );
+	// x'= z0, y'=y0, z'=-x0
+	renderWidget->drawLaserISOCenter(position[2] * 0.01, position[1] * 0.01, -position[0] * 0.01);
 
 #ifdef USE_LOG
-	QString str = QStringLiteral("Laser ISOCenter Position: ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
+	QString str = QStringLiteral("Laser ISOCenter Position(Tracking Tool): ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
 									.arg(point[1], 0, 'f', 2)
 									.arg(point[2], 0, 'f', 2);
 	logger->write(str);
 #endif
 }
+void CentralWidget::registerLaserISOSucceesfully()
+{
+	QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Register Laser ISO Successfully!"));
+#ifdef USE_LOG
+	QString str = QStringLiteral("Register Laser ISO Successfully!");
+	logger->write(str);
+#endif
+}
+
 //
 //更新模拟光野中心坐标
 //
@@ -696,10 +704,10 @@ void CentralWidget::registerLightCenterPosition(Point3D &point)
 	m_DisplayWidget->setRegisteredPosition(position);
 	//transform point position in NDI coordinate to rendering scence
 	// x'= -z0, y'=y0, z'=x0
-	renderWidget->drawLightCenter(position[2], position[1], -position[0]);
+	renderWidget->drawLightCenter(position[2] * 0.01, position[1] * 0.01, -position[0] * 0.01);
 
 #ifdef USE_LOG
-	QString str = QStringLiteral("Light Center Position: ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
+	QString str = QStringLiteral("Laser Center Position(Mark Boll): ( x = %1, y = %2, z = %3 )").arg(point[0], 0, 'f', 2)
 									.arg(point[1], 0, 'f', 2)
 									.arg(point[2], 0, 'f', 2);
 	logger->write(str);
@@ -709,30 +717,33 @@ void CentralWidget::registerLightCenterPosition(Point3D &point)
 void CentralWidget::cbctPointPosition(Point3D & point)
 {
 	static int pointCount = 0;
-	double position[3] = { point[0], point[1], point[3] };
+	double position[3] = { point[0], point[1], point[2] };
+	pointCount++;
+	if (pointCount > 3)
+	{
+		pointCount = 1;
+		m_DisplayWidget->reset();
+	}
+		
 	m_DisplayWidget->setCbctPointPosition(pointCount, position);
 	
 	switch (pointCount)
 	{
-	case 0:
+	case 1:
 		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(),
 			QObject::tr("CBCT plane register data 1 recorded, please hit the button again to record data 2!"));
 		break;
-	case 1:
+	case 2:
 		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(),
 			QObject::tr("CBCT plane register data 2 recorded, please hit the button again to record data 3!"));
 		break;
-	case 2:
+	case 3:
 		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(),
 			QObject::tr("CBCT plane registered succeessfully!"));
 		break;
 	default:
 		break;
 	}
-	
-	pointCount ++;
-	if (pointCount > 2)
-		pointCount = 0;
 
 #ifdef USE_LOG
 	QString str = QStringLiteral("CBCT Plane Point Position: ( x = %1, y = %2, z = %3 )").arg(position[0], 0, 'f', 2)
@@ -742,6 +753,55 @@ void CentralWidget::cbctPointPosition(Point3D & point)
 #endif
 }
 
+void CentralWidget::epidPointPosition(Point3D & point)
+{
+	static int pointCount = 0;
+	double position[3] = { point[0], point[1], point[2] };
+	pointCount++;
+	if (pointCount > 3)
+	{
+		pointCount = 1;
+		m_DisplayWidget->reset();
+	}
+
+	m_DisplayWidget->setCbctPointPosition(pointCount, position);
+
+	switch (pointCount)
+	{
+	case 1:
+		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(),
+			QObject::tr("EPID plane register data 1 recorded, please hit the button again to record data 2!"));
+		break;
+	case 2:
+		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(),
+			QObject::tr("EPID plane register data 2 recorded, please hit the button again to record data 3!"));
+		break;
+	case 3:
+		QMessageBox::information(Q_NULLPTR, QCoreApplication::applicationName(),
+			QObject::tr("EPID plane registered succeessfully!"));
+		break;
+	default:
+		break;
+	}
+
+#ifdef USE_LOG
+	QString str = QStringLiteral("EPID Plane Point Position: ( x = %1, y = %2, z = %3 )").arg(position[0], 0, 'f', 2)
+		.arg(position[1], 0, 'f', 2)
+		.arg(position[2], 0, 'f', 2);
+	logger->write(str);
+#endif
+}
+
+void CentralWidget::cbctTrackToolError()
+{
+	QMessageBox::critical(Q_NULLPTR, QCoreApplication::applicationName(),
+		QObject::tr("CBCT plane register tool tracking error!"));
+
+#ifdef USE_LOG
+	QString str = QStringLiteral("CBCT plane register tool tracking error!");
+	logger->write(str);
+#endif
+}
 void CentralWidget::cbctPlaneResult(Plane_T & plane)
 {
 	m_DisplayWidget->setCbctPlaneResult(plane);
@@ -757,6 +817,21 @@ void CentralWidget::cbctPlaneResult(Plane_T & plane)
 #endif
 }
 
+void CentralWidget::epidPlaneResult(Plane_T & plane)
+{
+	m_DisplayWidget->setCbctPlaneResult(plane);
+
+#ifdef USE_LOG
+	QString str = QStringLiteral("EPID Plane Normal : ( x = %1, y = %2, z = %3 )").arg(plane.normal[0], 0, 'f', 2)
+		.arg(plane.normal[1], 0, 'f', 2)
+		.arg(plane.normal[2], 0, 'f', 2);
+	logger->write(str);
+
+	QString strAngle = QStringLiteral("EPID Plane Angle Between Horizontal Plane :   %1 ").arg(plane.angleBetweenP2H, 0, 'f', 2);
+	logger->write(strAngle);
+#endif
+}
+
 void CentralWidget::handleReset()
 {
 	m_Model->resetAccelerator();
@@ -764,6 +839,14 @@ void CentralWidget::handleReset()
 	m_DisplayWidget->reset();
 	renderWidget->resetScene();
 	plotWidget->resetPlot();
+}
+
+void CentralWidget::handleReport()
+{
+	m_Model->setHandlerToNone();
+	//m_DisplayWidget->reset();
+	m_ControlWidget->reset();
+	m_Model->handleReport();
 }
 
 void CentralWidget::softISONotCalibratedReport()
@@ -814,9 +897,9 @@ void CentralWidget::reportResult(const ReportData& report)
 												.arg(report.laserCenter[1], 0, 'f', 2)
 												.arg(report.laserCenter[2], 0, 'f', 2);
 
-	QString lightCenter = QString("( %1, %2, %3 )").arg(report.lightCenter[0], 0, 'f', 2)
-												.arg(report.lightCenter[1], 0, 'f', 2)
-												.arg(report.lightCenter[2], 0, 'f', 2);
+	//QString lightCenter = QString("( %1, %2, %3 )").arg(report.lightCenter[0], 0, 'f', 2)
+	//											.arg(report.lightCenter[1], 0, 'f', 2)
+	//											.arg(report.lightCenter[2], 0, 'f', 2);	
 
 	QString foot_A = QString("( %1, %2, %3 )").arg(report.footA[0], 0, 'f', 2)
 											.arg(report.footA[1], 0, 'f', 2)
@@ -826,33 +909,33 @@ void CentralWidget::reportResult(const ReportData& report)
 											.arg(report.footB[1], 0, 'f', 2)
 											.arg(report.footB[2], 0, 'f', 2);
 
-	QString distanceSoft2Laser = QString(" %1 mm").arg(report.distanceLaser2Soft, 0, 'f', 2);
+	QString distanceSoft2Laser = QString(" %1 mm.").arg(report.distanceLaser2Soft, 0, 'f', 2);
 
 	double distanceA = sqrt(vtkMath::Distance2BetweenPoints(report.footA, report.laserCenter));
 	double distanceB = sqrt(vtkMath::Distance2BetweenPoints(report.footB, report.laserCenter));
-	QString distanceA2Laser = QString(" %1 mm").arg(distanceA, 0, 'f', 2);
-	QString distanceB2Laser = QString(" %1 mm").arg(distanceB, 0, 'f', 2);
-	QString gantryVar = QString(" %1").arg(report.gantryVar, 0,'f', 2);
-	QString gantryMean = QString(" %1 mm").arg(report.gantryMean, 0, 'f', 2);
-	QString gantryAngle = QString(" %1 degree").arg(report.gantryAngle, 0, 'f', 2);
-	QString bedVar = QString(" %1").arg(report.bedVar, 0, 'f', 2);
-	QString bedMean = QString(" %1 mm").arg(report.bedMean, 0, 'f', 2);
-	QString bedAngle = QString(" %1 degree").arg(report.bedAngle, 0, 'f', 2);
-	QString cbctVar = QString(" %1").arg(report.cbctVar, 0, 'f', 2);
-	QString cbctMean = QString(" %1 mm").arg(report.cbctMean, 0, 'f', 2);
-	QString cbctAngle = QString(" %1 degree").arg(report.cbctAngle, 0, 'f', 2);
+	QString distanceA2Laser = QString(" %1 mm.").arg(distanceA, 0, 'f', 2);
+	QString distanceB2Laser = QString(" %1 mm.").arg(distanceB, 0, 'f', 2);
+	QString gantryVar = QString(" %1 .").arg(report.gantryVar, 0,'f', 2);
+	QString gantryMean = QString(" %1 mm.").arg(report.gantryMean, 0, 'f', 2);
+	QString gantryAngle = QString(" %1 degree.").arg(report.gantryAngle, 0, 'f', 2);
+	QString bedVar = QString(" %1 .").arg(report.bedVar, 0, 'f', 2);
+	QString bedMean = QString(" %1 mm.").arg(report.bedMean, 0, 'f', 2);
+	QString bedAngle = QString(" %1 degree.").arg(report.bedAngle, 0, 'f', 2);
+
+	QString cbctVerticalty = QString(" %1 degree.").arg(report.cbctPlaneVerticalty, 0, 'f', 2);
+	QString epidVerticalty = QString(" %1 degree.").arg(report.epidPlaneVerticalty, 0, 'f', 2);
 
 	double gantryVelocity = plotWidget->getGantryAvrDegreeVelocity();
 	double bedVelocity = plotWidget->getBedAvrDegreeVelocity();
-	double cbctVelocity = plotWidget->getCBCTAvrDegreeVelocity();
-	QString gantryVel = QString(" %1  degree/s").arg(gantryVelocity, 0, 'f', 2);
-	QString bedVel = QString(" %1  degree/s").arg(bedVelocity, 0, 'f', 2);
-	QString cbctVel = QString(" %1  degree/s").arg(cbctVelocity, 0, 'f', 2);
 
-	reportWidget->setHtmlReport(softCenter, laserCenter, lightCenter, foot_A, foot_B, distanceSoft2Laser, distanceA2Laser, distanceB2Laser, 
-							gantryVar, gantryMean, gantryVel, gantryAngle, bedVar, bedMean, bedVel, bedAngle, cbctVar, cbctMean, cbctVel, cbctAngle);
+	QString gantryVel = QString(" %1  degree/s.").arg(gantryVelocity, 0, 'f', 2);
+	QString bedVel = QString(" %1  degree/s.").arg(bedVelocity, 0, 'f', 2);
+
+
+	reportWidget->setHtmlReport(softCenter, laserCenter, foot_A, foot_B, distanceSoft2Laser, distanceA2Laser, distanceB2Laser, cbctVerticalty, epidVerticalty,
+							gantryVar, gantryMean, gantryVel, gantryAngle, bedVar, bedMean, bedVel, bedAngle);
 	//transform point position in NDI coordinate to rendering scence
 	// x'= -z0, y'=y0, z'=x0
-	renderWidget->drawSoftISOCenter(report.softCenter[2], report.softCenter[1], -report.softCenter[0]);
+	renderWidget->drawSoftISOCenter(report.softCenter[2]*0.01, report.softCenter[1]*0.01, -report.softCenter[0]*0.01);
 	renderWidget->drawVerticalLine(report.footA, report.footB);
 }

@@ -7,7 +7,7 @@
 #include "bedhandler.h"
 #include "isocenterhandler.h"
 #include "lightcenterhandler.h"
-#include "cbcthandler.h"
+#include "epidhandler.h"
 #include "cbctpositionhandler.h"
 #include "circle.h"
 
@@ -25,7 +25,7 @@ CentralModel::CentralModel(QObject *parent)
 	m_BedHandler(new BedHandler(this)),
 	m_ISOCenterHanlder(new ISOCenterHandler(this)),
 	m_LightCenterHanlder(new LightCenterHandler(this)),
-	m_CbctHandler(new CbctHandler(this)),
+	m_EpidPositionHandler(new EpidHandler(this)),
 	m_CbctPositionHandler(new CbctPositionHandler(this)),
 	gantryCircle(new Circle),
 	bedCircle(new Circle)
@@ -49,12 +49,14 @@ void CentralModel::initData()
 	m_GantryFitted = false;
 	m_softCenterIsCal = false;
 	m_LaserISODetected = false;
-	m_LightCenterDetected = false;
+	//m_LightCenterDetected = false;
 	m_ReadyToReport = false;
 	gantryCircle ->init();
 	bedCircle -> init();
 	reportData.softCenter[0] = 0; reportData.softCenter[1] = 0; reportData.softCenter[2] = 0;
 	reportData.laserCenter[0] = 0; reportData.laserCenter[1] = 0; reportData.laserCenter[2] = 0;
+	reportData.cbctPlaneVerticalty = 0;
+	reportData.epidPlaneVerticalty = 0;
 	reportData.footA[0] = 0; reportData.footA[1] = 0; reportData.footA[2] = 0;
 	reportData.footB[0] = 0; reportData.footB[1] = 0; reportData.footB[2] = 0;
 	reportData.distanceLaser2Soft = 0;
@@ -85,15 +87,19 @@ void CentralModel::buildConnections()
 	connect(m_BedHandler, &BedHandler::circleResult, this, &CentralModel::circleResult);
 	connect(m_BedHandler, &BedHandler::translateResult, this, &CentralModel::translateResult);
 	connect(m_ISOCenterHanlder, &ISOCenterHandler::registerLaserISO, this, &CentralModel::registerLaserISO);
+	connect(m_ISOCenterHanlder, &ISOCenterHandler::registerLaserISOSuccess, this, &CentralModel::registerLaserISOSuccess); 
 	connect(m_LightCenterHanlder, &LightCenterHandler::registerLightCenter, this, &CentralModel::registerLightCenter);
-	connect(m_CbctHandler, &CbctHandler::pseudoMarkerSize, this, &CentralModel::pseudoMarkerSize);
-	connect(m_CbctHandler, &CbctHandler::markerPosition, this, &CentralModel::markerPosition);
-	connect(m_CbctHandler, &CbctHandler::circleResult, this, &CentralModel::circleResult);
+	connect(m_EpidPositionHandler, &EpidHandler::epidPlanePointPosition, this, &CentralModel::epidPointPosition);
+	connect(m_EpidPositionHandler, &EpidHandler::registerToolTrackError, this, &CentralModel::registerToolTrackError);
+	connect(m_EpidPositionHandler, &EpidHandler::epidPlaneResult, this, &CentralModel::epidPlaneResult);
 	connect(m_CbctPositionHandler, &CbctPositionHandler::cbctPlanePointPosition, this, &CentralModel::cbctPointPosition);
-	connect(m_CbctPositionHandler, &CbctPositionHandler::planeResult, this, &CentralModel::cbctPlaneResult);
+	connect(m_CbctPositionHandler, &CbctPositionHandler::registerToolTrackError, this, &CentralModel::registerToolTrackError);
+	connect(m_CbctPositionHandler, &CbctPositionHandler::cbctPlaneResult, this, &CentralModel::cbctPlaneResult);
 	
 	connect(m_ISOCenterHanlder, &ISOCenterHandler::registerLaserISO, this, &CentralModel::laserISOCenterPosition);
 	connect(m_LightCenterHanlder, &LightCenterHandler::registerLightCenter, this, &CentralModel::lightCenterPosition);
+	connect(m_CbctPositionHandler, &CbctPositionHandler::cbctPlaneResult, this, &CentralModel::cbctPlanePosition);
+	connect(m_EpidPositionHandler, &EpidHandler::epidPlaneResult, this, &CentralModel::epidPlanePosition);
 	connect(m_BedHandler, &BedHandler::circleResult, this, &CentralModel::softISOCenter);
 	connect(m_GantryHandler, &GantryHandler::circleResult, this, &CentralModel::softISOCenter);
 }
@@ -157,18 +163,18 @@ void CentralModel::setHandlerToLightCenter()
 	m_Handler->reset();
 }
 
-void CentralModel::setHandlerToCbct()
-{
-	m_Handler = m_CbctHandler;
-	//clear history data
-	m_Handler->reset();
-}
-
 void CentralModel::setHandlerToCbctPosition()
 {
 	m_Handler = m_CbctPositionHandler;
 	m_Handler->reset();
 }
+
+void CentralModel::setHandlerToEpidPosition()
+{
+	m_Handler = m_EpidPositionHandler;
+	m_Handler->reset();
+}
+
 
 int CentralModel::getHandler()
 {
@@ -191,8 +197,8 @@ int CentralModel::getHandler()
 					if (m_Handler == m_ISOCenterHanlder){
 						return  ISOCENTER_HANDLER;
 					}else{
-						if (m_Handler == m_CbctHandler)
-							return CBCT_HANDLER;
+						if (m_Handler == m_EpidPositionHandler)
+							return EPID_POSITION_HANDLER;
 						else
 							if (m_Handler == m_CbctPositionHandler) {
 								return CBCT_POSITION_HANDLER;
@@ -243,11 +249,22 @@ void CentralModel::laserISOCenterPosition(Point3D& point)
 //
 void CentralModel::lightCenterPosition(Point3D& point)
 {
-	reportData.lightCenter[0] = point[0];
-	reportData.lightCenter[1] = point[1];
-	reportData.lightCenter[2] = point[2];
+	reportData.laserCenter[0] = point[0];
+	reportData.laserCenter[1] = point[1];
+	reportData.laserCenter[2] = point[2];
 
-	m_LightCenterDetected  = true;
+	m_LaserISODetected = true;
+}
+void CentralModel::cbctPlanePosition(Plane_T& plane)
+{
+	reportData.cbctPlaneVerticalty = plane.angleBetweenP2H;
+
+}
+
+void CentralModel::epidPlanePosition(Plane_T& plane)
+{
+	reportData.epidPlaneVerticalty = plane.angleBetweenP2H;
+
 }
 //
 //记录软件结算的等中心
@@ -317,7 +334,6 @@ void CentralModel::handleReport()
 	double distance = 0;
 	double gantryVariance =0, gantryMean = 0, gantryAngle =0;
 	double bedVariance=0, bedMean=0, bedAngle = 0;
-	double cbctVariance=0, cbctMean=0, cbctAngle=0;
 
 	if (m_softCenterIsCal && m_LaserISODetected ){  // use light center or not ?
 		//calculate distance between softcenter and laserCenter
@@ -339,18 +355,18 @@ void CentralModel::handleReport()
 
 	bool retg = m_GantryHandler->getRotateStatistical(gantryVariance, gantryMean,gantryAngle);
 	bool retb = m_BedHandler->getRotateStatistical(bedVariance, bedMean, bedAngle);
-	bool retc = m_CbctHandler->getRotateStatistical(cbctVariance, cbctMean,cbctAngle);
+	//bool retc = m_CollimatorHandler->getRotateStatistical(cbctVariance, cbctMean,cbctAngle);
 
-	if (retg && retb ){  // use cbct circle result or not ?
+	if (retg && retb ){  // use collomator circle result or not ?
 		reportData.gantryVar = gantryVariance;
 		reportData.gantryMean = gantryMean;
 		reportData.gantryAngle = gantryAngle;
 		reportData.bedVar = bedVariance;
 		reportData.bedMean = bedMean;
 		reportData.bedAngle = bedAngle;
-		reportData.cbctVar = cbctVariance;
-		reportData.cbctMean = cbctMean;
-		reportData.cbctAngle = cbctAngle;
+		//reportData.cbctVar = cbctVariance;
+		//reportData.cbctMean = cbctMean;
+		//reportData.cbctAngle = cbctAngle;
 
 		m_ReadyToReport = true;
 		emit editReportSuccessfully();

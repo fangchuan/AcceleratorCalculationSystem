@@ -12,13 +12,7 @@ LightCenterHandler::~LightCenterHandler()
 
 AbstractMonitorHandler*  LightCenterHandler::handle(MarkerPointContainerType &positions)
 {
-	return this;
-}
-//
-//point是NDI下的中心点坐标
-//转换到加速器坐标系下后m_RegisteredPoint是最终等中心点
-AbstractMonitorHandler* LightCenterHandler::handle(Point3D &point)
-{
+	Point3D point = positions.at(0);
 	m_RegisteredPoint[0] = point[0];
 	m_RegisteredPoint[1] = point[1];
 	m_RegisteredPoint[2] = point[2];
@@ -30,8 +24,14 @@ AbstractMonitorHandler* LightCenterHandler::handle(Point3D &point)
 	m_IsRegistered = true;
 
 	emit registerLightCenter(MarkerPointType(out));
-
-	return nullptr;
+	return this;
+}
+//
+//point是NDI下的中心点坐标
+//转换到加速器坐标系下后m_RegisteredPoint是最终等中心点
+AbstractMonitorHandler* LightCenterHandler::handle(Point3D &point)
+{
+	return this;
 }
 
 void LightCenterHandler::reset()

@@ -27,7 +27,6 @@ enum curveIndex{
 	CURVE_BED,
 	CURVE_GANTRY,
 	CURVE_COLLIMATOR,
-	CURVE_CBCT,
 	CURVE_BED_PAYLOAD
 };
 enum updateFlag{
@@ -36,8 +35,7 @@ enum updateFlag{
 	UPDATE_BED_EMPTY_DEGREE,
 	UPDATE_BED_EMPTY_DISTANCE,
 	UPDATE_BED_PAYLOAD_DEGREE,
-	UPDATE_BED_PAYLOAD_DISTANCE,
-	UPDATE_CBCT_DEGREE
+	UPDATE_BED_PAYLOAD_DISTANCE
 };
 
 class BasePlot :public QwtPlot
@@ -357,8 +355,8 @@ class DegreeDistancePlot : public BasePlot
 	Q_OBJECT
 public:
 	DegreeDistancePlot(QWidget* parent = NULL) :BasePlot(parent),
-		mGantryDistance(NULL), mCollimatorDistance(NULL), mBedDistance(NULL),
-		mCbctDistance(NULL), mPayloadBedDistance(NULL)
+		mGantryDistance(NULL),  mCollimatorDistance(NULL), 
+		mBedDistance(NULL), 	mPayloadBedDistance(NULL)
 	{
 		this->setTitle(QObject::tr("DEGREE"));
 		//set axis name
@@ -395,16 +393,6 @@ public:
 		mBedDistance->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedDistance->attach(this);//把曲线附加到plot上
 
-		mCbctDistance = new QwtPlotCurve(QObject::tr("CBCT"));
-		mCbctDistance->setStyle(QwtPlotCurve::Lines);//直线形式
-		QwtSplineCurveFitter *fitterCBCT = new QwtSplineCurveFitter();
-		fitterCBCT->setSplineSize(50);
-		mCbctDistance->setCurveFitter(fitterCBCT);//设置曲线插值
-		mCbctDistance->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mCbctDistance->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
-		mCbctDistance->setPen(QPen(Qt::white, 1));//设置画笔
-		mCbctDistance->attach(this);//把曲线附加到plot上
-
 		mPayloadBedDistance = new QwtPlotCurve(QObject::tr("Bed(Payload)"));
 		mPayloadBedDistance->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterBedPayload = new QwtSplineCurveFitter();//三次样条插值曲线拟合器
@@ -418,7 +406,6 @@ public:
 		showCurve(mGantryDistance, true);
 		showCurve(mCollimatorDistance, false);
 		showCurve(mBedDistance, false);
-		showCurve(mCbctDistance, false);
 		showCurve(mPayloadBedDistance, false);
 	}
 
@@ -437,10 +424,6 @@ public:
 			if (NULL != mBedDistance)
 				mBedDistance->setSamples(xData, yData);
 			break;
-		case CURVE_CBCT:
-			if (NULL != mCbctDistance)
-				mCbctDistance->setSamples(xData, yData);
-			break;
 		case CURVE_BED_PAYLOAD:
 			if (NULL != mPayloadBedDistance)
 				mPayloadBedDistance->setSamples(xData, yData);
@@ -455,7 +438,6 @@ private:
 	QwtPlotCurve*  mGantryDistance;
 	QwtPlotCurve*  mCollimatorDistance;
 	QwtPlotCurve*  mBedDistance;
-	QwtPlotCurve*  mCbctDistance;
 	QwtPlotCurve*  mPayloadBedDistance;
 };
 //
@@ -464,8 +446,8 @@ class DegreeVelocityPlot : public BasePlot
 	Q_OBJECT
 public:
 	DegreeVelocityPlot(QWidget* parent = NULL) :BasePlot(parent),
-		mGantryVelocity(NULL), mCollimatorVelocity(NULL), mBedVelocity(NULL),
-		mCbctVelocity(NULL), mPayloadBedVelocity(NULL)
+		mGantryVelocity(NULL), mCollimatorVelocity(NULL), 
+		mBedVelocity(NULL),    mPayloadBedVelocity(NULL)
 	{
 		this->setTitle(QObject::tr("DEGREE VELOCITY"));
 		//set axis name
@@ -502,16 +484,6 @@ public:
 		mBedVelocity->setPen(QPen(Qt::green, 1));//设置画笔
 		mBedVelocity->attach(this);//把曲线附加到plot上
 
-		mCbctVelocity = new QwtPlotCurve(QObject::tr("CBCT"));
-		mCbctVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
-		QwtSplineCurveFitter *fitterCBCT = new QwtSplineCurveFitter();
-		fitterCBCT->setSplineSize(50);
-		mCbctVelocity->setCurveFitter(fitterCBCT);//设置曲线插值
-		mCbctVelocity->setRenderHint(QwtPlotItem::RenderAntialiased, true);
-		mCbctVelocity->setCurveAttribute(QwtPlotCurve::Fitted, false);//使曲线更光滑
-		mCbctVelocity->setPen(QPen(Qt::white, 1));//设置画笔
-		mCbctVelocity->attach(this);//把曲线附加到plot上
-
 		mPayloadBedVelocity = new QwtPlotCurve(QObject::tr("Bed(Payload)"));
 		mPayloadBedVelocity->setStyle(QwtPlotCurve::Lines);//直线形式
 		QwtSplineCurveFitter *fitterBedPayload = new QwtSplineCurveFitter();//三次样条插值曲线拟合器
@@ -525,7 +497,6 @@ public:
 		showCurve(mGantryVelocity, true);
 		showCurve(mCollimatorVelocity, false);
 		showCurve(mBedVelocity, false);
-		showCurve(mCbctVelocity, false);
 		showCurve(mPayloadBedVelocity, false);
 	}
 
@@ -544,10 +515,6 @@ public:
 			if (NULL != mBedVelocity)
 				mBedVelocity->setSamples(xData, yData);
 			break;
-		case CURVE_CBCT:
-			if (NULL != mCbctVelocity)
-				mCbctVelocity->setSamples(xData, yData);
-			break;
 		case CURVE_BED_PAYLOAD:
 			if (NULL != mPayloadBedVelocity)
 				mPayloadBedVelocity->setSamples(xData, yData);
@@ -562,7 +529,6 @@ private:
 	QwtPlotCurve*  mGantryVelocity;
 	QwtPlotCurve*  mCollimatorVelocity;
 	QwtPlotCurve*  mBedVelocity;
-	QwtPlotCurve*  mCbctVelocity;
 	QwtPlotCurve*  mPayloadBedVelocity;
 };
 
@@ -593,8 +559,6 @@ public:
 	bool getGantryUpdateFlag();
 	//获取当前更新标志是否为准直器旋转标志
 	bool getCollimatorUpdateFlag();
-	//获取当前更新标志是否为CBCT旋转标志
-	bool getCBCTUpdateFlag();
 	//获取当前更新标志是否是治疗床旋转标志
 	int getBedDegreeUpdateFlag();
 	//获取当前更新标志是否是治疗床移动标志
@@ -612,9 +576,6 @@ public slots :
 	void updateCollimatorDegree(const float y);
 	void updateCollimatorDegreeVelocity();
 	double getCollimatorAvrDegreeVelocity();
-	void updateCBCTDegree(const float y);
-	void updateCBCTDegreeVelocity();
-	double getCBCTAvrDegreeVelocity();
 	void updateBedDegree(const float y);
 	void updateBedDegreeVelocity();
 	double getBedAvrDegreeVelocity();
@@ -656,8 +617,6 @@ private:
 	QVector<double>* mGantryDegreeVelocity;
 	QVector<double>* mCollimatorDegree;
 	QVector<double>* mCollimatorDegreeVelocity;
-	QVector<double>* mCbctDegree;
-	QVector<double>* mCbctDegreeVelocity;
 	QVector<double>* mBedDegree;
 	QVector<double>* mBedDegreeVelocity;
 	QVector<double>* mPayloadBedDegree;

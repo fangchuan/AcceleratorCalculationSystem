@@ -52,13 +52,15 @@ AbstractMonitorHandler *CollimatorHandler::handle(MarkerPointContainerType &posi
 		//随着拟合结果越来越精确，初始位置所在的初始角度应该每次循环都进行一次计算
 		double baseDeltZ = m_BasePoint[2] - center[2];
 		double baseDeltX = m_BasePoint[0] - center[0];
-		m_BaseAngle = atan2(baseDeltX, baseDeltZ) *RAD2DEGREE;;
+		m_BaseAngle = atan2(baseDeltX, baseDeltZ) *RAD2DEGREE;
 
 		Circle circle;
 		memcpy(circle.Center, center, sizeof(center));
 		memcpy(circle.Normal, normal, sizeof(normal));
 		circle.Radius = radius;
 		circle.Angle = angle - m_BaseAngle;
+		if (circle.Angle < 0)
+			circle.Angle += 360.0;
 
 		if (m_Register->getHorizontalPlaneNormal(horizontalPlaneNormal))
 		{
@@ -79,5 +81,5 @@ AbstractMonitorHandler *CollimatorHandler::handle(Point3D &point)
 void CollimatorHandler::reset()
 {
 	m_FitCircle->clearPoints();
-	m_HasBaseAngle == false;
+	m_HasBaseAngle = false;
 }

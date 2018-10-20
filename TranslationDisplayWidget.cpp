@@ -96,9 +96,12 @@ void TranslationDisplayWidget::setMarkerPosition(MarkerPointType &point)
 
 void TranslationDisplayWidget::setTranslateResult(double bias[3])
 {
-	m_XLabel->setText(QString::number(bias[0], 'f', 2));
-	m_YLabel->setText(QString::number(bias[1], 'f', 2));
-	m_ZLabel->setText(QString::number(bias[2], 'f', 2));
+	QString str = QStringLiteral(" %1 mm").arg(bias[0], 0, 'f', 2);
+	m_XLabel->setText(str);
+	str = QStringLiteral(" %1 mm").arg(bias[1], 0, 'f', 2);
+	m_YLabel->setText(str);
+	str = QStringLiteral(" %1 mm").arg(bias[2], 0, 'f', 2);
+	m_ZLabel->setText(str);
 }
 
 void TranslationDisplayWidget::reset()

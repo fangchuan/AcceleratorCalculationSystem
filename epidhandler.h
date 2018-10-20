@@ -3,21 +3,17 @@
 #include "abstractmonitorhandler.h"
 
 #include "vtkSmartPointer.h"
+#include "cbctpositionhandler.h"
 
 class vtkPlaneSource;
 
-struct Plane_T {
-	double normal[3];  // 平面法向量
-	double angleBetweenP2H;  //平面与水平面夹角
-};
-
-class CbctPositionHandler : public AbstractMonitorHandler
+class EpidHandler : public AbstractMonitorHandler
 {
 	Q_OBJECT
 
 public:
-	CbctPositionHandler(QObject *parent = Q_NULLPTR);
-	virtual ~CbctPositionHandler();
+	EpidHandler(QObject *parent = Q_NULLPTR);
+	virtual ~EpidHandler();
 
 	virtual AbstractMonitorHandler* handle(MarkerPointContainerType &positions);
 	virtual AbstractMonitorHandler* handle(Point3D &point);
@@ -26,11 +22,11 @@ public:
 	bool getRotateStatistical(double& angleMean);
 signals:
 
-	void cbctPlanePointPosition(Point3D& point);;
-	void cbctPlaneResult(Plane_T& plane);
+	void epidPlanePointPosition(Point3D& point);;
+	void epidPlaneResult(Plane_T& plane);
 	void registerToolTrackError();
 private:
-	vtkSmartPointer<vtkPlaneSource> m_CbctPlane;
+	vtkSmartPointer<vtkPlaneSource> m_EpidPlane;
 	int m_PointCount;
 	Plane_T m_PlaneData;
 	double m_registerPoints[3];

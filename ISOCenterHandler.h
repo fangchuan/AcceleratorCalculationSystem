@@ -17,7 +17,7 @@ public:
 
 signals:
 	void  registerLaserISO(Point3D& point);
-
+	void  registerLaserISOSuccess();
 private:
 	double m_RegisteredPoint[3];
 	bool m_IsRegistered;

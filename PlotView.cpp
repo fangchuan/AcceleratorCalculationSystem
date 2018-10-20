@@ -50,7 +50,7 @@ void PlotView::initTimer()
 {
 	//set timer T = 50ms
 	mTimer = new QTimer(this);
-	mTimer->setInterval(50);
+	mTimer->setInterval(10);
 
 	connect(mTimer, &QTimer::timeout, this, &PlotView::update);
 }
@@ -73,8 +73,6 @@ void PlotView::initCurveDataVector()
 	mGantryDegreeVelocity = new QVector<double>();
 	mCollimatorDegree = new QVector<double>();
 	mCollimatorDegreeVelocity = new QVector<double>();
-	mCbctDegree = new QVector<double>();
-	mCbctDegreeVelocity = new QVector<double>();
 	mBedDegree = new QVector<double>();
 	mBedDegreeVelocity = new QVector<double>();
 	mPayloadBedDegree = new QVector<double>();
@@ -95,10 +93,6 @@ void PlotView::setGantryUpdateFlag()
 void PlotView::setCollimatorUpdateFlag()
 {
 	mUpdateFlag = UPDATE_COLLIMATOR_DEGREE;
-}
-void PlotView::setCBCTUpdateFlag()
-{
-	mUpdateFlag = UPDATE_CBCT_DEGREE;
 }
 void PlotView::setEmptyBedDegreeUpdateFlag()
 {
@@ -123,10 +117,6 @@ bool PlotView::getGantryUpdateFlag()
 bool PlotView::getCollimatorUpdateFlag()
 {
 	return mUpdateFlag == UPDATE_COLLIMATOR_DEGREE;
-}
-bool PlotView::getCBCTUpdateFlag()
-{
-	return mUpdateFlag == UPDATE_CBCT_DEGREE;
 }
 int PlotView::getBedDegreeUpdateFlag()
 {
@@ -265,53 +255,7 @@ double PlotView::getCollimatorAvrDegreeVelocity()
 		return 0;
 	}
 }
-void PlotView::updateCBCTDegree(const float y)
-{
-	if (getCBCTUpdateFlag()) {
 
-		mCbctDegree->append(y);
-		updateCBCTDegreeVelocity();
-
-		if (!mTimer->isActive())
-			mTimer->start();
-	}
-}
-void PlotView::updateCBCTDegreeVelocity()
-{
-	int size = mCbctDegree->size();
-
-	if (size > 1) {
-		const int cur_val = (int)(mCbctDegree->at(size - 1));//截断小数点后的角度变动
-		const int last_val = (int)(mCbctDegree->at(size - 2));
-		static int last_time = 0;
-		int current_time = QTime::currentTime().msec();
-		int delt_time = (current_time - last_time) < 0 ? (current_time - last_time + 1000) : (current_time - last_time);
-		float v = (float)(cur_val - last_val) / delt_time;
-
-		last_time = current_time;
-		v *= 1000;//degree/s
-		mCbctDegreeVelocity->append(v);
-
-	}
-	else {
-		return;
-	}
-}
-double PlotView::getCBCTAvrDegreeVelocity()
-{
-	QMutexLocker lock(&mCurveDataMutex);//此时所有曲线都不能读写直到该函数退出
-	int size = mCbctDegree->size();
-	if (size > 0) {
-		double sum = 0;
-		for (int i = 0; i < size; i++) {
-			sum += mCbctDegree->at(i);
-		}
-		return sum / size;
-	}
-	else {
-		return 0;
-	}
-}
 //治疗床运动曲线分为 空载旋转、空载移动、负载旋转、负载移动
 void PlotView::updateBedDegree(const float y)
 {
@@ -601,7 +545,7 @@ void PlotView::update()
 		}
 	}
 
-	if (getGantryUpdateFlag() || getCollimatorUpdateFlag() || getCBCTUpdateFlag() || getBedDegreeUpdateFlag()){
+	if (getGantryUpdateFlag() || getCollimatorUpdateFlag() || getBedDegreeUpdateFlag()){
 
 		degree_time += 0.05;
 		mDegreeTimeData.append(degree_time);
@@ -633,22 +577,6 @@ void PlotView::update()
 				double end = mCollimatorDegreeVelocity->last();
 				mCollimatorDegreeVelocity->append(end);
 				degreeVelocityPlot->updateSample(CURVE_COLLIMATOR, mDegreeTimeData, *mCollimatorDegreeVelocity);
-			}
-		}
-		if (getCBCTUpdateFlag()) {
-			degreeDistancePlot->updateSample(CURVE_CBCT, mDegreeTimeData, *mCbctDegree);
-			degreeVelocityPlot->updateSample(CURVE_CBCT, mDegreeTimeData, *mCbctDegreeVelocity);
-		}
-		else {
-			if (!mCbctDegree->isEmpty()) {
-				double end = mCbctDegree->last();
-				mCbctDegree->append(end);
-				degreeDistancePlot->updateSample(CURVE_CBCT, mDegreeTimeData, *mCbctDegree);
-			}
-			if (!mCbctDegreeVelocity->isEmpty()) {
-				double end = mCbctDegreeVelocity->last();
-				mCbctDegreeVelocity->append(end);
-				degreeVelocityPlot->updateSample(CURVE_CBCT, mDegreeTimeData, *mCbctDegreeVelocity);
 			}
 		}
 		if (getBedDegreeUpdateFlag() == UPDATE_BED_EMPTY_DEGREE){
@@ -715,8 +643,6 @@ void PlotView::clearCurveDataVector()
 	mGantryDegreeVelocity->clear();
 	mCollimatorDegree->clear();
 	mCollimatorDegreeVelocity->clear();
-	mCbctDegree->clear();
-	mCbctDegreeVelocity->clear();
 	mBedDegree->clear();
 	mBedDegreeVelocity->clear();
 	mPayloadBedDegree->clear();
@@ -739,16 +665,13 @@ void PlotView::clearCurveDataVector()
 	degreeDistancePlot->updateSample(CURVE_GANTRY, mDegreeTimeData, *mGantryDegree);
 	degreeDistancePlot->updateSample(CURVE_BED,    mDegreeTimeData, *mBedDegree);
 	degreeDistancePlot->updateSample(CURVE_COLLIMATOR, mDegreeTimeData, *mCollimatorDegree);
-	degreeDistancePlot->updateSample(CURVE_CBCT, mDegreeTimeData, *mCbctDegree);
 	degreeDistancePlot->updateSample(CURVE_BED_PAYLOAD, mDegreeTimeData, *mPayloadBedDegree);
 
 
 	degreeVelocityPlot->updateSample(CURVE_GANTRY, mDegreeTimeData, *mGantryDegreeVelocity);
 	degreeVelocityPlot->updateSample(CURVE_COLLIMATOR, mDegreeTimeData, *mCollimatorDegreeVelocity);
 	degreeVelocityPlot->updateSample(CURVE_BED, mDegreeTimeData, *mBedDegreeVelocity);
-	degreeDistancePlot->updateSample(CURVE_CBCT, mDegreeTimeData, *mCbctDegreeVelocity);
 	degreeDistancePlot->updateSample(CURVE_BED_PAYLOAD, mDegreeTimeData, *mPayloadBedDegreeVelocity);
-
 
 }
 

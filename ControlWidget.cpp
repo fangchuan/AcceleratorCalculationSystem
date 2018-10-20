@@ -51,8 +51,8 @@ void ControlWidget::initUi()
 	m_BedButton = new QPushButton(QObject::tr("Calibrate treatment bed"));//
 	gridLayout->addWidget(m_BedButton, 3, 1);
 
-	m_CbctButton = new QPushButton(QObject::tr("Calibrate CBCT"));//
-	gridLayout->addWidget(m_CbctButton, 4, 0);
+	m_EpidButton = new QPushButton(QObject::tr("Calibrate EPID position"));//
+	gridLayout->addWidget(m_EpidButton, 4, 0);
 
 	m_CbctPositionButton = new QPushButton(QObject::tr("Calibrate CBCT position"));//
 	gridLayout->addWidget(m_CbctPositionButton, 4, 1);
@@ -81,7 +81,7 @@ void ControlWidget::buildConnections()
 	connect(m_LaserButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
 	connect(m_LightButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
 	connect(m_BedGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ControlWidget::handleButtonGroupClick);
-	connect(m_CbctButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
+	connect(m_EpidButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
 	connect(m_CbctPositionButton, &QPushButton::clicked, this, &ControlWidget::handleButtonClick);
 	connect(m_ResetButton, &QPushButton::clicked, this, &ControlWidget::resetRequest);
 	connect(m_ReportButton, &QPushButton::clicked, this, &ControlWidget::reportRequest);
@@ -119,12 +119,12 @@ void ControlWidget::handleButtonClick()
 			emit recordingBed(m_BedGroup->checkedId());
 		}
 	}
-	else if (button == m_CbctButton) {
-		if (buttonText == QObject::tr("Calibrate CBCT")) {
-			emit switchToCbct();
+	else if (button == m_EpidButton) {
+		if (buttonText == QObject::tr("Calibrate EPID position")) {
+			emit switchToEpidPosition();
 		}
 		else {
-			emit recordingCbct();
+			emit recordingEpidPosition();
 		}
 	}
 	else if (button == m_CbctPositionButton) {
@@ -164,7 +164,7 @@ void ControlWidget::doSwitchToHorizontalRegister()
 	m_HorizontalRegisterButton->setText(QObject::tr("Record Horizontal plane"));  //
 	resetGantry();
 	resetCollimator();
-	resetCbct();
+	resetEpidPosition();
 	resetCbctPosition();
 	resetBed();
 	resetLaserISO();
@@ -176,7 +176,7 @@ void ControlWidget::doSwitchToGantry()
 	resetHorizontalRegister();
 	m_GantryButton->setText(QObject::tr("Rotate Gantry"));//
 	resetCollimator();
-	resetCbct();
+	resetEpidPosition();
 	resetCbctPosition();
 	resetBed();
 	resetLaserISO();
@@ -188,19 +188,19 @@ void ControlWidget::doSwitchToCollimator()
 	resetHorizontalRegister();
 	resetGantry();
 	m_CollimatorButton->setText(QObject::tr("Rotate Collimator"));//
-	resetCbct();
+	resetEpidPosition();
 	resetCbctPosition();
 	resetBed();
 	resetLaserISO();
 	resetLightCenter();
 }
 
-void ControlWidget::doSwitchToCbct()
+void ControlWidget::doSwitchToEpidPosition()
 {
 	resetHorizontalRegister();
 	resetGantry();
 	resetCollimator();
-	m_CbctButton->setText(QObject::tr("Rotate CBCT"));//
+	m_EpidButton->setText(QObject::tr("Record EPID Position"));//
 	resetCbctPosition();
 	resetBed();
 	resetLaserISO();
@@ -210,7 +210,8 @@ void ControlWidget::doSwitchToCbct()
 void ControlWidget::doSwitchToCbctPosition()
 {
 	resetBed();
-	resetCbct();
+	resetEpidPosition();
+	resetGantry();
 	resetCollimator();
 	resetHorizontalRegister();
 	resetLaserISO();
@@ -223,7 +224,7 @@ void ControlWidget::doSwitchToBed()
 	resetHorizontalRegister();
 	resetGantry();
 	resetCollimator();
-	resetCbct();
+	resetEpidPosition();
 	resetCbctPosition();
 	m_BedButton->setText(QObject::tr("Move treatment bed"));//
 	resetLaserISO();
@@ -235,7 +236,7 @@ void ControlWidget::doSwitchToLaserISO()
 	resetHorizontalRegister();
 	resetGantry();
 	resetCollimator();
-	resetCbct();
+	resetEpidPosition();
 	resetCbctPosition();
 	resetBed();
 	resetLightCenter();
@@ -247,7 +248,7 @@ void ControlWidget::doSwitchToLightCenter()
 	resetHorizontalRegister();
 	resetGantry();
 	resetCollimator();
-	resetCbct();
+	resetEpidPosition();
 	resetCbctPosition();
 	resetBed();
 	resetLaserISO();
@@ -263,6 +264,7 @@ void ControlWidget::resetHorizontalRegister()
 void ControlWidget::resetGantry()
 {
 	m_GantryButton->setText(QObject::tr("Calibrate Gantry"));//Ð£×¼»ú¼Ü
+	//m_GantryButton->setDisabled(true);
 }
 
 void ControlWidget::resetCollimator()
@@ -276,9 +278,9 @@ void ControlWidget::resetBed()
 	m_BedButton->setText(QObject::tr("Calibrate treatment bed"));
 }
 
-void ControlWidget::resetCbct()
+void ControlWidget::resetEpidPosition()
 {
-	m_CbctButton->setText(QObject::tr("Calibrate CBCT"));
+	m_EpidButton->setText(QObject::tr("Calibrate EPID position"));
 }
 
 void ControlWidget::resetCbctPosition()
@@ -301,16 +303,17 @@ void ControlWidget::reset()
 	resetGantry();
 	resetCollimator();
 	resetBed();
-	resetCbct();
+	resetEpidPosition();
 	resetLaserISO();
 	resetLightCenter();
-	resetCbct();
+	resetCbctPosition();
 }
 
 void ControlWidget::setButtonStyle()
 {
 	m_HorizontalRegisterButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
 												"font-size:18px;"
+												"color: white;"
 												"background-color:rgb(0,71,157);"
 												"min-height:80;"
 												"border:1px solid white;"
@@ -320,6 +323,7 @@ void ControlWidget::setButtonStyle()
 
 	m_GantryButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
 										"font-size:18px;"
+										"color: white;"
 										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
@@ -329,6 +333,7 @@ void ControlWidget::setButtonStyle()
 
 	m_CollimatorButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
 										"font-size:18px;"
+										"color: white;"
 										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
@@ -338,6 +343,7 @@ void ControlWidget::setButtonStyle()
 
 	m_BedButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
 										"font-size:18px;"
+										"color: white;"
 										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
@@ -345,8 +351,9 @@ void ControlWidget::setButtonStyle()
 								"QPushButton:pressed{background-color:rgb(92,156,233);"
 										"border-style: inset;}");
 
-	m_CbctButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
+	m_EpidButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
 										"font-size:18px;"
+										"color: white;"
 										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
@@ -356,6 +363,7 @@ void ControlWidget::setButtonStyle()
 
 	m_CbctPositionButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
 										"font-size:18px;"
+										"color: white;"
 										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
@@ -365,6 +373,7 @@ void ControlWidget::setButtonStyle()
 
 	m_LaserButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
 										"font-size:18px;"
+										"color: white;"
 										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
@@ -374,6 +383,7 @@ void ControlWidget::setButtonStyle()
 
 	m_LightButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
 										"font-size:18px;"
+										"color: white;"
 										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
@@ -383,6 +393,7 @@ void ControlWidget::setButtonStyle()
 
 	m_ResetButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
 										"font-size:18px;"
+										"color: white;"
 										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"
@@ -393,6 +404,7 @@ void ControlWidget::setButtonStyle()
 
 	m_ReportButton->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';"
 										"font-size:18px;"
+										"color: white;"
 										"background-color:rgb(0,71,157);"
 										"min-height:80; "
 										"border:1px solid white;"

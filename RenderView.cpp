@@ -602,13 +602,6 @@ bool QtRenderView::RenderView::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 void QtRenderView::RenderView::resetScene()
 {
-
-	//Ogre::SceneNode* ogreNode = mOgreSceneMgr->getSceneNode(ACCEL_CONNECT_NAME);
-	//ogreNode->resetOrientation();
-
-	//ogreNode = mOgreSceneMgr->getSceneNode(ACCEL_BEDBOTTOM_NAME);
-	//ogreNode->resetOrientation();
-	//ogreNode->setPosition(ACCEL_BED_BOTTOM_BIAS);
 	rotateGantry(0);
 	rotateBed(0);
 
@@ -668,7 +661,7 @@ void QtRenderView::RenderView::rotateGantry(float degree)
 {
 	static float last_degree = 0;
 	if (!isnan(degree)){
-		float delt_degree = degree - last_degree;
+		float delt_degree = last_degree - degree ;
 
 		mOgreNode = mOgreSceneMgr->getSceneNode(ACCEL_CONNECT_NAME);
 		if (NULL != mOgreNode && 0 != delt_degree){
@@ -809,11 +802,11 @@ void QtRenderView::RenderView::drawGantryAxis(const QVector3D &start, const QVec
 		//centerGantry = Ogre::Vector3(0, y_s, z_s);
 		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(X_AXIS_NODE_NAME)->attachObject(xAxis);
 
-		Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("GantryCenter", Ogre::SceneManager::PT_SPHERE);
-		Ogre::SceneNode* ogreNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode("GantryCenterNode", Ogre::Vector3(x_center, y_center, z_center));
-		ogreNode->attachObject(ogreEntity);
-		ogreEntity->setMaterialName("Examples/green");
-		ogreNode->setScale(Ogre::Vector3(0.002f, 0.002f, 0.002f)); // Radius, in theory.
+		//Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("GantryCenter", Ogre::SceneManager::PT_SPHERE);
+		//Ogre::SceneNode* ogreNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode("GantryCenterNode", Ogre::Vector3(x_center, y_center, z_center));
+		//ogreNode->attachObject(ogreEntity);
+		//ogreEntity->setMaterialName("Examples/green");
+		//ogreNode->setScale(Ogre::Vector3(0.002f, 0.002f, 0.002f)); // Radius, in theory.
 	}
 	else{
 		Ogre::ManualObject* xAxis = mOgreSceneMgr->getManualObject(XAXIS_LINE_NAME);
@@ -825,9 +818,9 @@ void QtRenderView::RenderView::drawGantryAxis(const QVector3D &start, const QVec
 		xAxis->position(x_e, y_e, z_e);  // draw first line
 		xAxis->end();
 
-		node = mOgreSceneMgr->getSceneNode("GantryCenterNode");
-		node->setPosition(x_center, y_center, z_center);
-		//centerGantry = Ogre::Vector3(0, y_s, z_s);
+		//node = mOgreSceneMgr->getSceneNode("GantryCenterNode");
+		//node->setPosition(x_center, y_center, z_center);
+		////centerGantry = Ogre::Vector3(0, y_s, z_s);
 	}
 	//若两个轴线都绘制完成，则开始绘制公垂线
 	//m_gantry_calibrated = true;
@@ -864,11 +857,11 @@ void QtRenderView::RenderView::drawBedAxis(const QVector3D &start, const QVector
 		//centerBed = Ogre::Vector3(x_s, 0, z_s);
 		mOgreSceneMgr->getRootSceneNode()->createChildSceneNode(Y_AXIS_NODE_NAME)->attachObject(yAxis);
 
-		Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("BedCenter", Ogre::SceneManager::PT_SPHERE);
-		Ogre::SceneNode* ogreNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode("BedCenterNode", Ogre::Vector3(x_center, y_center, z_center));
-		ogreNode->attachObject(ogreEntity);
-		ogreEntity->setMaterialName("Examples/blue");
-		ogreNode->setScale(Ogre::Vector3(0.002f, 0.002f, 0.002f)); // Radius, in theory.
+		//Ogre::Entity* ogreEntity = mOgreSceneMgr->createEntity("BedCenter", Ogre::SceneManager::PT_SPHERE);
+		//Ogre::SceneNode* ogreNode = mOgreSceneMgr->getRootSceneNode()->createChildSceneNode("BedCenterNode", Ogre::Vector3(x_center, y_center, z_center));
+		//ogreNode->attachObject(ogreEntity);
+		//ogreEntity->setMaterialName("Examples/blue");
+		//ogreNode->setScale(Ogre::Vector3(0.002f, 0.002f, 0.002f)); // Radius, in theory.
 	}
 	else{
 		Ogre::ManualObject* yAxis = mOgreSceneMgr->getManualObject(YAXIS_LINE_NAME);
@@ -880,9 +873,9 @@ void QtRenderView::RenderView::drawBedAxis(const QVector3D &start, const QVector
 		yAxis->position(x_e, y_e, z_e);// draw first line
 		yAxis->end();
 
-		node =  mOgreSceneMgr->getSceneNode("BedCenterNode");
-		node->setPosition(x_center, y_center, z_center);
-		//centerBed = Ogre::Vector3(x_s, 0, z_s);
+		//node =  mOgreSceneMgr->getSceneNode("BedCenterNode");
+		//node->setPosition(x_center, y_center, z_center);
+		////centerBed = Ogre::Vector3(x_s, 0, z_s);
 	}
 	//若两个轴线都绘制完成，则开始绘制公垂线
 	//m_bed_calibrated = true;

@@ -1,5 +1,6 @@
 #include "isocenterhandler.h"
 #include "horizontalregister.h"
+#include <QTimer>
 
 ISOCenterHandler::ISOCenterHandler(QObject *parent)
 	: AbstractMonitorHandler(parent),
@@ -28,11 +29,22 @@ AbstractMonitorHandler *ISOCenterHandler::handle(Point3D &point)
 	m_Register->transform(m_RegisteredPoint, out);
 
 	memcpy(m_RegisteredPoint, out, sizeof(m_RegisteredPoint));
-	m_IsRegistered = true;
 	
+
+	if (!m_IsRegistered)
+	{
+		QTimer::singleShot(2000, this, [&](){
+			m_IsRegistered = true; });
+	}
+	else
+	{
+		emit registerLaserISO(MarkerPointType(out));
+		emit registerLaserISOSuccess();
+		return NULL;
+	}
+
 	emit registerLaserISO(MarkerPointType(out));
-	
-	return nullptr;
+	return this;
 }
 
 void ISOCenterHandler::reset()

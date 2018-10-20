@@ -4,6 +4,7 @@
 
 #include "trackingtypes.h"
 
+struct CvMat;
 class vtkMatrix3x3;
 class vtkPoints;
 class vtkLandmarkTransform;
@@ -17,29 +18,22 @@ class Fit3DCircle : public QObject
 	Q_OBJECT
 
 public:
-	Fit3DCircle(QObject *parent);
+	Fit3DCircle(QObject* parent);
 	~Fit3DCircle();
 
-	void addPoint(MarkerPointType &point);
+	void calculate();
+	void addPoint(const MarkerPointType &point);
 	void clearPoints();
 	bool getCircle(double center[3], double normal[3], double& radius);
 	bool calRotateError(double& variance, double& mean);
-signals:
-	void fitCircle(double center[3], double radius);
 
 private:
-	void calculate();
+	bool isValid(void);
 	bool isPointOnCircle(const MarkerPointType &point);
-
 private:
 	MarkerPointContainerType m_Positions;
-	bool m_IsCalculated;
-	vtkMatrix3x3 *K;
-	vtkMatrix3x3 *KT;
-	vtkMatrix3x3 *KTK;
-	vtkPoints *m_Source;
-	vtkPoints *m_Target;
-	vtkLandmarkTransform *m_Transform;
+	int m_Valid;
+
 	double m_Center[3];//圆心坐标
 	double m_Normal[3];//法线向量
 	double m_Radius;//半径

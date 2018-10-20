@@ -17,6 +17,9 @@
 #include <QWaitCondition>
 #include "QTime"
 
+//#define REGISTRY
+//#define LICENSE
+
 //
 void splashMessage(QScopedPointer<QSplashScreen>& splashScreen, const QString& message)
 {
@@ -51,13 +54,28 @@ void msecASleep(quint32 msec)
 
 int main(int argc, char *argv[])
 {
+#ifdef LICENSE
+	if (!ACSUtils::CheckSoftwareLicense())
+	{
+		exit(-1);
+	}
+#endif
+
+	//Check Registry
+//#ifdef REGISTRY
+//	if (!ACSUtils::CheckSoftwareRegistry())
+//	{
+//		exit(-1);
+//	}
+//#endif
+
 	//Ìí¼Ó·­ÒëÎÄ¼þ
 	QTranslator ts;
 	ts.load("./Resources/language/lnac_zh.qm");
 	//singleApplication
 	QtSingleApplication::setOrganizationName(QStringLiteral("Focus"));
 	QtSingleApplication::setOrganizationDomain(QStringLiteral("jsfocus.cn"));
-	QtSingleApplication::setApplicationName(QObject::tr("Accelerator Calibration System"));
+	QtSingleApplication::setApplicationName(QObject::tr("ACS"));
 	QtSingleApplication::setApplicationVersion(ACS_VERSION);
 	QtSingleApplication::setDesktopSettingsAware(false);
 	QtSingleApplication app(argc, argv);
@@ -65,22 +83,6 @@ int main(int argc, char *argv[])
 
 	QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK"));
 
-#ifdef LICENSE
-	if (!ACSUtils::CheckSoftwareLicense())
-	{
-		exit(-1);
-		return false;
-	}
-#endif
-
-	//Check Registry
-#ifdef REGISTRY
-	if (!ACSUtils::CheckSoftwareRegistry())
-	{
-		exit(-1);
-		return false;
-	}
-#endif
 	if (!checkEnvironment()) {
 		QMessageBox::critical(Q_NULLPTR, QCoreApplication::applicationName(), QObject::tr("Lack the necessary files, the software would not work properly!"));
 	}

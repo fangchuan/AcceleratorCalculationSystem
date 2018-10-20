@@ -102,19 +102,22 @@ void BedHandler::handleRotation(MarkerPointContainerType &positions)
 		//随着拟合结果越来越精确，初始位置所在的初始角度应该每次循环都进行一次计算
 		double baseDeltZ = m_BasePoint[2] - center[2];
 		double baseDeltX = m_BasePoint[0] - center[0];
-		m_BaseAngle = atan2(baseDeltX, baseDeltZ) *RAD2DEGREE;;
+		m_BaseAngle = atan2(baseDeltX, baseDeltZ) *RAD2DEGREE;
 
 		Circle circle;
 		memcpy(circle.Center, center, sizeof(center));
 		memcpy(circle.Normal, normal, sizeof(normal));
 		circle.Radius = radius;
-		circle.Angle = angle - m_BaseAngle;
+		circle.Angle = -(angle - m_BaseAngle);
+		if (circle.Angle < 0)
+			circle.Angle += 360.0;
+
+		//QString str = QString("BedPlaneNormal : ( %1, %2, %3)").arg(normal[0], 0, 'f', 2).arg(normal[1], 0, 'f', 2).arg(normal[2], 0, 'f', 2);
+		//qDebug() << str;
 
 		if (m_Register->getHorizontalPlaneNormal(horizontalPlaneNormal))
 		{
 			circle.angleBettwenC2H = vtkMath::AngleBetweenVectors(normal, horizontalPlaneNormal)*RAD2DEGREE;
-			//QString str = QString("HorizontalPlaneNormal : ( %1, %2, %3)").arg(horizontalPlaneNormal[0], 0, 'f', 2).arg(horizontalPlaneNormal[1], 0, 'f', 2).arg(horizontalPlaneNormal[2], 0, 'f', 2);
-			//qDebug() << str;
 			m_angleC2HContainer = circle.angleBettwenC2H;
 		}
 

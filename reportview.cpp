@@ -37,8 +37,7 @@ ReportView::ReportView(QWidget *parent)
 		QString("N/A"), QString("N/A"), 
 		QString("N/A"), QString("N/A"),
 		QString("N/A"), QString("N/A"),
-		QString("N/A"), QString("N/A"),
-		QString("N/A"), QString("N/A"));
+		QString("N/A"));
 }
 
 ReportView::~ReportView()
@@ -172,12 +171,13 @@ void ReportView::filePrintPdf()
 //
 void ReportView::setHtmlReport(QString& softCenter, 
 									QString& laserCenter,
-									QString& lightCenter,
 									QString& footA,
 									QString& footB,
 									QString& d1,
 									QString& d2,
 									QString& d3,
+									QString& cbctVerticalty,
+									QString& epidVerticalty,
 									QString& gv,
 									QString& gm,
 									QString& gVel,
@@ -185,11 +185,7 @@ void ReportView::setHtmlReport(QString& softCenter,
 									QString& bv,
 									QString& bm,
 									QString& bVel,
-									QString& bAngle,
-									QString& cv,
-									QString& cm,
-									QString& cVel,
-									QString& cAngle)
+									QString& bAngle)
 {
 	QString html;
 	QString title = tr("Accelerator Calibration Report--Nanjing University Medical Physics and Medical Imaging Research Center");
@@ -202,12 +198,13 @@ void ReportView::setHtmlReport(QString& softCenter,
 	QString pictrue3 = tr("Figure 3, Bed Movement");//
 	QString item1 = tr("Mechainc ISOcenter:");//
 	QString item2 = tr("Laser ISOcenter:");//
-	QString item3 = tr("Light Center:");//
-	QString item4 = tr("Distance between Machanic ISOcenter to Laser ISOcenter:");//
-	QString item5 = tr("Footpoint A:");//
-	QString item6 = tr("Footpoint B:");//
-	QString item7 = tr("Distance between Laser ISOcenter to Footpoint A:");
-	QString item8 = tr("Distance between Laser ISOcenter to Footpoint B:");
+	QString item3 = tr("Distance between Machanic ISOcenter to Laser ISOcenter:");//
+	QString item4 = tr("Footpoint A:");//
+	QString item5 = tr("Footpoint B:");//
+	QString item6 = tr("Distance between Laser ISOcenter to Footpoint A:");
+	QString item7 = tr("Distance between Laser ISOcenter to Footpoint B:");
+	QString item8 = tr("CBCT panel verticalty:");//
+	QString item8_2 = tr("EPID panel verticalty:");
 	QString item9 = tr("Mechanic rotation error - variance:");
 	QString item10 = tr("Mechanic rotation error - mean:");
 	QString item11 = tr("Gantry rotation average velocity:");
@@ -217,71 +214,73 @@ void ReportView::setHtmlReport(QString& softCenter,
 	QString item15 = tr("Bed rotation average velocity:");
 	QString item16 = tr("Bed rotation plane and horizontal plane angle:");
 	
-
-
-	item1 += softCenter;
-	item2 += laserCenter;
-	item3 += lightCenter;
-	item4 += d1;
-	item5 += footA;
-	item6 += footB;
-	item7 += d2;
-	item8 += d3;
-	item9 += gv;
-	item10 += gm;
-	item11 += gVel;
-	item12 += gAngle;
-	item13 += bv;
-	item14 += bm;
-	item15 += bVel;
-	item16 += bAngle;
+	QString itemName = tr("Name");
+	QString itemValue = tr("Value");
+	QString itemDescription = tr("Description");
+	QString item1Description = tr("iterm1 Description");
+	QString item9Description = tr(" iterm9 Description");
+	QString item13Description = tr("item13 Description");
 
 	html += "<h1 align=\"center\">";
-	html += "<strong><span bgcolor=\"red\">"+ title +"< / span>< / strong>";
+	html += "<strong><span bgcolor=\"red\">" + title + "< / span>< / strong>";
 	html += "</h1>";
 	html += "<h3 align=\"center\">";
 	html += "<span><b>" + current_date + "</b></span>";
-	html += "</h3><br/>";
+	html += "</h3>";
+	html += "<p align=\"center\">";
+	html += "<hr style=\"FILTER: alpha(opacity = 100, finishopacity = 0, style = 3)\" width='100%' color='#ff0000' size='10' /> < / p>";
 
-	html += "<p>";
-	html += "<b> < img src = \"" + image1path + "\" width = \"320\" height = \"240\" title = \"\" align = \"left\" alt = \"\" / >";
+	html += "<p align=\"center\">";
+	html += "< img src = \"" + image1path + "\" width = '320' height = '240'  align = 'center'  />";
 	html += "</p>";
-	html += "<p align=\"left\"><br/></p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;1." + item1 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;2." + item2 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;3." + item3 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;4." + item4 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;5." + item5 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;6." + item6 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;7." + item7 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;8." + item8 + "</p>";
-	//html += "<p align=\"left\"><br/>< / p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + pictrue1 + "< / p>";
-	
-	html += "<p>";
-	html += "< img src = \"" + image2path + "\" width = \"320\" height = \"220\" align = \"left\" alt = \"\" / > ";
-	html += "</p>";
-	html += "<p align=\"left\"><br/>< / p>";
-	html += "<p align=\"left\">&nbsp;&nbsp; 9." + item9 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp; 10." + item10 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;	11." + item11 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;	12." + item12 + "</p>";
-	html += "<p align=\"left\"><br/>< / p>";
-	html += "<p align=\"left\"><br/>< / p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + pictrue2 + "< / p>";
+	html += "<p align=\"center\">" + pictrue1 + "< / p>";
+	html += "<p align=\"center\"><br/></p>";
 
-	html += "<p> ";
-	html += "< img src = \"" + image3path + "\" width = \"320\" height = \"220\" align = \"left\" alt = \"\" / >";
-	html += "</p>";
-	html += "<p align=\"left\"><br/></p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;	13." + item13 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp; 14." + item14 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp; 15." + item15 + "</p>";
-	html += "<p align=\"left\">&nbsp;&nbsp; 16." + item16 + "</p>";
+	html += "<table width='500' border='1' align='center' style='border-collapse:collapse;' cellpadding='2'>";
+	html += "<tr style='background-color:gray'> <th>" + itemName + "</th> <th>" + itemValue + "</th> <th>" + itemDescription + "</th></tr>";
+	html += "<tr> <td>" + item1 + "</td> <td>" + softCenter + "</td> <td>" + item1Description +"</td>";
+	html += "<tr> <td>" + item4 + "</td> <td>" + footA + "</td> <td>" + item1Description + "</td>";
+	html += "<tr> <td>" + item5 + "</td> <td>" + footB + "</td> <td>" + item1Description + "</td>";
+	html += "<tr> <td>" + item2 + "</td> <td>" + laserCenter + "</td> <td>" + item1Description + "</td>";
+	html += "<tr> <td>" + item3 + "</td> <td>" + d1 + "</td>";
+	html += "<tr> <td>" + item6 + "</td> <td>" + d2 + "</td>";
+	html += "<tr> <td>" + item7 + "</td> <td>" + d3 + "</td>";
+	html += "<tr> <td>" + item8 + "</td> <td>" + cbctVerticalty + "</td>";
+	html += "<tr> <td>" + item8_2 + "</td> <td>" + epidVerticalty + "</td>";
+	html += "</table>";
+	html += "<p align=\"center\"><br/></p>";
+	html += "<p align=\"center\">";
+	html += "<hr style=\"border:1 dashed #987cb9\" width='80%' color='#987cb9' size=1 /></p>";
 
-	html += "<p align=\"left\"><br/></p>";
-	html += "<p align=\"left\"><br/></p>";
-	html += "<p align=\"left\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + pictrue3 + "< / p>";
+	html += "<p align=\"center\">";
+	html += "< img src = \"" + image2path + "\" width = \"320\" height = \"220\" align = \"center\" alt = \"\" / > ";
+	html += "</p>";
+	html += "<p align=\"center\">" + pictrue2 + "< / p>";
+	html += "<p align=\"center\"><br/>< / p>";
+	html += "<table width='500' border='1' align='center' style='border-collapse:collapse;' cellpadding='2'>";
+	html += "<tr style='background-color:gray'> <th>" + itemName + "</th> <th>" + itemValue + "</th> <th>" + itemDescription + "</th></tr>";
+	html += "<tr> <td>" + item9 + "</td> <td>" + gv + "</td> <td>" + item9Description + "</td>";
+	html += "<tr> <td>" + item10 + "</td> <td>" + gm + "</td>";
+	html += "<tr> <td>" + item11 + "</td> <td>" + gVel + "</td>";
+	html += "<tr> <td>" + item12 + "</td> <td>" + gAngle + "</td>";
+	html += "</table>";
+	html += "<p align=\"center\"><br/></p>";
+	html += "<p align=\"center\">";
+	html += "<hr style=\"border:1 dashed #987cb9\" width=\"80%\" color=#987cb9 size=1 /></p>";
+
+	html += "<p align=\"center\">";
+	html += "< img src = \"" + image3path + "\" width = \"320\" height = \"220\" align = \"center\" alt = \"\" / >";
+	html += "</p>";
+	html += "<p align=\"center\">" + pictrue3 + "< / p>";
+	html += "<p align=\"center\"><br/></p>";
+	html += "<table width='500' border='1' align='center' style='border-collapse:collapse;' cellpadding='2'>";
+	html += "<tr style='background-color:gray'> <th>" + itemName + "</th> <th>" + itemValue + "</th> <th>" + itemDescription + "</th></tr>";
+	html += "<tr> <td>" + item13 + "</td> <td>" + bv + "</td> <td>" + item13Description + "</td>";
+	html += "<tr> <td>" + item14 + "</td> <td>" + bm + "</td>";
+	html += "<tr> <td>" + item15 + "</td> <td>" + bVel + "</td>";
+	html += "<tr> <td>" + item16 + "</td> <td>" + bAngle + "</td>";
+	html += "</table>";
+	html += "<p align=\"center\"><br/></p>";
 
 	textEdit->setHtml(html);
 

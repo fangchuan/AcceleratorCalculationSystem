@@ -119,13 +119,13 @@ void DisplayWidget::setCbctPointPosition(int index, double point[3])
 	{
 		switch (index)
 		{
-		case 0:
+		case 1:
 			m_CbctPositionDisplayWidget->setPoint1Position(point);
 			break;
-		case 1:
+		case 2:
 			m_CbctPositionDisplayWidget->setPoint2Position(point);
 			break;
-		case 2:
+		case 3:
 			m_CbctPositionDisplayWidget->setPoint3Position(point);
 			break;
 		}

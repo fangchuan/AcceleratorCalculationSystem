@@ -62,5 +62,12 @@
 2018-05-11：cbctpositionhandler中计算CBCT面板平面跟注册水平面之间夹角时没有转换为角度，已修改；
 			centralWidget中将添加BCT注册完成的message弹窗;
 			
+
 2018-05-24： 将GantryHandle、BedHandle的 m_angleC2HContainer直接设置为每一次解算出的旋转轴与水平面的夹角，以前是加权平均的办法算旋转平面夹角，会出现首次拟合出错时影响之后结果的现象。
+
+2018-08-11:  删除任何CBCT相关的cbctHandler和DisplayWidget、PlotWidget, 替换成EpidHandler, EpidHandler与CbctPositionHandler共用同一个DisplayWidget;
+
+2018-08-12:  将检测光野中心替换为用定位球法检测激光等中心，显示界面上是“检测激光等中心定位球法”，代码里任然是LightCenterHandler,因为激光等中心==光野中心;
+			  将GantryHandler、CollimatorHandler、BedHandler中旋转角度为负值的角度 +=360;
+			  FitCircle中添加你和阈值：50mm
 			 

@@ -1,28 +1,28 @@
-#include "cbctpositionhandler.h"
+#include "epidhandler.h"
 #include "horizontalregister.h"
 
 #include "vtkPlaneSource.h"
 #include "vtkPoints.h"
 #include "vtkMath.h"
 
-CbctPositionHandler::CbctPositionHandler(QObject *parent)
+EpidHandler::EpidHandler(QObject *parent)
 	: AbstractMonitorHandler(parent)
 {
-	m_CbctPlane = vtkSmartPointer<vtkPlaneSource>::New();
+	m_EpidPlane = vtkSmartPointer<vtkPlaneSource>::New();
 	m_PointCount = 0;
 	m_registerPoints[0] = m_registerPoints[1] = m_registerPoints[2] = 0;
 }
 
-CbctPositionHandler::~CbctPositionHandler()
+EpidHandler::~EpidHandler()
 {
 }
 
-AbstractMonitorHandler *CbctPositionHandler::handle(MarkerPointContainerType &positions)
+AbstractMonitorHandler *EpidHandler::handle(MarkerPointContainerType &positions)
 {
 	return this;
 }
 
-AbstractMonitorHandler *CbctPositionHandler::handle(Point3D &point)
+AbstractMonitorHandler *EpidHandler::handle(Point3D &point)
 {
 	if (m_registerPoints[0] != point[0] && m_registerPoints[1] != point[1] && m_registerPoints[2] != point[2])
 	{
@@ -38,23 +38,23 @@ AbstractMonitorHandler *CbctPositionHandler::handle(Point3D &point)
 	double out[3];
 	// transform points to Horizontal plane
 	m_Register->transform(m_registerPoints, out);
-	emit cbctPlanePointPosition(Point3D(out));
+	emit epidPlanePointPosition(Point3D(out));
 
 	if (m_PointCount == 0)
 	{
-		m_CbctPlane->SetOrigin(out);
-	}	
+		m_EpidPlane->SetOrigin(out);
+	}
 	if (m_PointCount == 1)
 	{
-		m_CbctPlane->SetPoint1(out);
+		m_EpidPlane->SetPoint1(out);
 	}
 	if (m_PointCount == 2)
 	{
 		double horizontalPlaneNormal[3];
-		m_CbctPlane->SetPoint2(out);
+		m_EpidPlane->SetPoint2(out);
 
-		m_CbctPlane->Update();
-		m_CbctPlane->GetNormal(m_PlaneData.normal);
+		m_EpidPlane->Update();
+		m_EpidPlane->GetNormal(m_PlaneData.normal);
 		vtkMath::Normalize(m_PlaneData.normal);
 
 		if (m_Register->getHorizontalPlaneNormal(horizontalPlaneNormal))
@@ -62,42 +62,40 @@ AbstractMonitorHandler *CbctPositionHandler::handle(Point3D &point)
 			m_PlaneData.angleBetweenP2H = vtkMath::AngleBetweenVectors(m_PlaneData.normal, horizontalPlaneNormal) * 57.29564;
 			m_angleP2HContainer.push_back(m_PlaneData.angleBetweenP2H);
 
-			emit cbctPlaneResult(m_PlaneData);
+			emit epidPlaneResult(m_PlaneData);
 		}
 
 		m_PointCount = 0;
 		return NULL;
 	}
-	
+
 	m_PointCount++;
-	
-	
 	return NULL;
 }
 
-bool CbctPositionHandler::getRotateStatistical(double& angleMean)
+bool EpidHandler::getRotateStatistical(double& angleMean)
 {
 
-		int size = m_angleP2HContainer.size();
-		if (size > 0)
+	int size = m_angleP2HContainer.size();
+	if (size > 0)
+	{
+		double sum;
+		for (int i = 0; i < size; i++)
 		{
-			double sum;
-			for (int i = 0; i < size; i++)
-			{
-				sum += m_angleP2HContainer.at(i);
-			}
-			angleMean = sum / size;
+			sum += m_angleP2HContainer.at(i);
 		}
-		else
-		{
-			angleMean = 0;
-			return false;
-		}
-		return true;
+		angleMean = sum / size;
+	}
+	else
+	{
+		angleMean = 0;
+		return false;
+	}
+	return true;
 
 }
 
-void CbctPositionHandler::reset()
+void EpidHandler::reset()
 {
 	m_PlaneData.normal[0] = 0;
 	m_PlaneData.normal[1] = 0;

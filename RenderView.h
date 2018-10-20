@@ -56,7 +56,7 @@ namespace  QtRenderView{
 #define  ACCEL_BED_CONNECT1_BIAS Ogre::Vector3(0.0f, 0.3f, 0.0f)
 #define  ACCEL_BED_BOARD_BIAS    Ogre::Vector3(-1.0f, 0.25f, 0.0f)
 
-#define  BED_TRANSLATE_PROPOTATION  0.01
+#define  BED_TRANSLATE_PROPOTATION  0.001f
 	/*
 	//3D SCENE COORIDNATE
 	//

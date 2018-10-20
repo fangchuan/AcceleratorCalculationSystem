@@ -147,17 +147,20 @@ void MainWindow::initFileActions()
 	mExportAction->setPriority(QAction::LowPriority);
 	mExportAction->setShortcut(Qt::CTRL + Qt::Key_D);
 
-	const QIcon exportPdfIcon = QIcon::fromTheme("exportplot", QIcon(":/Resources/image/export_pdf.png"));
+	const QIcon exportPdfIcon = QIcon::fromTheme("exportplot", QIcon(":/Resources/image/export_degree_plot.png"));
 	mExportDegreePlotAction = ui->mainToolBar->addAction(exportPdfIcon, tr("&Export Degree Plot PDF..."));
 	mExportDegreePlotAction->setPriority(QAction::LowPriority);
 
-	mExportDegreeVelPlotAction = ui->mainToolBar->addAction(exportPdfIcon, tr("&Export Degree Velocity Plot PDF..."));
+	const QIcon exportDegreeVelIcon = QIcon::fromTheme("exportDegreeVelplot", QIcon(":/Resources/image/export_degree_vel_plot.png"));
+	mExportDegreeVelPlotAction = ui->mainToolBar->addAction(exportDegreeVelIcon, tr("&Export Degree Velocity Plot PDF..."));
 	mExportDegreeVelPlotAction->setPriority(QAction::LowPriority);
 
-	mExportDistancePlotAction = ui->mainToolBar->addAction(exportPdfIcon, tr("&Export Distance Plot PDF..."));
+	const QIcon exportDistanceIcon = QIcon::fromTheme("exportDegreeVelplot", QIcon(":/Resources/image/export_distance_plot.png"));
+	mExportDistancePlotAction = ui->mainToolBar->addAction(exportDistanceIcon, tr("&Export Distance Plot PDF..."));
 	mExportDistancePlotAction->setPriority(QAction::LowPriority);
 
-	mExportDistanceVelPlotAction = ui->mainToolBar->addAction(exportPdfIcon, tr("&Export Distance velocity Plot PDF..."));
+	const QIcon exportDistanceVelIcon = QIcon::fromTheme("exportDegreeVelplot", QIcon(":/Resources/image/export_distance_vel_plot.png"));
+	mExportDistanceVelPlotAction = ui->mainToolBar->addAction(exportDistanceVelIcon, tr("&Export Distance velocity Plot PDF..."));
 	mExportDistanceVelPlotAction->setPriority(QAction::LowPriority);
 #endif
 

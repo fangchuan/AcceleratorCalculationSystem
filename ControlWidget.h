@@ -16,7 +16,7 @@ public:
 	void doSwitchToHorizontalRegister();
 	void doSwitchToGantry();
 	void doSwitchToCollimator();
-	void doSwitchToCbct();
+	void doSwitchToEpidPosition();
 	void doSwitchToCbctPosition();
 	void doSwitchToBed();
 	void doSwitchToLaserISO();
@@ -31,8 +31,8 @@ signals:
 	void recordingCollimator();
 	void switchToBed(int mode);
 	void recordingBed(int mode);
-	void switchToCbct();
-	void recordingCbct();
+	void switchToEpidPosition();
+	void recordingEpidPosition();
 	void switchToCbctPosition();
 	void recordingCbctPosition();
 	void switchToLaserISO();
@@ -48,7 +48,7 @@ private:
 	void resetGantry();
 	void resetCollimator();
 	void resetBed();
-	void resetCbct();
+	void resetEpidPosition();
 	void resetCbctPosition();
 	void resetLaserISO();
 	void resetLightCenter();
@@ -63,7 +63,7 @@ private:
 	QPushButton* m_CollimatorButton;
 	QPushButton* m_BedButton;
 	QButtonGroup* m_BedGroup;
-	QPushButton* m_CbctButton;
+	QPushButton* m_EpidButton;
 	QPushButton* m_CbctPositionButton;
 	QPushButton* m_LaserButton;
 	QPushButton* m_LightButton;

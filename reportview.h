@@ -17,12 +17,13 @@ public:
 	~ReportView();
 	void setHtmlReport(QString& softCenter,
 						QString& laserCenter,
-						QString& lightCenter,
 						QString& footA,
 						QString& footB,
 						QString& d1,
 						QString& d2,
 						QString& d3,
+						QString& cbctVerticalty,
+						QString& epidVerticalty,
 						QString& gv,
 						QString& gm,
 						QString& gVel,
@@ -30,11 +31,7 @@ public:
 						QString& bv,
 						QString& bm,
 						QString& bVel,
-						QString& bAngle,
-						QString& cv,
-						QString& cm,
-						QString& cVel,
-						QString& cAngle);
+						QString& bAngle);
 public slots:
 	bool fileSave();
 	bool fileSaveAs();

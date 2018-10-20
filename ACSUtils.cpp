@@ -35,7 +35,7 @@ bool ACSUtils::CheckSoftwareLicense()
 	fclose(f);
 
 	DWORD serial_num = 0;                                 //硬盘序列号
-	QString lpRootPathName = "D:\\";
+	QString lpRootPathName = "C:\\";
 	LPTSTR lpVolumeNameBuffer = new TCHAR[12];            //磁盘卷标
 	DWORD nVolumeNameSize = 12;                           //卷标的字符串长度
 	DWORD MaximumComponentLength;                       //最大的文件长度
@@ -73,7 +73,7 @@ bool ACSUtils::CheckSoftwareRegistry()
 	delete reg;
 
 	DWORD serial_num = 0;                                 //硬盘序列号
-	QString lpRootPathName = "D:\\";
+	QString lpRootPathName = "C:\\";
 	LPTSTR lpVolumeNameBuffer = new TCHAR[12];            //磁盘卷标
 	DWORD nVolumeNameSize = 12;                           //卷标的字符串长度
 	DWORD MaximumComponentLength;                       //最大的文件长度

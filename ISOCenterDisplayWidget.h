@@ -19,6 +19,7 @@ private:
 	void initUi();
 
 private:
+
 	QLabel *m_XLabel;
 	QLabel *m_YLabel;
 	QLabel *m_ZLabel;

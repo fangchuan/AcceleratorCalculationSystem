@@ -68,8 +68,8 @@ private slots:
 	void recordingGantry();
 	void switchToCollimator();
 	void recordingCollimator();
-	void switchToCbct();
-	void recordingCbct();
+	void switchToEpidPosition();
+	void recordingEpidPosition();
 	void switchToCbctPosition();
 	void recordingCbctPosition();
 	void switchToBed(int mode);
@@ -85,15 +85,20 @@ private slots:
 	void circleResult(Circle *circle);
 	void translateResult(double bias[3]);
 	void registerLaserISOPosition(Point3D& point);
+	void registerLaserISOSucceesfully();
 	void registerLightCenterPosition(Point3D &point);
 	void cbctPointPosition(Point3D &point);
+	void epidPointPosition(Point3D & point);
+	void cbctTrackToolError();
 	void cbctPlaneResult(Plane_T& plane);
+	void epidPlaneResult(Plane_T & plane);
 	void softISONotCalibratedReport();
 	void laserISONotCalibratedReport();
 	void editReportFail();
 	void editReportSuccess();
 	void reportResult( const ReportData & report);
 	void handleReset();
+	void handleReport();
 
 private:
 	QStackedWidget*			m_StackedWidget;//

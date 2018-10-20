@@ -65,13 +65,17 @@ AbstractMonitorHandler *GantryHandler::handle(MarkerPointContainerType &position
 		memcpy(circle.Center, center, sizeof(center));
 		memcpy(circle.Normal, normal, sizeof(normal));
 		circle.Radius = radius;
-		circle.Angle = angle - m_BaseAngle;
+		circle.Angle = -(angle - m_BaseAngle);
+		if (circle.Angle < 0)
+			circle.Angle += 360.0;
+
+		//QString str = QString("GantryPlaneNormal : ( %1, %2, %3)").arg(normal[0], 0, 'f', 2).arg(normal[1], 0, 'f', 2).arg(normal[2], 0, 'f', 2);
+		//qDebug() << str;
 
 		if (m_Register->getHorizontalPlaneNormal(horizontalPlaneNormal))
 		{
 			circle.angleBettwenC2H = vtkMath::AngleBetweenVectors(normal, horizontalPlaneNormal) * RAD2DEGREE;
-			//QString str = QString("HorizontalPlaneNormal : ( %1, %2, %3)").arg(horizontalPlaneNormal[0], 0, 'f', 2).arg(horizontalPlaneNormal[1], 0, 'f', 2).arg(horizontalPlaneNormal[2], 0, 'f', 2);
-			//qDebug() << str;
+
 			m_angleC2HContainer = circle.angleBettwenC2H;
 		}
 		emit circleResult(&circle);
